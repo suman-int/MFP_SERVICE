@@ -1,5 +1,6 @@
 package com.mnao.mfp.cr.Service;
 
+import com.mnao.mfp.cr.util.ContactReportEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,10 @@ import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
 
 import javax.transaction.Transactional;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
 
 @Service
 public class ContactReportServiceImpl implements ContactReportService{

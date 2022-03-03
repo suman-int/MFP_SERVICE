@@ -1,6 +1,8 @@
 package com.mnao.mfp.cr.controller;
 
+import com.mnao.mfp.cr.entity.ContactReportInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +14,9 @@ import com.mnao.mfp.cr.Service.ContactReportServiceImpl;
 import com.mnao.mfp.cr.dto.ContactReportDto;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path="/ContactReport")
