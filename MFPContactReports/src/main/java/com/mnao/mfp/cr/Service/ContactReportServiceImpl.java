@@ -44,7 +44,16 @@ public class ContactReportServiceImpl implements ContactReportService{
         List<ContactReportInfo> DtoList = contactInfoRepository.findByDlrCd(dlrCd);
         return ContactInfoMapper.INSTANCE.CRInfoToCIDtoList(DtoList);
     }
-
+	public Map<String, List<ContactReportInfo>> getMyContactReport(String userId, BiFunction<List<ContactReportInfo>, Integer, List<ContactReportInfo>> contactReportByStatus) {
+        List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthor(userId);
+        Map<String, List<ContactReportInfo>> statusMap = new HashMap<>();
+        statusMap.put(ContactReportEnum.COMPLETED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.COMPLETED.getStatusCode()));
+        statusMap.put(ContactReportEnum.REVIEW_REQUESTED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.REVIEW_REQUESTED.getStatusCode()));
+        statusMap.put(ContactReportEnum.REVIEWED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.REVIEWED.getStatusCode()));
+        statusMap.put(ContactReportEnum.DRAFT.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.DRAFT.getStatusCode()));
+        statusMap.put(ContactReportEnum.SUBMITTED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.SUBMITTED.getStatusCode()));
+        return statusMap;
+    }
     @Transactional
     public void deleteReportById(long contactReportId){
         final int contactStatus = 0; // contactStatus 0 makes sure that the report is still a draft

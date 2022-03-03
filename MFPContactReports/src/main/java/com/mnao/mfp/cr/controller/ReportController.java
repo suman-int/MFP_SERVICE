@@ -40,4 +40,9 @@ public class ReportController {
 		return contactReportService.findByContactReportId(contactReportId);
 	}
 
+	@GetMapping(value = "/getReportsByUserID/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String, List<ContactReportInfo>> getMyContactReport(@PathVariable("userId") String userId) {
+		return contactReportService.getMyContactReport(userId, (contactReportInfos,status) -> contactReportInfos.stream().filter(c -> c.getContactStatus() == status).collect(Collectors.toList()));
+	}
+
 }
