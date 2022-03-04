@@ -26,8 +26,11 @@ public class ContactReportServiceImpl implements ContactReportService{
     public String submitReportData(ContactReportDto report) {
         String submission = "Unable to save contact report";
         try {
-            if(report.getContactReport().getMetrics().size() > 0 &&
-                    report.getContactReport().getDealerpersonnel().size() > 0) {
+            if( report.getContactReport().getDealerpersonnel().size() > 0) {
+                String reps = report.getContactReport().getCorporateReps();
+                if(reps.length() > 250){
+                    report.getContactReport().setCorporateReps(reps.substring(0, 250));
+                }
                 contactInfoRepository.save(report.getContactReport());
                 submission = "Saved Success";
             }

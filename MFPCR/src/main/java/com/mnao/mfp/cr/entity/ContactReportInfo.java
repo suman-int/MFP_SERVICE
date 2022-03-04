@@ -14,7 +14,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "mfp_contact_report_info")
@@ -48,17 +49,17 @@ public class ContactReportInfo {
 	@NotNull
 	private int contactStatus;
 	
-	
+	private String corporateReps;
 
 	@OneToMany(targetEntity = ContactReportDealerPersonnel.class, cascade = CascadeType.ALL)
 	@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId", nullable = false)
 	@NotNull
 	private List<ContactReportDealerPersonnel> dealerpersonnel;
 
-	@OneToMany(targetEntity = ContactReportMetrics.class, cascade = CascadeType.ALL)
-	@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId", nullable = false)
-	@NotNull
-	private List<ContactReportMetrics> metrics;
+//	@OneToMany(targetEntity = ContactReportMetrics.class, cascade = CascadeType.ALL)
+//	@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId", nullable = false)
+//	@NotNull
+//	private List<ContactReportMetrics> metrics;
 	
 	@OneToMany(mappedBy = "contactReportInfo", cascade = CascadeType.ALL)
 	//@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId")
