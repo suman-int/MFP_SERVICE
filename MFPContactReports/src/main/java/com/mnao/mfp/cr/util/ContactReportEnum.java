@@ -5,7 +5,9 @@ public enum ContactReportEnum {
     DRAFT(0, "Draft","draft"),
     REVIEW_REQUESTED(2, "Review Requested", "reviewRequested"),
     REVIEWED(3,"Reviewed","reviewed"),
-    COMPLETED(4,"Completed","Completed");
+    COMPLETED(4,"Completed","Completed"),
+    SUCCESS(200,"Success","Success"),
+    ERROR(500,"Error","Error");
     private int statusCode;
     private String statusText;
     private String displayText;
