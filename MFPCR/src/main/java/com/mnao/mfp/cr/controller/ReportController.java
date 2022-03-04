@@ -3,6 +3,7 @@ package com.mnao.mfp.cr.controller;
 import com.mnao.mfp.cr.Service.ContactReportServiceImpl;
 import com.mnao.mfp.cr.Service.GenericResponseWrapper;
 import com.mnao.mfp.cr.dto.ContactReportDto;
+import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.model.ContactReportResponse;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class ReportController {
 
 
     @PostMapping(value = "/submitReport")
-    public ContactReportResponse submitReportData(@Valid @RequestBody ContactReportDto report) {
+    public ContactReportResponse submitReportData(@Valid @RequestBody ContactReportInfo report) {
         try {
             return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportService.submitReportData(report), null);
         } catch (Exception e) {

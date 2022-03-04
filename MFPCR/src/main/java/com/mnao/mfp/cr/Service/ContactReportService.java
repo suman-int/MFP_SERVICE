@@ -1,10 +1,11 @@
 package com.mnao.mfp.cr.Service;
 
 import com.mnao.mfp.cr.dto.ContactReportDto;
+import com.mnao.mfp.cr.entity.ContactReportInfo;
 
 public interface ContactReportService {
 
-     String submitReportData(ContactReportDto report);
+     String submitReportData(ContactReportInfo report);
 
      ContactReportDto findByContactReportId(long ContactreporId);
 

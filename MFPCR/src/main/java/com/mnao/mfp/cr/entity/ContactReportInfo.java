@@ -54,7 +54,7 @@ public class ContactReportInfo {
 	@OneToMany(targetEntity = ContactReportDealerPersonnel.class, cascade = CascadeType.ALL)
 	@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId", nullable = false)
 	@NotNull
-	private List<ContactReportDealerPersonnel> dealerpersonnel;
+	private List<ContactReportDealerPersonnel> dealerPersonnels;
 
 //	@OneToMany(targetEntity = ContactReportMetrics.class, cascade = CascadeType.ALL)
 //	@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId", nullable = false)
@@ -69,9 +69,9 @@ public class ContactReportInfo {
 	@JoinColumn(name = "contactReportIdFk", referencedColumnName="contactReportId")
 	private List<ContactReportAttachment> attachment;
 
-//	@ManyToOne(targetEntity = Dealers.class, cascade = CascadeType.ALL)
-//	@JoinColumn(name="dlrCd", updatable = false, insertable = false)
-//	@NotNull
-//	private Dealers dealers;
+	@ManyToOne(targetEntity = Dealers.class, cascade = CascadeType.ALL)
+	@JoinColumn(name="dlrCd", updatable = false, insertable = false)
+	@NotNull
+	private Dealers dealers;
 
 }

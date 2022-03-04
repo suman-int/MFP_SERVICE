@@ -12,6 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -73,6 +74,7 @@ public class Dealers {
 	@OneToMany(targetEntity = ContactReportInfo.class, cascade = CascadeType.ALL)
 	@JoinColumn(name="dlrCd", updatable = false, insertable = false)
 	@NotNull
+	@JsonIgnore
 	private List<ContactReportInfo> CRI;
 
 }

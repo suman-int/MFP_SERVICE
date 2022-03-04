@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 @Service
@@ -23,16 +24,18 @@ public class ContactReportServiceImpl implements ContactReportService{
     private ContactInfoRepository contactInfoRepository;
 
     
-    public String submitReportData(ContactReportDto report) {
+    public String submitReportData(ContactReportInfo report) {
         String submission = "Unable to save contact report";
         try {
-            if( report.getContactReport().getDealerpersonnel().size() > 0) {
-                String reps = report.getContactReport().getCorporateReps();
+            if(Objects.nonNull(report.getDealerPersonnels()) && report.getDealerPersonnels().size() > 0) {
+                String reps = report.getCorporateReps();
                 if(reps.length() > 250){
-                    report.getContactReport().setCorporateReps(reps.substring(0, 250));
+                    report.setCorporateReps(reps.substring(0, 250));
                 }
-                contactInfoRepository.save(report.getContactReport());
+                contactInfoRepository.save(report);
                 submission = "Saved Success";
+            }else {
+                throw new IllegalArgumentException("Required Dealer personnel");
             }
         } catch (Exception e) {
         	e.printStackTrace();
