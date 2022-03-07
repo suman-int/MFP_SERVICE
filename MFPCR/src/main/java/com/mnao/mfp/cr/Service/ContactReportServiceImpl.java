@@ -1,5 +1,6 @@
 package com.mnao.mfp.cr.Service;
 
+import com.mnao.mfp.cr.model.DealersByIssue;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 @Service
 public class ContactReportServiceImpl implements ContactReportService{
@@ -23,6 +25,15 @@ public class ContactReportServiceImpl implements ContactReportService{
     @Autowired
     private ContactInfoRepository contactInfoRepository;
 
+    public List<DealersByIssue> getAllDealersByIssue(){
+        return contactInfoRepository.findAll().stream().map(contactReportInfo -> {
+            DealersByIssue dealersByIssue = new DealersByIssue();
+            dealersByIssue.setIssue(contactReportInfo.getCurrentIssues());
+            dealersByIssue.setDealership(contactReportInfo.getDlrCd());
+            dealersByIssue.setLocation(contactReportInfo.getContactLocation());
+            return dealersByIssue;
+        }).collect(Collectors.toList());
+    }
     
     public String submitReportData(ContactReportInfo report) {
         String submission = "Unable to save contact report";
