@@ -10,10 +10,7 @@ import com.mnao.mfp.cr.util.LocationEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.AbstractMap;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -30,7 +27,7 @@ public class ContactReportSummaryService {
     @Autowired
     private DealerService dealerService;
 
-    private List<String> zonesList = Arrays.asList("");
+    private List<String> zonesList = Collections.singletonList("");
 
     Function<List<Dealers>, List<String>> extractDealerCodes = dealers -> dealers
             .stream().map(Dealers::getDlrCd)
@@ -52,7 +49,7 @@ public class ContactReportSummaryService {
                 long reviewed = filterd.stream()
                         .filter(f -> f.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode())
                         .count();
-                return new AbstractMap.SimpleEntry<String, String>(i, String.format("%d/%d", reviewed, filterd.size()));
+                return new AbstractMap.SimpleEntry<>(i, String.format("%d/%d", reviewed, filterd.size()));
             }).collect(Collectors.toList());
 
 
