@@ -65,14 +65,15 @@ public class Utils {
 		if (schema == null)
 			schema = conn.getCatalog();
 		if (schema != null)
-			schema = schema + ".";
+			schema = schema.trim() + ".";
 		return schema;
 	}
 
 	public static String replaceSchemaName(Connection conn, String sql) {
 		String retSql = sql;
 		try {
-			retSql = retSql.replaceAll("\\$SCHEMA\\$", Utils.getSchemaName(conn));
+			String sch = Utils.getSchemaName(conn);
+			retSql = retSql.replaceAll("\\$SCHEMA\\$", sch);
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

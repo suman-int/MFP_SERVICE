@@ -30,5 +30,5 @@ public class AppConstants {
 	public static final String SQL_LIST_REGIONS = "LIST_REGIONS.sql";
 	public static final String SQL_LIST_ZONES = "LIST_ZONES.sql";
 	public static final String SQL_LIST_DEALER_EMPLOYEES = "LIST_DEALER_EMPLOYEES.sql";
-	public static final String SQL_LIST_APPROVER_EMPLOYEES = "LIST_APPROVER_EMPLOYEES.sql";
+	public static final String SQL_LIST_REVIEWER_EMPLOYEES = "LIST_REVIEWER_EMPLOYEES.sql";
 	}

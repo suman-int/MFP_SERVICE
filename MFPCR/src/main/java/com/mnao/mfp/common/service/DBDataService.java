@@ -47,25 +47,29 @@ public class DBDataService<T extends MetricData> {
 		int st = sqlText.indexOf('{');
 		int en = sqlText.indexOf('}');
 		String ret = "";
-		while (st > 0 && en > 0) {
-			String firstPart = sqlText.substring(0, st);
-			String midPart = sqlText.substring(st + 1, en);
-			String lastPart = sqlText.substring(en + 1);
-			String[] wrds = midPart.split("\\s+");
-			ret = firstPart;
-			String ta = wrds[1].split("[=:]")[1];
-			String wCond = df.getWhereCondition(ta);
-			if (wCond.trim().length() > 0) {
-				ret = ret + " " + wrds[0] + " " + wCond;
+		if (st > 0 && en > 0) {
+			while (st > 0 && en > 0) {
+				String firstPart = sqlText.substring(0, st);
+				String midPart = sqlText.substring(st + 1, en);
+				String lastPart = sqlText.substring(en + 1);
+				String[] wrds = midPart.split("\\s+");
+				ret = firstPart;
+				String ta = wrds[1].split("[=:]")[1];
+				String wCond = df.getWhereCondition(ta);
+				if (wCond.trim().length() > 0) {
+					ret = ret + " " + wrds[0] + " " + wCond;
+				}
+				st = lastPart.indexOf('{');
+				en = lastPart.indexOf('}');
+				if (st > 0 && en > 0) {
+					ret = ret + " " + lastPart.substring(0, st);
+					sqlText = lastPart.substring(st + 1);
+				} else {
+					ret = ret + " " + lastPart;
+				}
 			}
-			st = lastPart.indexOf('{');
-			en = lastPart.indexOf('}');
-			if (st > 0 && en > 0) {
-				ret = ret + " " + lastPart.substring(0, st);
-				sqlText = lastPart.substring(st + 1);
-			} else {
-				ret = ret + " " + lastPart;
-			}
+		} else {
+			ret = sql;
 		}
 		return ret;
 	}
