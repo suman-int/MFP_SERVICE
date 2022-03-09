@@ -35,4 +35,11 @@ public class ContactReportSummaryController {
                                                 @PathVariable("category") String category){
         return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportSummaryService.getSummaryByLocation(type,value, category), null);
     }
+
+    @GetMapping(value = "by-month/{type}/{value}")
+    public ContactReportResponse summaryByMonth(@PathVariable("type") String type,
+                                                @PathVariable("value") String value
+                                                ){
+        return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportSummaryService.getSummaryByMonth(type,value), null);
+    }
 }
