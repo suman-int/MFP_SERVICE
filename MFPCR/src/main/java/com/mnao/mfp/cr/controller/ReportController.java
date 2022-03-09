@@ -43,8 +43,9 @@ public class ReportController {
     }
 
     @GetMapping(value = "/getReportById/{contactReportId}")
-    public ContactReportDto getReportById(@PathVariable long contactReportId) {
-        return contactReportService.findByContactReportId(contactReportId);
+    public ContactReportResponse getReportById(@PathVariable long contactReportId) {
+        return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportService.findByContactReportId(contactReportId), null);
+
     }
 
     @GetMapping(value = "/getReportsByUserID/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)

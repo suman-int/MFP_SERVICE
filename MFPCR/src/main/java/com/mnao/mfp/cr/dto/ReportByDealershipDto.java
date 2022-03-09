@@ -21,7 +21,7 @@ public class ReportByDealershipDto {
 
 	private String dlrCd;
 
-	private String dlrNm;
+	private String dbaNm;
 
 	private long contactReportId;
 	

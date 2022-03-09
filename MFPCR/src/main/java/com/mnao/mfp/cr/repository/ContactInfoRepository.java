@@ -23,7 +23,7 @@ public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, 
 	public ContactReportInfo findByContactReportId(@Param("contactReportId") long contactReportId);
 
 @Query(value = "SELECT new com.mnao.mfp.cr.dto.ReportByDealershipDto" +
-		"(d.rgnCd, d.zoneCd, d.districtCd, cr.dlrCd, d.dlrNm, cr.contactReportId, cr.contactDt, cr.contactAuthor,cr.contactStatus,cr.currentIssues) " +
+		"(d.rgnCd, d.zoneCd, d.districtCd, cr.dlrCd, d.dbaNm, cr.contactReportId, cr.contactDt, cr.contactAuthor,cr.contactStatus,cr.currentIssues) " +
 		"FROM Dealers d JOIN d.CRI cr WHERE cr.currentIssues IN :currentIssues AND cr.dlrCd=:dlrCd")
 	public List<ReportByDealershipDto> findByDlrCd(@Param("dlrCd") String dlrCd, @Param("currentIssues") List<String> currentIssues);
 

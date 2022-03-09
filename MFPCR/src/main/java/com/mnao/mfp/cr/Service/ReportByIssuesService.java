@@ -61,7 +61,7 @@ public class ReportByIssuesService {
          }
 
          query = query.multiselect(d.get("rgnCd"), d.get("zoneCd"), d.get("districtCd"), d.get("dlrCd"),
-                 d.get("dlrNm"), cr.get("contactReportId"), cr.get("currentIssues"), cr.get("contactStatus")).where(predicates.toArray(new Predicate[0]));
+                 d.get("dbaNm"), cr.get("contactReportId"), cr.get("currentIssues"), cr.get("contactStatus")).where(predicates.toArray(new Predicate[0]));
 
          TypedQuery<ReportByIssuesDto> tq = em.createQuery(query);
 

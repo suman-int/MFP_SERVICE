@@ -31,7 +31,7 @@ public class Dealers {
 	@Column(name = "DLR_CD")
 	private String dlrCd;
 	@Column(name = "DBA_NM")
-	private String dlrNm;
+	private String dbaNm;
 	@Column(name = "RGN_CD")
 	private String rgnCd;
 	@Column(name = "CITY_NM")

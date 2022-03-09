@@ -58,7 +58,7 @@ public class ReportByMonthService {
         }
 
         query = query.multiselect(d.get("rgnCd"), d.get("zoneCd"), d.get("districtCd"), d.get("dlrCd"),
-                d.get("dlrNm"), cr.get("contactReportId"), cr.get("contactDt")).where(predicates.toArray(new Predicate[0]));
+                d.get("dbaNm"), cr.get("contactReportId"), cr.get("contactDt")).where(predicates.toArray(new Predicate[0]));
 
         TypedQuery<ReportByMonthDto> tq = em.createQuery(query);
 
