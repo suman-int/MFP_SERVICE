@@ -176,7 +176,14 @@ public class ContactReportSummaryService {
                         LocationEnum.REGION.getLocationText(), r, filteredByIssue);
             }).flatMap(List::stream).collect(Collectors.toList());
         } else {
-            summaryList = Collections.emptyList();
+            Map<String, List<Dealers>> dealersByRegion = dealerService.findAll().stream().collect(Collectors.groupingBy(Dealers::getRgnCd));
+            Set<String> regions = dealersByRegion.keySet();
+            summaryList = regions.stream().map(r -> {
+                List<ContactReportInfo> contactReportInfoList = contactInfoRepository
+                        .findByDlrCdIn(extractDealerCodes.apply(dealersByRegion.get(r)));
+                return calcMetrics(contactReportInfoList, issueTypes,
+                        LocationEnum.REGION.getLocationText(), r, filteredByIssue);
+            }).flatMap(List::stream).collect(Collectors.toList());
         }
         return summaryList;
     }
