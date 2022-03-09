@@ -65,7 +65,9 @@ public class ContactReportSummaryService {
         }).collect(Collectors.toList());
     }
 
-    public List<Map<String, String>> getSummaryByMonth(String type, String value) {
+    public List<Map<String, String>> getSummaryByMonth(String type,
+                                                       String value,
+                                                       BiFunction<List<ContactReportInfo>, String, List<ContactReportInfo>> filteredByMonth) {
         List<Dealers> dealers = dealerService.findAll();
         List<ContactReportInfo> contactReportInfos;
         List<Map<String, String>> summaryList;
@@ -117,18 +119,10 @@ public class ContactReportSummaryService {
         return summaryList;
     }
 
-    BiFunction<List<ContactReportInfo>, String, List<ContactReportInfo>> filteredByIssue = (contactReportInfoList, i) ->
-            contactReportInfoList.stream()
-                    .filter(c -> Objects.nonNull(c.getCurrentIssues()))
-                    .filter(d -> d.getCurrentIssues().equals(i))
-                    .collect(Collectors.toList());
-    BiFunction<List<ContactReportInfo>, String, List<ContactReportInfo>> filteredByMonth = (contactReportInfoList, i) ->
-            contactReportInfoList.stream()
-                    .filter(c -> Objects.nonNull(c.getContactDt()))
-                    .filter(d -> d.getContactDt().getMonth().name().equals(i))
-                    .collect(Collectors.toList());
-
-    public List<Map<String, String>> getSummaryByLocation(String type, String value, String category) {
+    public List<Map<String, String>> getSummaryByLocation(String type,
+                                                          String value,
+                                                          String category,
+                                                          BiFunction<List<ContactReportInfo>, String, List<ContactReportInfo>> filteredByIssue) {
         List<String> issueTypes = issueType.getIssuesByCategory().get(category.toLowerCase());
         List<Dealers> dealers;
         List<ContactReportInfo> contactReportInfos;
