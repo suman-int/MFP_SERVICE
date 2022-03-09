@@ -1,13 +1,13 @@
-package com.mnao.mfp.cr.Mapper;
-
-import org.mapstruct.Mapper;
-
-@Mapper
-public interface ContactReportByStatusMapper {
-
-//    ContactReportByStatusMapper INSTANCE = Mappers.getMapper(ContactReportByStatusMapper.class);
+//package com.mnao.mfp.cr.Mapper;
 //
-//    ContactReportByStatusDto CrIssueStatusToDto (ContactReportInfo contactReportInfo);
+//import org.mapstruct.Mapper;
 //
-//    List<ContactReportByStatusDto> CrIssueStatusToDto (List<ContactReportInfo> contactReportInfo);
-}
+//@Mapper
+//public interface ContactReportByStatusMapper {
+//
+////    ContactReportByStatusMapper INSTANCE = Mappers.getMapper(ContactReportByStatusMapper.class);
+////
+////    ContactReportByStatusDto CrIssueStatusToDto (ContactReportInfo contactReportInfo);
+////
+////    List<ContactReportByStatusDto> CrIssueStatusToDto (List<ContactReportInfo> contactReportInfo);
+//}

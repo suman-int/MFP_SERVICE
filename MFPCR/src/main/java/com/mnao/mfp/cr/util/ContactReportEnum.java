@@ -1,9 +1,10 @@
 package com.mnao.mfp.cr.util;
 
 public enum ContactReportEnum {
+    CANCELLED(-1,"",""),
     SUBMITTED(1, "Submitted","submitted"),
     DRAFT(0, "Draft","draft"),
-    REVIEW_REQUESTED(2, "Review Requested", "reviewRequested"),
+    DISCUSSION_REQUESTED(2, "Discussion Requested", "discussionRequested"),
     REVIEWED(3,"Reviewed","reviewed"),
     COMPLETED(4,"Completed","Completed"),
     SUCCESS(200,"Success","Success"),

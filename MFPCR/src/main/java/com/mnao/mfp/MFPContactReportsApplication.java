@@ -9,9 +9,9 @@ import com.mnao.mfp.list.dao.ListDealer;
 import com.mnao.mfp.user.annotation.MFPUserService;
 
 @SpringBootApplication
-@MFPUserService
-@MFPListService
-@MFPCommonService
+//@MFPUserService
+//@MFPListService
+//@MFPCommonService
 public class MFPContactReportsApplication {
 
 	public static void main(String[] args) {

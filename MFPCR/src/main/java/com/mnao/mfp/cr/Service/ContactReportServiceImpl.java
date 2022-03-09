@@ -5,7 +5,7 @@ import com.mnao.mfp.cr.util.ContactReportEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mnao.mfp.cr.Mapper.ContactInfoMapper;
+//import com.mnao.mfp.cr.Mapper.ContactInfoMapper;
 import com.mnao.mfp.cr.dto.ContactReportDto;
 import com.mnao.mfp.cr.dto.ReportByDealershipDto;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
@@ -61,15 +61,15 @@ public class ContactReportServiceImpl implements ContactReportService{
         return contactReportDto;
     }
 
-    public List<ReportByDealershipDto> findByDlrCd(String dlrCd) {
-        List<ContactReportInfo> DtoList = contactInfoRepository.findByDlrCd(dlrCd);
-        return ContactInfoMapper.INSTANCE.CRInfoToCIDtoList(DtoList);
+    public List<ContactReportInfo> findByDlrCd(String dlrCd) {
+        return contactInfoRepository.findByDlrCd(dlrCd);
+
     }
 	public Map<String, List<ContactReportInfo>> getMyContactReport(String userId, BiFunction<List<ContactReportInfo>, Integer, List<ContactReportInfo>> contactReportByStatus) {
         List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthor(userId);
         Map<String, List<ContactReportInfo>> statusMap = new HashMap<>();
         statusMap.put(ContactReportEnum.COMPLETED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.COMPLETED.getStatusCode()));
-        statusMap.put(ContactReportEnum.REVIEW_REQUESTED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.REVIEW_REQUESTED.getStatusCode()));
+        statusMap.put(ContactReportEnum.DISCUSSION_REQUESTED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()));
         statusMap.put(ContactReportEnum.REVIEWED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.REVIEWED.getStatusCode()));
         statusMap.put(ContactReportEnum.DRAFT.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.DRAFT.getStatusCode()));
         statusMap.put(ContactReportEnum.SUBMITTED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.SUBMITTED.getStatusCode()));
