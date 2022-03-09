@@ -13,10 +13,10 @@ import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.dao.MetricData;
 import com.mnao.mfp.common.service.DBDataService;
 import com.mnao.mfp.common.util.MFPDatabase;
-import com.mnao.mfp.common.util.MFPDatabase.DB;
 import com.mnao.mfp.common.util.Utils;
+import com.mnao.mfp.common.util.MFPDatabase.DB;
 
-public class ListService<T extends MetricData> extends DBDataService<T> {
+public class MMAListService<T extends MetricData> extends DBDataService<T> {
 	private static final Logger log = LoggerFactory.getLogger(ListService.class);
 
 	public List<T> getListData(String sqlFile, Class<T> tclass, DealerFilter df, String... prms)
@@ -24,7 +24,7 @@ public class ListService<T extends MetricData> extends DBDataService<T> {
 		List<T> retRows = new ArrayList<T>();
 		String sqlText = Utils.readTextFromFile(sqlFile);
 		String sql = injectWhere(sqlText, df);
-		MFPDatabase db = new MFPDatabase(DB.cr);
+		MFPDatabase db = new MFPDatabase(DB.mma);
 		try (Connection conn = db.getConnection()) {
 			sql = Utils.replaceSchemaName(conn, sql);
 			retRows = super.getResultList(conn, sql, tclass, prms);

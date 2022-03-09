@@ -17,6 +17,7 @@ import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.dto.CommonResponse;
 import com.mnao.mfp.common.service.AbstractService;
 import com.mnao.mfp.common.util.AppConstants;
+import com.mnao.mfp.list.dao.ListApprover;
 import com.mnao.mfp.list.dao.ListDealer;
 import com.mnao.mfp.list.dao.ListDistrict;
 import com.mnao.mfp.list.dao.ListEmployee;
@@ -24,6 +25,7 @@ import com.mnao.mfp.list.dao.ListMarket;
 import com.mnao.mfp.list.dao.ListRegion;
 import com.mnao.mfp.list.dao.ListZone;
 import com.mnao.mfp.list.service.ListService;
+import com.mnao.mfp.list.service.MMAListService;
 import com.mnao.mfp.user.dao.MFPUser;
 
 @RestController
@@ -123,7 +125,7 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "mdaCd", defaultValue = "") String mdaCd,
 			@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_EMPLOYEES);
+		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALER_EMPLOYEES);
 		ListService<ListEmployee> service = new ListService<ListEmployee>();
 		List<ListEmployee> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
@@ -136,18 +138,18 @@ public class ListController extends MfpKPIControllerBase {
 	}
 	//
 	@PostMapping("/ListReviewerEmployees")
-	public CommonResponse<List<ListEmployee>> listReviewerEmployees(@RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
+	public CommonResponse<List<ListApprover>> listReviewerEmployees(@RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
 			@RequestParam(value = "zoneCd", defaultValue = "") String zoneCd,
 			@RequestParam(value = "districtCd", defaultValue = "") String districtCd,
 			@RequestParam(value = "mdaCd", defaultValue = "") String mdaCd,
 			@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_EMPLOYEES);
-		ListService<ListEmployee> service = new ListService<ListEmployee>();
-		List<ListEmployee> retRows = null;
+		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_APPROVER_EMPLOYEES);
+		MMAListService<ListApprover> service = new MMAListService<ListApprover>();
+		List<ListApprover> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
 		try {
-			retRows = service.getListData(sqlName, ListEmployee.class, df);
+			retRows = service.getListData(sqlName, ListApprover.class, df);
 		} catch (InstantiationException | IllegalAccessException | ParseException e) {
 			log.error("ERROR retrieving list of Employees:", e);
 		}
@@ -161,7 +163,7 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "mdaCd", defaultValue = "") String mdaCd,
 			@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_EMPLOYEES);
+		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALER_EMPLOYEES);
 		ListService<ListEmployee> service = new ListService<ListEmployee>();
 		List<ListEmployee> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);

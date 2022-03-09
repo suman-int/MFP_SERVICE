@@ -12,14 +12,14 @@ public class ListEmployee extends MetricData {
 	 * HIRE_DT, TRMNTN_DT, LOCTN_CD, JOB_START_DT, JOB_CD, JOB_TITLE_TX,
 	 * JOB_TYPE_CD, W_UPDT_DT FROM PUBLIC.MFP.EMPLOYEES;
 	 */
-	private String prnnIdCd, statusCd, prsnTypeCd, firstNm, midlNm, lastNm, str1Ad, str2Ad, str3Ad, cityAd, stCd, zipCd;
+	private String prsnIdCd, statusCd, prsnTypeCd, firstNm, midlNm, lastNm, str1Ad, str2Ad, str3Ad, cityAd, stCd, zipCd;
 
-	public String getPrnnIdCd() {
-		return prnnIdCd;
+	public String getPrsnIdCd() {
+		return prsnIdCd;
 	}
 
-	public void setPrnnIdCd(String prnnIdCd) {
-		this.prnnIdCd = prnnIdCd;
+	public void setPrsnIdCd(String prnnIdCd) {
+		this.prsnIdCd = prnnIdCd;
 	}
 
 	public String getStatusCd() {
@@ -112,7 +112,7 @@ public class ListEmployee extends MetricData {
 
 	@Override
 	public String toString() {
-		return "ListEmployee [prnnIdCd=" + prnnIdCd + ", statusCd=" + statusCd + ", prsnTypeCd=" + prsnTypeCd
+		return "ListEmployee [prnnIdCd=" + prsnIdCd + ", statusCd=" + statusCd + ", prsnTypeCd=" + prsnTypeCd
 				+ ", firstNm=" + firstNm + ", midlNm=" + midlNm + ", lastNm=" + lastNm + ", str1Ad=" + str1Ad
 				+ ", str2Ad=" + str2Ad + ", str3Ad=" + str3Ad + ", cityAd=" + cityAd + ", stCd=" + stCd + ", zipCd="
 				+ zipCd + "]";
@@ -120,7 +120,7 @@ public class ListEmployee extends MetricData {
 
 	@Override
 	public void setResultSetRow(ResultSet rs) throws SQLException {
-		prnnIdCd = rs.getString(1);
+		prsnIdCd = rs.getString(1);
 		statusCd = rs.getString(2);
 		prsnTypeCd = rs.getString(3);
 		firstNm = rs.getString(4);

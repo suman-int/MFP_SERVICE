@@ -41,8 +41,8 @@ public abstract class MetricsDataServiceBase<T extends MetricData> extends DBDat
 		if (baseTable != null && baseTable.trim().length() > 0) {
 			String sql = "SELECT LAST_UPDATE_DATE FROM S$SCHEMA$LAST_EDW_UPDATE_DATES WHERE TABLE_NAME = '" + baseTable
 					+ "'";
-			MFPDatabase db = new MFPDatabase();
-			try (ResultSet rs = db.executeQueryCRS(db.getConnection(DB.local), sql)) {
+			MFPDatabase db = new MFPDatabase(DB.local);
+			try (ResultSet rs = db.executeQueryCRS(db.getConnection(), sql)) {
 				if (rs.next()) {
 					lastUpdt = rs.getDate(1);
 				}

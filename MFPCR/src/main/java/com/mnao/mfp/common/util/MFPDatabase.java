@@ -21,7 +21,7 @@ public class MFPDatabase {
 
 	//
 	public enum DB {
-		mfp("mfp"), local("local"), cr("cr");
+		mfp("mfp"), local("local"), cr("cr"), mma("mma");
 
 		//
 		private String dbID = "";
@@ -49,10 +49,11 @@ public class MFPDatabase {
 		}
 	}
 	//
-
+	private DB db;
 	//
 	//
-	public MFPDatabase() {
+	public MFPDatabase(DB db) {
+		this.db = db;
 	}
 
 //	//
@@ -70,7 +71,7 @@ public class MFPDatabase {
 
 	//
 	//
-	public Connection getConnection(DB db) {
+	public Connection getConnection() {
 		return connect(db.url(), db.user(), db.pass(), db.schema());
 	}
 
