@@ -63,16 +63,31 @@ public class ReportController {
         }
     }
 
+    @GetMapping(value = "/summary-by-status")
+    public ContactReportResponse getContactReportsByStatus() {
+
+        try {
+            return GenericResponseWrapper.contactReportResponseFunction
+                    .apply(contactReportService
+                    .getContactReportsByStatus((contactReportInfos, status) -> contactReportInfos
+                            .stream()
+                            .filter(c -> c.getContactStatus() == status)
+                            .collect(Collectors.toList())), null);
+        } catch (Exception e) {
+            return GenericResponseWrapper.contactReportResponseFunction.apply(null, e.getMessage());
+        }
+    }
+
     @GetMapping(value = "/get-reports-by-dealerid/{dealerId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ContactReportResponse getContactReportsByDealerId(@PathVariable("dealerId") String dealerId) {
 
         try {
             return GenericResponseWrapper.contactReportResponseFunction
                     .apply(contactReportService
-                    .getContactReportByDealerId(dealerId, (contactReportInfos, status) -> contactReportInfos
-                            .stream()
-                            .filter(c -> c.getContactStatus() == status)
-                            .collect(Collectors.toList())), null);
+                            .getContactReportByDealerId(dealerId, (contactReportInfos, status) -> contactReportInfos
+                                    .stream()
+                                    .filter(c -> c.getContactStatus() == status)
+                                    .collect(Collectors.toList())), null);
         } catch (Exception e) {
             return GenericResponseWrapper.contactReportResponseFunction.apply(null, e.getMessage());
         }

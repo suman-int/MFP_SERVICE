@@ -84,6 +84,12 @@ public class ContactReportServiceImpl implements ContactReportService{
         return prepareContactReports.apply(contactReportInfos, contactReportByStatus);
     }
 
+    public Map<String, List<ContactReportInfo>> getContactReportsByStatus(BiFunction<List<ContactReportInfo>, Integer, List<ContactReportInfo>> contactReportByStatus) {
+        List<ContactReportInfo> contactReportInfos = contactInfoRepository.findAll();
+
+        return prepareContactReports.apply(contactReportInfos, contactReportByStatus);
+    }
+
 
     @Transactional
     public void deleteReportById(long contactReportId){

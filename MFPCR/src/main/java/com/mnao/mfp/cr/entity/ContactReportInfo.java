@@ -67,7 +67,7 @@ public class ContactReportInfo {
 	
 	@OneToMany(targetEntity = ContactReportAttachment.class, cascade = CascadeType.ALL)
 	@JoinColumn(name = "contactReportIdFk", referencedColumnName="contactReportId")
-	private List<ContactReportAttachment> attachment;
+	private List<ContactReportAttachment> attachments;
 
 	@ManyToOne(targetEntity = Dealers.class, cascade = CascadeType.ALL)
 	@JoinColumn(name="dlrCd", updatable = false, insertable = false)
