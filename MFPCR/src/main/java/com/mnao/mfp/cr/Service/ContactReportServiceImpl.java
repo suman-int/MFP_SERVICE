@@ -36,24 +36,21 @@ public class ContactReportServiceImpl implements ContactReportService{
         }).collect(Collectors.toList());
     }
     
-    public String submitReportData(ContactReportInfo report) {
-        String submission = "Unable to save contact report";
+    public ContactReportInfo submitReportData(ContactReportInfo report) {
         try {
             if(Objects.nonNull(report.getDealerPersonnels()) && report.getDealerPersonnels().size() > 0) {
                 String reps = report.getCorporateReps();
                 if(reps.length() > 250){
                     report.setCorporateReps(reps.substring(0, 250));
                 }
-                contactInfoRepository.save(report);
-                submission = "Saved Success";
+                return contactInfoRepository.save(report);
+
             }else {
                 throw new IllegalArgumentException("Required Dealer personnel");
             }
         } catch (Exception e) {
-        	e.printStackTrace();
-            submission = "Failed - Metrics | DealerPersonnel is missing";
+        	throw e;
         }
-        return submission;
     }
 
     public ContactReportDto findByContactReportId(long ContactreporId) {
