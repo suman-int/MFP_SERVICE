@@ -25,5 +25,7 @@ public class ContactReportDealerPersonnel {
 
     @NotNull
 	private String personnelIdCd;
+
+
     
 }

@@ -51,8 +51,8 @@ public class ContactReportInfo {
 	
 	private String corporateReps;
 
-	@OneToMany(targetEntity = ContactReportDealerPersonnel.class, cascade = CascadeType.ALL)
-	@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId", nullable = false)
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name="contact_report_id", nullable = false)
 	@NotNull
 	private List<ContactReportDealerPersonnel> dealerPersonnels;
 
@@ -61,12 +61,12 @@ public class ContactReportInfo {
 //	@NotNull
 //	private List<ContactReportMetrics> metrics;
 	
-	@OneToMany(mappedBy = "contactReportInfo", cascade = CascadeType.ALL)
-	//@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId")
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name="contact_report_id", nullable = false)
 	private List<ContactReportDiscussion> discussions;
 	
-	@OneToMany(targetEntity = ContactReportAttachment.class, cascade = CascadeType.ALL)
-	@JoinColumn(name = "contactReportIdFk", referencedColumnName="contactReportId")
+	@OneToMany( cascade = CascadeType.ALL)
+	@JoinColumn(name="contact_report_id", nullable = false)
 	private List<ContactReportAttachment> attachments;
 
 	@ManyToOne(targetEntity = Dealers.class, cascade = CascadeType.ALL)
