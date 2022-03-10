@@ -52,7 +52,8 @@ public class ContactReportInfo {
 	private String corporateReps;
 
 	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(name="contact_report_id", nullable = false)
+	//@JoinColumn(name="contact_report_id", nullable = false)
+	@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId", nullable = false)
 	@NotNull
 	private List<ContactReportDealerPersonnel> dealerPersonnels;
 
