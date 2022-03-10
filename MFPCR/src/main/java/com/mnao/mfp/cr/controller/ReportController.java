@@ -52,8 +52,27 @@ public class ReportController {
     public ContactReportResponse getMyContactReport(@PathVariable("userId") String userId) {
 
         try {
-            return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportService.getMyContactReport(userId, (contactReportInfos, status) -> contactReportInfos.stream().filter(c -> c.getContactStatus() == status).collect(Collectors.toList())), null);
+            return GenericResponseWrapper.contactReportResponseFunction
+                    .apply(contactReportService.getMyContactReport(userId, (contactReportInfos, status) -> contactReportInfos
+                            .stream()
+                            .filter(c -> c.getContactStatus() == status)
+                            .collect(Collectors.toList())), null);
 
+        } catch (Exception e) {
+            return GenericResponseWrapper.contactReportResponseFunction.apply(null, e.getMessage());
+        }
+    }
+
+    @GetMapping(value = "/get-reports-by-dealerid/{dealerId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ContactReportResponse getContactReportsByDealerId(@PathVariable("dealerId") String dealerId) {
+
+        try {
+            return GenericResponseWrapper.contactReportResponseFunction
+                    .apply(contactReportService
+                    .getContactReportByDealerId(dealerId, (contactReportInfos, status) -> contactReportInfos
+                            .stream()
+                            .filter(c -> c.getContactStatus() == status)
+                            .collect(Collectors.toList())), null);
         } catch (Exception e) {
             return GenericResponseWrapper.contactReportResponseFunction.apply(null, e.getMessage());
         }

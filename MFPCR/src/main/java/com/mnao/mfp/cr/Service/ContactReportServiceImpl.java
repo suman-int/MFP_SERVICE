@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -67,6 +68,10 @@ public class ContactReportServiceImpl implements ContactReportService{
     }
 	public Map<String, List<ContactReportInfo>> getMyContactReport(String userId, BiFunction<List<ContactReportInfo>, Integer, List<ContactReportInfo>> contactReportByStatus) {
         List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthor(userId);
+        return prepareContactReports.apply(contactReportInfos, contactReportByStatus);
+    }
+
+    private BiFunction<List<ContactReportInfo>,BiFunction<List<ContactReportInfo>, Integer, List<ContactReportInfo>>, Map<String, List<ContactReportInfo>>> prepareContactReports = (contactReportInfos,contactReportByStatus) -> {
         Map<String, List<ContactReportInfo>> statusMap = new HashMap<>();
         statusMap.put(ContactReportEnum.COMPLETED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.COMPLETED.getStatusCode()));
         statusMap.put(ContactReportEnum.DISCUSSION_REQUESTED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()));
@@ -74,7 +79,15 @@ public class ContactReportServiceImpl implements ContactReportService{
         statusMap.put(ContactReportEnum.DRAFT.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.DRAFT.getStatusCode()));
         statusMap.put(ContactReportEnum.SUBMITTED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.SUBMITTED.getStatusCode()));
         return statusMap;
+    };
+
+    public Map<String, List<ContactReportInfo>> getContactReportByDealerId(String dealerId,
+                                                                           BiFunction<List<ContactReportInfo>, Integer, List<ContactReportInfo>> contactReportByStatus) {
+        List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByDlrCd(dealerId);
+        return prepareContactReports.apply(contactReportInfos, contactReportByStatus);
     }
+
+
     @Transactional
     public void deleteReportById(long contactReportId){
         final int contactStatus = 0; // contactStatus 0 makes sure that the report is still a draft
