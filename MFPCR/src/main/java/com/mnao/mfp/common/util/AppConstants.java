@@ -31,4 +31,10 @@ public class AppConstants {
 	public static final String SQL_LIST_ZONES = "LIST_ZONES.sql";
 	public static final String SQL_LIST_DEALER_EMPLOYEES = "LIST_DEALER_EMPLOYEES.sql";
 	public static final String SQL_LIST_REVIEWER_EMPLOYEES = "LIST_REVIEWER_EMPLOYEES.sql";
+	
+	
+    public static final int StatusSubmit=1;
+    public static final int StatusDeleted=2;
+    public static final int StatusDraft=0;
+    public static final String file_storage_format="%s_%s_%s";
 	}
