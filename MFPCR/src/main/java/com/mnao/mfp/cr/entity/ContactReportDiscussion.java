@@ -35,6 +35,8 @@ public class ContactReportDiscussion {
 	@NotNull
 	private LocalDate disscussionDt;
 
-
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="contactReportId")
+	private ContactReportInfo contactReportInfo;
 	
 }

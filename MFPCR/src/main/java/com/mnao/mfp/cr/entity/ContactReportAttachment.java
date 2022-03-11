@@ -2,7 +2,14 @@ package com.mnao.mfp.cr.entity;
 
 import java.time.LocalDate;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -28,6 +35,9 @@ public class ContactReportAttachment {
 	
 	@NotNull
 	private String attachmentPath;
+
+	@NotNull
+	private String attachmentType;
 	
 	@JsonFormat(pattern="yyyy-MM-dd")
 	@NotNull
@@ -44,4 +54,8 @@ public class ContactReportAttachment {
 	@NotNull
 	private int status;
 
+	@ManyToOne(targetEntity = ContactReportInfo.class,fetch = FetchType.EAGER)
+	@JoinColumn(name = "contactReportIdFk", referencedColumnName="contactReportId")
+	private ContactReportInfo contactReport;
+	
 }

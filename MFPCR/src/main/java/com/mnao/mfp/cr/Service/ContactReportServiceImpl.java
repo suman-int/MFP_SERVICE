@@ -8,16 +8,17 @@ import org.springframework.stereotype.Service;
 //import com.mnao.mfp.cr.Mapper.ContactInfoMapper;
 import com.mnao.mfp.cr.dto.ContactReportDto;
 import com.mnao.mfp.cr.dto.ReportByDealershipDto;
+import com.mnao.mfp.cr.entity.ContactReportAttachment;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
 
 import javax.transaction.Transactional;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +26,9 @@ public class ContactReportServiceImpl implements ContactReportService{
 
     @Autowired
     private ContactInfoRepository contactInfoRepository;
+    
+    @Autowired
+    private FileHandlingServiceImpl fileHandlingService;
 
     public List<DealersByIssue> getAllDealersByIssue(){
         return contactInfoRepository.findAll().stream().map(contactReportInfo -> {
@@ -36,21 +40,37 @@ public class ContactReportServiceImpl implements ContactReportService{
         }).collect(Collectors.toList());
     }
     
-    public ContactReportInfo submitReportData(ContactReportInfo report) {
+    public String submitReportData(ContactReportInfo report)  {
+        String submission = "Unable to save contact report";
         try {
             if(Objects.nonNull(report.getDealerPersonnels()) && report.getDealerPersonnels().size() > 0) {
                 String reps = report.getCorporateReps();
                 if(reps.length() > 250){
                     report.setCorporateReps(reps.substring(0, 250));
                 }
-                return contactInfoRepository.save(report);
-
+                HashSet<String> attFiles =new HashSet<String>();
+                for( int i =0;i<report.getAttachment().size();i++) {
+                	ContactReportAttachment  att=report.getAttachment().get(i);
+                	if(attFiles.contains(att.getAttachmentName())) {
+                		throw new IllegalArgumentException("Duplicate Attachment: "+ att.getAttachmentName());
+                	}
+                	else {
+                		attFiles.add(att.getAttachmentName());
+                	
+                	}
+                }
+                ContactReportInfo info= contactInfoRepository.save(report);
+                if(report.getContactStatus() == 1)
+                    fileHandlingService.copyToPermanentLocation(info);
+                submission = "Saved Success";
             }else {
                 throw new IllegalArgumentException("Required Dealer personnel");
             }
         } catch (Exception e) {
-        	throw e;
+        	e.printStackTrace();
+            submission = "Failed - Metrics | DealerPersonnel is missing";
         }
+        return submission;
     }
 
     public ContactReportDto findByContactReportId(long ContactreporId) {
@@ -65,10 +85,6 @@ public class ContactReportServiceImpl implements ContactReportService{
     }
 	public Map<String, List<ContactReportInfo>> getMyContactReport(String userId, BiFunction<List<ContactReportInfo>, Integer, List<ContactReportInfo>> contactReportByStatus) {
         List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthor(userId);
-        return prepareContactReports.apply(contactReportInfos, contactReportByStatus);
-    }
-
-    private BiFunction<List<ContactReportInfo>,BiFunction<List<ContactReportInfo>, Integer, List<ContactReportInfo>>, Map<String, List<ContactReportInfo>>> prepareContactReports = (contactReportInfos,contactReportByStatus) -> {
         Map<String, List<ContactReportInfo>> statusMap = new HashMap<>();
         statusMap.put(ContactReportEnum.COMPLETED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.COMPLETED.getStatusCode()));
         statusMap.put(ContactReportEnum.DISCUSSION_REQUESTED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()));
@@ -76,21 +92,7 @@ public class ContactReportServiceImpl implements ContactReportService{
         statusMap.put(ContactReportEnum.DRAFT.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.DRAFT.getStatusCode()));
         statusMap.put(ContactReportEnum.SUBMITTED.getDisplayText(), contactReportByStatus.apply(contactReportInfos, ContactReportEnum.SUBMITTED.getStatusCode()));
         return statusMap;
-    };
-
-    public Map<String, List<ContactReportInfo>> getContactReportByDealerId(String dealerId,
-                                                                           BiFunction<List<ContactReportInfo>, Integer, List<ContactReportInfo>> contactReportByStatus) {
-        List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByDlrCd(dealerId);
-        return prepareContactReports.apply(contactReportInfos, contactReportByStatus);
     }
-
-    public Map<String, List<ContactReportInfo>> getContactReportsByStatus(BiFunction<List<ContactReportInfo>, Integer, List<ContactReportInfo>> contactReportByStatus) {
-        List<ContactReportInfo> contactReportInfos = contactInfoRepository.findAll();
-
-        return prepareContactReports.apply(contactReportInfos, contactReportByStatus);
-    }
-
-
     @Transactional
     public void deleteReportById(long contactReportId){
         final int contactStatus = 0; // contactStatus 0 makes sure that the report is still a draft

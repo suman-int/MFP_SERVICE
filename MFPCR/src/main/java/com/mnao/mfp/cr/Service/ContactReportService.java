@@ -5,7 +5,7 @@ import com.mnao.mfp.cr.entity.ContactReportInfo;
 
 public interface ContactReportService {
 
-     ContactReportInfo submitReportData(ContactReportInfo report);
+     String submitReportData(ContactReportInfo report);
 
      ContactReportDto findByContactReportId(long ContactreporId);
 
