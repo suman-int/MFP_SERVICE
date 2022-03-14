@@ -45,12 +45,12 @@ public class ContactReportSummaryService {
             .filter(dealers -> dealers.getDlrCd().equals(i))
             .collect(Collectors.toList());
 
-    private List<Map<String, String>> calcMetrics(List<ContactReportInfo> contactReportInfos,
+    private Map<String, String> calcMetrics(List<ContactReportInfo> contactReportInfos,
                                                   List<String> issues,
                                                   String type,
                                                   String value,
                                                   BiFunction<List<ContactReportInfo>, String, List<ContactReportInfo>> filtered) {
-        return contactReportInfos.stream().map(contactReportInfo -> {
+        //return contactReportInfos.stream().map(contactReportInfo -> {
             Map<String, String> map = new HashMap<>();
             map.put(type, value);
             issues.stream().forEach(i -> {
@@ -62,7 +62,7 @@ public class ContactReportSummaryService {
                 map.put(i, String.format("%d/%d", reviewed, list.size()));
             });
             return map;
-        }).collect(Collectors.toList());
+        //}).collect(Collectors.toList());
     }
 
     public List<Map<String, String>> getSummaryByMonth(String type,
@@ -79,7 +79,7 @@ public class ContactReportSummaryService {
                 List<ContactReportInfo> contactReportInfoList = contactInfoRepository
                         .findByDlrCdIn(extractDealerCodes.apply(dealersByDealer.get(r)));
                 return calcMetrics(contactReportInfoList, months, LocationEnum.DEALER.getLocationText(), r,filteredByMonth);
-            }).flatMap(List::stream).collect(Collectors.toList());
+            }).collect(Collectors.toList());
         } else if (type.equalsIgnoreCase(LocationEnum.ZONE.name())) {
             dealers = filterByZone.apply(value);
             Map<String, List<Dealers>> dealersByDistrict = dealers.stream().collect(Collectors.groupingBy(Dealers::getDistrictCd));
@@ -88,7 +88,7 @@ public class ContactReportSummaryService {
                 List<ContactReportInfo> contactReportInfoList = contactInfoRepository
                         .findByDlrCdIn(extractDealerCodes.apply(dealersByDistrict.get(r)));
                 return calcMetrics(contactReportInfoList, months, LocationEnum.DISTRICT.getLocationText(), r,filteredByMonth);
-            }).flatMap(List::stream).collect(Collectors.toList());
+            }).collect(Collectors.toList());
         } else if (type.equalsIgnoreCase(LocationEnum.REGION.name())) {
             dealers = filterByRegion.apply(value);
             Map<String, List<Dealers>> dealersByZone = dealers.stream().collect(Collectors.groupingBy(Dealers::getZoneCd));
@@ -97,7 +97,7 @@ public class ContactReportSummaryService {
                 List<ContactReportInfo> contactReportInfoList = contactInfoRepository
                         .findByDlrCdIn(extractDealerCodes.apply(dealersByZone.get(r)));
                 return calcMetrics(contactReportInfoList, months, LocationEnum.ZONE.getLocationText(), r,filteredByMonth);
-            }).flatMap(List::stream).collect(Collectors.toList());
+            }).collect(Collectors.toList());
         } else if (type.equalsIgnoreCase(LocationEnum.DEALER.name())) {
             dealers = filterByDealer.apply(value);
             Map<String, List<Dealers>> dealersByRegion = dealers.stream().collect(Collectors.groupingBy(Dealers::getRgnCd));
@@ -106,7 +106,7 @@ public class ContactReportSummaryService {
                 List<ContactReportInfo> contactReportInfoList = contactInfoRepository
                         .findByDlrCdIn(extractDealerCodes.apply(dealersByRegion.get(r)));
                 return calcMetrics(contactReportInfoList, months, LocationEnum.REGION.getLocationText(), r,filteredByMonth);
-            }).flatMap(List::stream).collect(Collectors.toList());
+            }).collect(Collectors.toList());
         } else {
             Map<String, List<Dealers>> dealersByRegion = dealerService.findAll().stream().collect(Collectors.groupingBy(Dealers::getRgnCd));
             Set<String> regions = dealersByRegion.keySet();
@@ -114,7 +114,7 @@ public class ContactReportSummaryService {
                 List<ContactReportInfo> contactReportInfoList = contactInfoRepository
                         .findByDlrCdIn(extractDealerCodes.apply(dealersByRegion.get(r)));
                 return calcMetrics(contactReportInfoList, months, LocationEnum.REGION.getLocationText(), r,filteredByMonth);
-            }).flatMap(List::stream).collect(Collectors.toList());
+            }).collect(Collectors.toList());
         }
         return summaryList;
     }
@@ -138,7 +138,7 @@ public class ContactReportSummaryService {
                 return calcMetrics(contactReportInfoList,
                         issueTypes, LocationEnum.DEALER.getLocationText(), r, filteredByIssue);
 
-            }).flatMap(List::stream).collect(Collectors.toList());
+            }).collect(Collectors.toList());
         } else if (type.equalsIgnoreCase(LocationEnum.ZONE.name())) {
             dealers = filterByZone.apply(value);
             Map<String, List<Dealers>> dealersByDistrict = dealers.stream().collect(Collectors.groupingBy(Dealers::getDistrictCd));
@@ -148,7 +148,7 @@ public class ContactReportSummaryService {
                         .findByDlrCdIn(extractDealerCodes.apply(dealersByDistrict.get(r)));
                 return calcMetrics(contactReportInfoList, issueTypes,
                         LocationEnum.DISTRICT.getLocationText(), r, filteredByIssue);
-            }).flatMap(List::stream).collect(Collectors.toList());
+            }).collect(Collectors.toList());
         } else if (type.equalsIgnoreCase(LocationEnum.REGION.name())) {
             dealers = filterByRegion.apply(value);
             Map<String, List<Dealers>> dealersByZone = dealers.stream().collect(Collectors.groupingBy(Dealers::getZoneCd));
@@ -158,7 +158,7 @@ public class ContactReportSummaryService {
                         .findByDlrCdIn(extractDealerCodes.apply(dealersByZone.get(r)));
                 return calcMetrics(contactReportInfoList, issueTypes,
                         LocationEnum.ZONE.getLocationText(), r, filteredByIssue);
-            }).flatMap(List::stream).collect(Collectors.toList());
+            }).collect(Collectors.toList());
         } else if (type.equalsIgnoreCase(LocationEnum.DEALER.name())) {
             dealers = filterByDealer.apply(value);
             Map<String, List<Dealers>> dealersByRegion = dealers.stream().collect(Collectors.groupingBy(Dealers::getRgnCd));
@@ -168,7 +168,7 @@ public class ContactReportSummaryService {
                         .findByDlrCdIn(extractDealerCodes.apply(dealersByRegion.get(r)));
                 return calcMetrics(contactReportInfoList, issueTypes,
                         LocationEnum.REGION.getLocationText(), r, filteredByIssue);
-            }).flatMap(List::stream).collect(Collectors.toList());
+            }).collect(Collectors.toList());
         } else {
             Map<String, List<Dealers>> dealersByRegion = dealerService.findAll().stream().collect(Collectors.groupingBy(Dealers::getRgnCd));
             Set<String> regions = dealersByRegion.keySet();
@@ -177,7 +177,7 @@ public class ContactReportSummaryService {
                         .findByDlrCdIn(extractDealerCodes.apply(dealersByRegion.get(r)));
                 return calcMetrics(contactReportInfoList, issueTypes,
                         LocationEnum.REGION.getLocationText(), r, filteredByIssue);
-            }).flatMap(List::stream).collect(Collectors.toList());
+            }).collect(Collectors.toList());
         }
         return summaryList;
     }
