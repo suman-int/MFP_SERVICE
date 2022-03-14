@@ -149,7 +149,7 @@ public class ListController extends MfpKPIControllerBase {
 		List<ListApprover> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
 		try {
-			retRows = service.getListData(sqlName, ListApprover.class, df);
+			retRows = service.getListData(sqlName, ListApprover.class, df, df.getRgnCd());
 		} catch (InstantiationException | IllegalAccessException | ParseException e) {
 			log.error("ERROR retrieving list of Employees:", e);
 		}
