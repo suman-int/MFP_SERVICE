@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "report-summary")
@@ -50,15 +52,15 @@ public class ContactReportSummaryController {
                         ), null);
     }
 
-//    @GetMapping(value = "by-month/{type}/{value}")
-//    public ContactReportResponse summaryByMonth(@PathVariable("type") String type,
-//                                                @PathVariable("value") String value
-//                                                ){
-//        return GenericResponseWrapper.contactReportResponseFunction
-//                .apply(contactReportSummaryService.getSummaryByMonth(type,value,(contactReportInfoList, i) ->
-//                        contactReportInfoList.stream()
-//                                .filter(c -> Objects.nonNull(c.getContactDt()))
-//                                .filter(d -> d.getContactDt().getMonth().name().equals(i))
-//                                .collect(Collectors.toList())), null);
-//    }
+    @GetMapping(value = "by-month/{type}/{value}")
+    public ContactReportResponse summaryByMonth(@PathVariable("type") String type,
+                                                @PathVariable("value") String value
+                                                ){
+        return GenericResponseWrapper.contactReportResponseFunction
+                .apply(contactReportSummaryService.getSummaryByMonth(type,value,(contactReportInfoList, i) ->
+                        contactReportInfoList.stream()
+                                .filter(c -> Objects.nonNull(c.getContactDt()))
+                                .filter(d -> d.getContactDt().getMonth().name().equals(i))
+                                .collect(Collectors.toList())), null);
+    }
 }
