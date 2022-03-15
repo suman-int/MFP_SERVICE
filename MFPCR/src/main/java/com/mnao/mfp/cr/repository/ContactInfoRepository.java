@@ -31,7 +31,7 @@ public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, 
 
 	public List<ContactReportInfo> findByDlrCd(String dlrCd);
 
-	public List<ContactReportInfo> findByDlrCdIn(List<String> dlrCd);
+	public List<ContactReportInfo> findByDlrCdInAndContactStatusNot(List<String> dlrCd, int status);
 
 	List<ContactReportInfo> findByContactAuthor(String authorId);
 

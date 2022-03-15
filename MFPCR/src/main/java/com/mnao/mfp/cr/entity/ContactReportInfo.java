@@ -61,8 +61,8 @@ public class ContactReportInfo {
 //	@NotNull
 //	private List<ContactReportMetrics> metrics;
 	
-	@OneToMany(mappedBy = "contactReportInfo", cascade = CascadeType.ALL)
-	//@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId")
+	@OneToMany(targetEntity = ContactReportDiscussion.class, cascade = CascadeType.ALL)
+	@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId")
 	private List<ContactReportDiscussion> discussions;
 	
 	@OneToMany(targetEntity = ContactReportAttachment.class, cascade = CascadeType.ALL)
