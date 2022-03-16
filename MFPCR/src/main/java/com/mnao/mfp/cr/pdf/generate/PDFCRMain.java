@@ -38,7 +38,6 @@ public class PDFCRMain {
 			report.closePdf();
 			pdfBytes = report.getBytes();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return pdfBytes;
