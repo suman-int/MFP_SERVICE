@@ -1,16 +1,5 @@
 package com.mnao.mfp.cr.pdf.generate;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.List;
-
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
@@ -22,6 +11,13 @@ import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.pdf.dao.DealerEmployeeInfo;
 import com.mnao.mfp.cr.pdf.dao.DealerInfo;
 import com.mnao.mfp.cr.pdf.dao.ReviewerEmployeeInfo;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class PDFCRMain {
 	public void createPdfFile(Path p, ContactReportInfo crInfo, DealerInfo dInfo, List<DealerEmployeeInfo> dEmpInfos,
@@ -42,7 +38,6 @@ public class PDFCRMain {
 			report.closePdf();
 			pdfBytes = report.getBytes();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return pdfBytes;
