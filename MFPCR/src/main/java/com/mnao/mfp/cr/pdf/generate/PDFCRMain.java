@@ -19,20 +19,25 @@ import com.itextpdf.layout.properties.UnitValue;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
+import com.mnao.mfp.cr.pdf.dao.DealerEmployeeInfo;
+import com.mnao.mfp.cr.pdf.dao.DealerInfo;
+import com.mnao.mfp.cr.pdf.dao.ReviewerEmployeeInfo;
 
 public class PDFCRMain {
-	public void createPdfFile(Path p, ContactReportInfo crInfo) throws IOException {
-		byte[] b = createPDF(crInfo);
+	public void createPdfFile(Path p, ContactReportInfo crInfo, DealerInfo dInfo, List<DealerEmployeeInfo> dEmpInfos,
+			ReviewerEmployeeInfo revEmpInfo) throws IOException {
+		byte[] b = createPDF(crInfo, dInfo, dEmpInfos, revEmpInfo);
 		Files.write(p, b, StandardOpenOption.CREATE);
 	}
 
-	public byte[] createPDF(ContactReportInfo crInfo) {
+	public byte[] createPDF(ContactReportInfo crInfo, DealerInfo dInfo, List<DealerEmployeeInfo> dEmpInfos,
+			ReviewerEmployeeInfo revEmpInfo) {
 		byte[] pdfBytes = null;
 		PDFReport report = new PDFReport("", "Contact Report", "Mazda North America Operations");
 		try {
 			report.openPdf();
-			addHeadPortion(report, crInfo);
-			addPersonnel(report, crInfo);
+			addHeadPortion(report, crInfo, dInfo);
+			addPersonnel(report, crInfo, dEmpInfos, revEmpInfo);
 			addDiscussions(report, crInfo);
 			report.closePdf();
 			pdfBytes = report.getBytes();
@@ -44,8 +49,8 @@ public class PDFCRMain {
 	}
 
 	private void addDiscussions(PDFReport report, ContactReportInfo crInfo) {
-		List<ContactReportDiscussion> discs =  crInfo.getDiscussions();
-		if( discs != null ) {
+		List<ContactReportDiscussion> discs = crInfo.getDiscussions();
+		if (discs != null) {
 			Paragraph discPara = new Paragraph();
 			discPara.setWidth(UnitValue.createPercentValue(100));
 			Paragraph p = new Paragraph();
@@ -54,7 +59,7 @@ public class PDFCRMain {
 			p.setBold();
 			p.add("DISCUSSIONS");
 			discPara.add(p);
-			for( ContactReportDiscussion crd : discs) {
+			for (ContactReportDiscussion crd : discs) {
 				p = new Paragraph();
 				p.setPaddingLeft(50);
 				p.setWidth(UnitValue.createPercentValue(100));
@@ -70,7 +75,8 @@ public class PDFCRMain {
 		}
 	}
 
-	private void addPersonnel(PDFReport report, ContactReportInfo crInfo) {
+	private void addPersonnel(PDFReport report, ContactReportInfo crInfo, List<DealerEmployeeInfo> dEmpInfos,
+			ReviewerEmployeeInfo revEmpInfo) {
 		Paragraph p = new Paragraph();
 		Text txt = new Text("Personnel");
 		txt.setBold();
@@ -82,14 +88,35 @@ public class PDFCRMain {
 		addCell(tbl, "AUTHOR");
 		addCell(tbl, crInfo.getContactAuthor());
 		addCell(tbl, "REVIEWER");
-		addCell(tbl, crInfo.getContactReviewer());
+		if (revEmpInfo == null) {
+			addCell(tbl, crInfo.getContactReviewer());
+		} else {
+			String person = revEmpInfo.getFirstNm();
+			if (revEmpInfo.getMidlNm() != null)
+				person += " " + revEmpInfo.getMidlNm();
+			person += " " + revEmpInfo.getLastNm();
+			person += ", " + revEmpInfo.getJobTitleTx();
+			addCell(tbl, person);
+		}
 		addCell(tbl, "DEALERSHIP CONTACTS", 1, 2);
 		List<ContactReportDealerPersonnel> dps = crInfo.getDealerPersonnels();
 		StringBuilder dpers = new StringBuilder();
 		if (dps != null) {
-			for (ContactReportDealerPersonnel dp : dps) {
-				dpers.append(dp.getPersonnelIdCd());
-				dpers.append("\n");
+			if (dEmpInfos != null) {
+				for (DealerEmployeeInfo dei : dEmpInfos) {
+					String person = dei.getFirstNm();
+					if (dei.getMidlNm() != null)
+						person += " " + dei.getMidlNm();
+					person += " " + dei.getLastNm();
+					person += ", " + dei.getJobTitleTx();
+					dpers.append(person);
+					dpers.append("\n");
+				}
+			} else {
+				for (ContactReportDealerPersonnel dp : dps) {
+					dpers.append(dp.getPersonnelIdCd());
+					dpers.append("\n");
+				}
 			}
 		} else {
 			dpers.append(" ");
@@ -98,13 +125,13 @@ public class PDFCRMain {
 		report.addToReport(tbl);
 	}
 
-	private void addHeadPortion(PDFReport report, ContactReportInfo crInfo) {
+	private void addHeadPortion(PDFReport report, ContactReportInfo crInfo, DealerInfo dInfo) {
 		Table tbl = new Table(4);
 		tbl.setWidth(UnitValue.createPercentValue(100));
 		//
 		addCell(tbl, "DEALERSHIP:");
-		if (crInfo.getDealers() != null) {
-			addCell(tbl, crInfo.getDealers().getDbaNm() + " - " + crInfo.getDlrCd());
+		if (dInfo != null) {
+			addCell(tbl, dInfo.getDbaNm() + " - " + crInfo.getDlrCd());
 		} else {
 			addCell(tbl, crInfo.getDlrCd());
 		}
@@ -112,7 +139,9 @@ public class PDFCRMain {
 		addCell(tbl, "" + crInfo.getContactStatus());
 		//
 		addCell(tbl, "ADDRESS:");
-		if (crInfo.getDealers() != null) {
+		if (dInfo != null) {
+			addCell(tbl, dInfo.getCityNm() + ", " + dInfo.getStCd() + " " + dInfo.getZip1Cd());
+		} else if (crInfo.getDealers() != null) {
 			addCell(tbl, crInfo.getDealers().getCityNm() + " - " + crInfo.getDealers().getZipCd());
 		} else {
 			addCell(tbl, " ");
