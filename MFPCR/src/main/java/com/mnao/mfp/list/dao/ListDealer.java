@@ -86,9 +86,9 @@ public class ListDealer extends MetricData {
 	public void setResultSetRow(ResultSet rs) throws SQLException {
 		this.dlrCd = rs.getString(1);
 		this.dbaNm = rs.getString(2);
-		this.cityNm = rs.getString(3);
-		this.stCd = rs.getString(4);
-		this.zip1Cd = rs.getString(5);
+		this.cityNm = rs.getString(6);
+		this.stCd = rs.getString(9);
+		this.zip1Cd = rs.getString(7);
 	}
 
 }
