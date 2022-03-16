@@ -59,6 +59,10 @@ public class ContactReportServiceImpl implements ContactReportService{
                 	
                 	}
                 }
+                if (!report.getDiscussions().isEmpty()) {
+                	 report.setCurrentIssues(report.getDiscussions().stream().map(value -> value.getTopic()).collect(Collectors.joining("|")));
+                }
+               
                 ContactReportInfo info= contactInfoRepository.save(report);
                 if(report.getContactStatus() == 1)
                     fileHandlingService.copyToPermanentLocation(info);

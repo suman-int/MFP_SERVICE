@@ -14,7 +14,7 @@ import com.mnao.mfp.cr.entity.ContactReportInfo;
 
 @Repository
 @PropertySource("classpath:/appSql.properties")
-public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, Long>{
+public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, Long> {
 
 //	@Modifying
 //	@Query(value = "update cr from ContactReportInfo cr set cr.contactDt='2021-12-13' where cr.contactReportId=:contactReportId and cr.contactStatus=0")
@@ -22,12 +22,19 @@ public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, 
 
 	public ContactReportInfo findByContactReportId(@Param("contactReportId") long contactReportId);
 
-@Query(value = "SELECT new com.mnao.mfp.cr.dto.ReportByDealershipDto" +
-		"(d.rgnCd, d.zoneCd, d.districtCd, cr.dlrCd, d.dbaNm, cr.contactReportId, cr.contactDt, cr.contactAuthor,cr.contactStatus,cr.currentIssues) " +
-		"FROM Dealers d JOIN d.CRI cr WHERE cr.currentIssues IN :currentIssues AND cr.dlrCd=:dlrCd")
-	public List<ReportByDealershipDto> findByDlrCd(@Param("dlrCd") String dlrCd, @Param("currentIssues") List<String> currentIssues);
+	@Query(value = "SELECT new com.mnao.mfp.cr.dto.ReportByDealershipDto"
+			+ "(d.rgnCd, d.zoneCd, d.districtCd, cr.dlrCd, d.dbaNm, cr.contactReportId, cr.contactDt, cr.contactAuthor,cr.contactStatus,cr.currentIssues) "
+			+ "FROM Dealers d JOIN d.CRI cr WHERE cr.currentIssues IN :currentIssues AND cr.dlrCd=:dlrCd")
+	public List<ReportByDealershipDto> findByDlrCd(@Param("dlrCd") String dlrCd,
+			@Param("currentIssues") List<String> currentIssues);
+	
+	@Query(value = "SELECT new com.mnao.mfp.cr.dto.ReportByDealershipDto"
+			+ "(d.rgnCd, d.zoneCd, d.districtCd, cr.dlrCd, d.dbaNm, cr.contactReportId, cr.contactDt, cr.contactAuthor,cr.contactStatus,cr.currentIssues) "
+			+ "FROM Dealers d JOIN d.CRI cr WHERE cr.dlrCd=:dlrCd")
+	public List<ReportByDealershipDto> findCurrentIssuesByDlrCd(@Param("dlrCd") String dlrCd);
 
-	public void deleteByContactReportIdAndContactStatus(@Param("contactReportId") long contactReportId, int contactStatus);
+	public void deleteByContactReportIdAndContactStatus(@Param("contactReportId") long contactReportId,
+			int contactStatus);
 
 	public List<ContactReportInfo> findByDlrCd(String dlrCd);
 
@@ -36,4 +43,3 @@ public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, 
 	List<ContactReportInfo> findByContactAuthor(String authorId);
 
 }
-	
