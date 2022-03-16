@@ -29,21 +29,19 @@ public class ContactInfoServiceImpl implements ContactInfoService {
 			ReportByDealerShipResponse byDealerShipResponse = new ReportByDealerShipResponse();
 			List<ReportByDealershipDto> data = contactInfoRepository.findCurrentIssuesByDlrCd(filterCriteria.getDlrCd());
 			if (!filterCriteria.getIssuesFilter().isEmpty()) {
-				data = data.stream().filter(value -> {
-					return filterCriteria.getIssuesFilter().stream().anyMatch(filterQuery -> value.getCurrentIssues().contains(filterQuery));
-				}).collect(Collectors.toList());
+				data = data.stream().filter(value -> filterCriteria.getIssuesFilter().stream().anyMatch(filterQuery -> value.getCurrentIssues().contains(filterQuery))).collect(Collectors.toList());
 			} 
 			
 			Map<Integer, List<ReportByDealershipDto>> groupByStatus = data.stream()
-					.collect(Collectors.groupingBy(dealer -> dealer.getContactStatus()));
+					.collect(Collectors.groupingBy(ReportByDealershipDto::getContactStatus));
 			byDealerShipResponse.setDraft(groupByStatus.getOrDefault(ContactReportEnum.DRAFT.getStatusCode(),
-					new ArrayList<ReportByDealershipDto>()));
+					new ArrayList<>()));
 			byDealerShipResponse.setDiscussionRequested(groupByStatus.getOrDefault(
 					ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode(), new ArrayList<ReportByDealershipDto>()));
 			byDealerShipResponse.setReviewed(groupByStatus.getOrDefault(ContactReportEnum.REVIEWED.getStatusCode(),
-					new ArrayList<ReportByDealershipDto>()));
+					new ArrayList<>()));
 			byDealerShipResponse.setSubmitted(groupByStatus.getOrDefault(ContactReportEnum.SUBMITTED.getStatusCode(),
-					new ArrayList<ReportByDealershipDto>()));
+					new ArrayList<>()));
 			return AbstractService.httpPostSuccess(byDealerShipResponse, "Success");
 		} catch (Exception exp) {
 			return AbstractService.httpPostError(exp);	

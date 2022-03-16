@@ -1,19 +1,19 @@
 package com.mnao.mfp.cr.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
-@Data
+@Getter
+@Setter
+@RequiredArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor
 @ToString
 public class Employees {
 
@@ -45,5 +45,19 @@ public class Employees {
     @OneToMany(targetEntity = ContactReportDealerPersonnel.class, cascade = CascadeType.ALL)
     @JoinColumn(name="personnelIdCd")
     @NotNull
+    @ToString.Exclude
     private List<ContactReportDealerPersonnel> dealerPersonnels;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Employees employees = (Employees) o;
+        return personnelIdCd != null && Objects.equals(personnelIdCd, employees.personnelIdCd);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
