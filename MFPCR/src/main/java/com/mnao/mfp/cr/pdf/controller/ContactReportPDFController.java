@@ -45,7 +45,7 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 	private static final Logger log = LoggerFactory.getLogger(ListController.class);
 
 	@GetMapping(value = "/downloadPDF")
-	public ResponseEntity<Resource> downloadFileUsingFileName(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
+	public ResponseEntity<Resource> createPDF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
 			@RequestBody ContactReportInfo report, HttpServletRequest request) {
 		Resource pdfRes = createPDFResource(mfpUser, report);
 		if (pdfRes != null) {
@@ -68,7 +68,15 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 	}
 
 	private Resource createPDFResource(MFPUser mfpUser, ContactReportInfo report) {
-		Path filePath = new File("/media/psf/Home/SmWrk/Wrk/MFP/tmp/tmp.pdf").toPath();
+		String baseFileName = "contact_report_" + report.getContactReportId();
+		File tmpFile = null;
+		try {
+			tmpFile = File.createTempFile(baseFileName, ".pdf");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return null;
+		}
+		Path filePath = tmpFile.toPath();
 		PDFCRMain pdfMain = new PDFCRMain();
 		DealerInfo dInfo = getDealerInfo(mfpUser, report.getDlrCd());
 		List<DealerEmployeeInfo> dEmpInfos = getDealerEmployeeInfos(mfpUser, report.getDlrCd(),
