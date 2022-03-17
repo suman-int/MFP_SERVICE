@@ -230,4 +230,33 @@ public class ContactReportSummaryService {
         }).collect(Collectors.toList());
 
     }
+
+    public List<Map<String, Object>> summaryByCurrentStatusDealershipList(String issue) {
+        List<Dealers> dealers = dealerService.findAll();
+        List<Map<String, String>> dealershipList;
+        List<Map<String, String>> summaryList;
+
+        List<ContactReportInfo> contactReportInfos = contactInfoRepository.findAll().stream().filter(contactReportInfo -> {
+            Optional<ContactReportDiscussion> optionalContactReportDiscussion = contactReportInfo.getDiscussions()
+                    .stream()
+                    .filter(contactReportDiscussion -> contactReportDiscussion.getDiscussion().equals(issue))
+                    .findAny();
+            return optionalContactReportDiscussion.isPresent();
+        }).collect(Collectors.toList());
+
+        List<String> dlrCdList = contactReportInfos.stream().map(contactReportInfo -> contactReportInfo.getDlrCd()).collect(Collectors.toList());
+
+        return dealers.stream().filter(dealer -> dlrCdList.contains(dealer.getDlrCd())).map(dlr -> {
+            Map<String, Object> summaryMap = new HashMap<>();
+
+            summaryMap.put("dlrCd" ,dlr.getDlrCd());
+            summaryMap.put("dbaNm" ,dlr.getDbaNm());
+            summaryMap.put("stCd" ,dlr.getStCd());
+            summaryMap.put("cityNm",dlr.getCityNm());
+            summaryMap.put("zipCd" ,dlr.getZipCd());
+            summaryMap.put("issue" ,issue);
+
+            return summaryMap;
+        }).collect(Collectors.toList());
+    }
 }

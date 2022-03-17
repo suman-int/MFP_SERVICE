@@ -45,7 +45,8 @@ public class Dealers {
 //	private String STATUS_CD;
 //	private String STATUS_DT;
 //	private String CNTY_CD;
-//	private String ST_CD;
+@Column(name = "ST_CD")
+	private String stCd;
 //	private String MDA_CD;
 //	private String SOA_NM;
 //	private LocalDate APPT_DT;

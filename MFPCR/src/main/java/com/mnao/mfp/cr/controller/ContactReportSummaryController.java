@@ -4,6 +4,8 @@ import com.mnao.mfp.cr.Service.ContactReportServiceImpl;
 import com.mnao.mfp.cr.Service.ContactReportSummaryService;
 import com.mnao.mfp.cr.Service.GenericResponseWrapper;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
+import com.mnao.mfp.cr.entity.ContactReportInfo;
+import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.cr.model.ContactReportResponse;
 import com.mnao.mfp.cr.model.DealersByIssue;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -68,6 +71,12 @@ public class ContactReportSummaryController {
     public ContactReportResponse summaryByCurrentStatus(@PathVariable("issueType") String issueType){
         return GenericResponseWrapper.contactReportResponseFunction
                 .apply(contactReportSummaryService.summaryByCurrentStatus(issueType), null);
+    }
+
+    @GetMapping(value = "summary-current-status-dealership-List/{issue}")
+    public ContactReportResponse summaryByCurrentStatusDealershipList(@PathVariable("issue") String issue){
+        return GenericResponseWrapper.contactReportResponseFunction
+                .apply(contactReportSummaryService.summaryByCurrentStatusDealershipList(issue), null);
     }
 
 
