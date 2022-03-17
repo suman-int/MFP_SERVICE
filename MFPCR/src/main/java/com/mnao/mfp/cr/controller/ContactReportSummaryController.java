@@ -63,4 +63,12 @@ public class ContactReportSummaryController {
                                 .filter(d -> d.getContactDt().getMonth().name().equals(i))
                                 .collect(Collectors.toList())), null);
     }
+current
+    @GetMapping(value = "summary-current-status/{issueType}")
+    public ContactReportResponse summaryByCurrentStatus(@PathVariable("issueType") String issueType){
+        return GenericResponseWrapper.contactReportResponseFunction
+                .apply(contactReportSummaryService.summaryByCurrentStatus(issueType), null);
+    }
+
+
 }

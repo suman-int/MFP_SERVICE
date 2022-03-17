@@ -1,6 +1,7 @@
 package com.mnao.mfp.cr.Service;
 
 
+import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
@@ -200,5 +201,33 @@ public class ContactReportSummaryService {
             }).collect(Collectors.toList());
         }
         return summaryList;
+    }
+
+    public List<Map<String, Object>> summaryByCurrentStatus(String category){
+        List<String> issueTypes = issueType.getIssuesByCategory().get(category.toLowerCase());
+        List<ContactReportInfo> contactReportInfos = contactInfoRepository.findAll();
+        return issueTypes.stream().map(issueType->{
+            Map<String, Object> summaryMap = new HashMap<>();
+            List<ContactReportInfo> contactReportInfoList = contactReportInfos.stream().filter(contactReportInfo -> {
+                 Optional<ContactReportDiscussion> optionalContactReportDiscussion = contactReportInfo.getDiscussions()
+                        .stream()
+                        .filter(contactReportDiscussion ->
+                            contactReportDiscussion.getDiscussion().equals(issueType)
+                        )
+                        .findAny();
+                return optionalContactReportDiscussion.isPresent();
+            }).collect(Collectors.toList());
+            long requiredReportCompletion = contactReportInfoList.stream().filter(contactReportInfo -> contactReportInfo.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()).count();
+            long notStarted = contactReportInfoList.stream().filter(contactReportInfo -> contactReportInfo.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()).count();
+            long drafts = contactReportInfoList.stream().filter(contactReportInfo -> contactReportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()).count();
+            long pendingReview = contactReportInfoList.stream().filter(contactReportInfo -> contactReportInfo.getContactStatus() != ContactReportEnum.REVIEWED.getStatusCode()).count();
+            summaryMap.put("requiredReportCompletion", requiredReportCompletion);
+            summaryMap.put("notStarted", notStarted);
+            summaryMap.put("drafts", drafts);
+            summaryMap.put("pendingReview", pendingReview);
+            summaryMap.put("issue", issueType);
+            return summaryMap;
+        }).collect(Collectors.toList());
+
     }
 }
