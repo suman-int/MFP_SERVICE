@@ -108,18 +108,18 @@ public class ListController extends MfpKPIControllerBase {
 
     //
     @PostMapping("/ListDealerEmployees")
-    public CommonResponse<List<ListEmployee>> listDealerEmployees(@RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
+    public CommonResponse<List<ListApprover>> listDealerEmployees(@RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
                                                                   @RequestParam(value = "zoneCd", defaultValue = "") String zoneCd,
                                                                   @RequestParam(value = "districtCd", defaultValue = "") String districtCd,
                                                                   @RequestParam(value = "mdaCd", defaultValue = "") String mdaCd,
                                                                   @RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
                                                                   @SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
         String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALER_EMPLOYEES);
-        ListService<ListEmployee> service = new ListService<ListEmployee>();
-        List<ListEmployee> retRows = null;
+        MMAListService<ListApprover> service = new MMAListService<ListApprover>();
+        List<ListApprover> retRows = null;
         DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
         try {
-            retRows = service.getListData(sqlName, ListEmployee.class, df);
+            retRows = service.getListData(sqlName, ListApprover.class, df, df.getDlrCd());
         } catch (InstantiationException | IllegalAccessException | ParseException e) {
             log.error("ERROR retrieving list of Employees:", e);
         }

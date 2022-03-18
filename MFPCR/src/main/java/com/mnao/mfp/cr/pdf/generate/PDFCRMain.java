@@ -1,5 +1,16 @@
 package com.mnao.mfp.cr.pdf.generate;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.List;
+
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
@@ -11,33 +22,28 @@ import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.pdf.dao.DealerEmployeeInfo;
 import com.mnao.mfp.cr.pdf.dao.DealerInfo;
 import com.mnao.mfp.cr.pdf.dao.ReviewerEmployeeInfo;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
+import com.mnao.mfp.user.dao.MFPUser;
 
 public class PDFCRMain {
-	public void createPdfFile(Path p, ContactReportInfo crInfo, DealerInfo dInfo, List<DealerEmployeeInfo> dEmpInfos,
-			ReviewerEmployeeInfo revEmpInfo) throws IOException {
-		byte[] b = createPDF(crInfo, dInfo, dEmpInfos, revEmpInfo);
+	public void createPdfFile(Path p, ContactReportInfo crInfo, MFPUser author, DealerInfo dInfo,
+			List<DealerEmployeeInfo> dEmpInfos, ReviewerEmployeeInfo revEmpInfo) throws IOException {
+		byte[] b = createPDF(crInfo, author, dInfo, dEmpInfos, revEmpInfo);
 		Files.write(p, b, StandardOpenOption.CREATE);
 	}
 
-	public byte[] createPDF(ContactReportInfo crInfo, DealerInfo dInfo, List<DealerEmployeeInfo> dEmpInfos,
-			ReviewerEmployeeInfo revEmpInfo) {
+	public byte[] createPDF(ContactReportInfo crInfo, MFPUser author, DealerInfo dInfo,
+			List<DealerEmployeeInfo> dEmpInfos, ReviewerEmployeeInfo revEmpInfo) {
 		byte[] pdfBytes = null;
 		PDFReport report = new PDFReport("", "Contact Report", "Mazda North America Operations");
 		try {
 			report.openPdf();
-			addHeadPortion(report, crInfo, dInfo);
-			addPersonnel(report, crInfo, dEmpInfos, revEmpInfo);
+			addHeadPortion(report, crInfo, dInfo, author);
+			addPersonnel(report, crInfo, dEmpInfos, revEmpInfo, author);
 			addDiscussions(report, crInfo);
 			report.closePdf();
 			pdfBytes = report.getBytes();
 		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return pdfBytes;
@@ -71,7 +77,7 @@ public class PDFCRMain {
 	}
 
 	private void addPersonnel(PDFReport report, ContactReportInfo crInfo, List<DealerEmployeeInfo> dEmpInfos,
-			ReviewerEmployeeInfo revEmpInfo) {
+			ReviewerEmployeeInfo revEmpInfo, MFPUser author) {
 		Paragraph p = new Paragraph();
 		Text txt = new Text("Personnel");
 		txt.setBold();
@@ -81,7 +87,15 @@ public class PDFCRMain {
 		Table tbl = new Table(4);
 		tbl.setWidth(UnitValue.createPercentValue(100));
 		addCell(tbl, "AUTHOR");
-		addCell(tbl, crInfo.getContactAuthor());
+		if (author == null) {
+			addCell(tbl, crInfo.getContactAuthor());
+		} else {
+			String auth = author.getFirstName() + " " + author.getLastName();
+			String jDesc = author.getHrJobName();
+			if ((jDesc != null) && (jDesc.trim().length() > 0))
+				auth += ", " + jDesc;
+			addCell(tbl, auth);
+		}
 		addCell(tbl, "REVIEWER");
 		if (revEmpInfo == null) {
 			addCell(tbl, crInfo.getContactReviewer());
@@ -90,7 +104,10 @@ public class PDFCRMain {
 			if (revEmpInfo.getMidlNm() != null)
 				person += " " + revEmpInfo.getMidlNm();
 			person += " " + revEmpInfo.getLastNm();
-			person += ", " + revEmpInfo.getJobTitleTx();
+			String jDesc = revEmpInfo.getJobTitleTx();
+			if ((jDesc != null) && (jDesc.trim().length() > 0)) {
+				person += ", " + jDesc;
+			}
 			addCell(tbl, person);
 		}
 		addCell(tbl, "DEALERSHIP CONTACTS", 1, 2);
@@ -120,7 +137,7 @@ public class PDFCRMain {
 		report.addToReport(tbl);
 	}
 
-	private void addHeadPortion(PDFReport report, ContactReportInfo crInfo, DealerInfo dInfo) {
+	private void addHeadPortion(PDFReport report, ContactReportInfo crInfo, DealerInfo dInfo, MFPUser author) {
 		Table tbl = new Table(4);
 		tbl.setWidth(UnitValue.createPercentValue(100));
 		//
@@ -152,7 +169,12 @@ public class PDFCRMain {
 		addCell(tbl, "PHONE:");
 		addCell(tbl, " ");
 		addCell(tbl, "AUTHOR:");
-		addCell(tbl, crInfo.getContactAuthor());
+		if (author == null) {
+			addCell(tbl, crInfo.getContactAuthor());
+		} else {
+			String auth = author.getFirstName() + " " + author.getLastName();
+			addCell(tbl, auth);
+		}
 		//
 		addCell(tbl, "CONTACT LOCATION:");
 		addCell(tbl, crInfo.getContactLocation());

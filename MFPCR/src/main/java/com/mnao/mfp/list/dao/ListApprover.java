@@ -19,7 +19,8 @@ public class ListApprover extends MetricData {
 	 * 
 	 */
 
-	private String prsnIdCd, statusCd, jobCd, prsnTypeCd, firstNm, midlNm, lastNm;
+	private String prsnIdCd, statusCd, prsnTypeCd, firstNm, midlNm, lastNm;
+	private String jobCd, loctnCd, userId, emailAddr, rgnCd, zoneCd, districtCd;
 
 	public String getPrsnIdCd() {
 		return prsnIdCd;
@@ -77,6 +78,54 @@ public class ListApprover extends MetricData {
 		this.lastNm = lastNm;
 	}
 
+	public String getLoctnCd() {
+		return loctnCd;
+	}
+
+	public void setLoctnCd(String loctnCd) {
+		this.loctnCd = loctnCd;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getEmailAddr() {
+		return emailAddr;
+	}
+
+	public void setEmailAddr(String emailAddr) {
+		this.emailAddr = emailAddr;
+	}
+
+	public String getRgnCd() {
+		return rgnCd;
+	}
+
+	public void setRgnCd(String rgnCd) {
+		this.rgnCd = rgnCd;
+	}
+
+	public String getZoneCd() {
+		return zoneCd;
+	}
+
+	public void setZoneCd(String zoneCd) {
+		this.zoneCd = zoneCd;
+	}
+
+	public String getDistrictCd() {
+		return districtCd;
+	}
+
+	public void setDistrictCd(String districtCd) {
+		this.districtCd = districtCd;
+	}
+
 	@Override
 	public String toString() {
 		return "ListApprover [prsnIdCd=" + prsnIdCd + ", statusCd=" + statusCd + ", jobCd=" + jobCd + ", prsnTypeCd="
@@ -87,11 +136,17 @@ public class ListApprover extends MetricData {
 	public void setResultSetRow(ResultSet rs) throws SQLException {
 		prsnIdCd = rs.getString(1);
 		statusCd = rs.getString(2);
-		jobCd = rs.getString(3);
-		prsnTypeCd = rs.getString(4);
-		firstNm = rs.getString(5);
-		midlNm = rs.getString(6);
-		lastNm = rs.getString(7);
+		prsnTypeCd = rs.getString(3);
+		firstNm = rs.getString(4);
+		midlNm = rs.getString(5);
+		lastNm = rs.getString(6);
+		jobCd = rs.getString(7);
+		loctnCd = rs.getString(8);
+		userId = rs.getString(9);
+		emailAddr = rs.getString(10);
+		rgnCd = rs.getString(11);
+		zoneCd = rs.getString(12);
+		districtCd = rs.getString(13);
 	}
 
 }
