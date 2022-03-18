@@ -1,14 +1,6 @@
 package com.mnao.mfp.cr.pdf.generate;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 
 import com.itextpdf.layout.element.Cell;
@@ -25,28 +17,22 @@ import com.mnao.mfp.cr.pdf.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.user.dao.MFPUser;
 
 public class PDFCRMain {
-	public void createPdfFile(Path p, ContactReportInfo crInfo, MFPUser author, DealerInfo dInfo,
-			List<DealerEmployeeInfo> dEmpInfos, ReviewerEmployeeInfo revEmpInfo) throws IOException {
-		byte[] b = createPDF(crInfo, author, dInfo, dEmpInfos, revEmpInfo);
-		Files.write(p, b, StandardOpenOption.CREATE);
-	}
-
-	public byte[] createPDF(ContactReportInfo crInfo, MFPUser author, DealerInfo dInfo,
+//	public void createPdfFile(Path p, ContactReportInfo crInfo, MFPUser author, DealerInfo dInfo,
+//			List<DealerEmployeeInfo> dEmpInfos, ReviewerEmployeeInfo revEmpInfo) throws IOException {
+//		byte[] b = createPDF(crInfo, author, dInfo, dEmpInfos, revEmpInfo);
+//		Files.write(p, b, StandardOpenOption.CREATE);
+//	}
+//
+	public void createPDF(PDFReport report, ContactReportInfo crInfo, MFPUser author, DealerInfo dInfo,
 			List<DealerEmployeeInfo> dEmpInfos, ReviewerEmployeeInfo revEmpInfo) {
-		byte[] pdfBytes = null;
-		PDFReport report = new PDFReport("", "Contact Report", "Mazda North America Operations");
 		try {
-			report.openPdf();
 			addHeadPortion(report, crInfo, dInfo, author);
 			addPersonnel(report, crInfo, dEmpInfos, revEmpInfo, author);
 			addDiscussions(report, crInfo);
-			report.closePdf();
-			pdfBytes = report.getBytes();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return pdfBytes;
+		return ;
 	}
 
 	private void addDiscussions(PDFReport report, ContactReportInfo crInfo) {
