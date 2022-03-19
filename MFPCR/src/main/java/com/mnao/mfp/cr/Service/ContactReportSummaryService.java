@@ -12,6 +12,7 @@ import com.mnao.mfp.cr.util.TriFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
@@ -249,14 +250,49 @@ public class ContactReportSummaryService {
         return dealers.stream().filter(dealer -> dlrCdList.contains(dealer.getDlrCd())).map(dlr -> {
             Map<String, Object> summaryMap = new HashMap<>();
 
-            summaryMap.put("dlrCd" ,dlr.getDlrCd());
-            summaryMap.put("dbaNm" ,dlr.getDbaNm());
-            summaryMap.put("stCd" ,dlr.getStCd());
-            summaryMap.put("cityNm",dlr.getCityNm());
-            summaryMap.put("zipCd" ,dlr.getZipCd());
+            summaryMap.put("dealerCode" ,dlr.getDlrCd());
+            summaryMap.put("dealerName" ,dlr.getDbaNm());
+            summaryMap.put("stateName" ,dlr.getStCd());
+            summaryMap.put("cityName",dlr.getCityNm());
+            summaryMap.put("zipCode" ,dlr.getZipCd());
             summaryMap.put("issue" ,issue);
 
             return summaryMap;
         }).collect(Collectors.toList());
     }
+
+    public List<Map<String, Object>> reportExecutionBycoverage(String date) {
+        LocalDate startDate = LocalDate.parse(date).withDayOfMonth(1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+        List<Dealers> dealers = dealerService.findAll();
+
+        List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactDtBetween(startDate, endDate);
+
+        List<String> dlrCdList = contactReportInfos.stream().map(
+                contactReportInfo -> contactReportInfo.getDlrCd()).collect(Collectors.toList());
+
+        Map<String, Long> reportCount = dlrCdList.stream().collect(Collectors.groupingBy(e -> e, Collectors.counting()));
+
+        return dealers.stream().filter(dealer -> dlrCdList.contains(dealer.getDlrCd())).map(dlr -> {
+            Map<String, Object> summaryMap = new HashMap<>();
+            for (ContactReportInfo cr:contactReportInfos)
+            {
+                if(cr.getDlrCd().equals(dlr.getDlrCd()))
+                {
+                    summaryMap.put("type", cr.getContactType());
+                    summaryMap.put("author", cr.getContactAuthor());
+                    String contactType = cr.getContactType();
+                    if(contactType.equalsIgnoreCase("Sales | Service") || contactType.equalsIgnoreCase("Sales | Service | Other"))
+                        summaryMap.put("coverage", "100");
+                    else summaryMap.put("coverage","50");
+                }
+            }
+            summaryMap.put("reportCount", reportCount.get(dlr.getDlrCd()));
+            summaryMap.put("dealerCode" ,dlr.getDlrCd());
+            summaryMap.put("dealerName" ,dlr.getDbaNm());
+            return summaryMap;
+        }).collect(Collectors.toList());
+    }
+
 }

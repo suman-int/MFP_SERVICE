@@ -1,5 +1,6 @@
 package com.mnao.mfp.cr.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.context.annotation.PropertySource;
@@ -41,5 +42,7 @@ public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, 
 	public List<ContactReportInfo> findByDlrCdInAndContactStatusNot(List<String> dlrCd, int status);
 
 	List<ContactReportInfo> findByContactAuthor(String authorId);
+
+	List<ContactReportInfo> findByContactDtBetween(LocalDate startDate, LocalDate endDate);
 
 }
