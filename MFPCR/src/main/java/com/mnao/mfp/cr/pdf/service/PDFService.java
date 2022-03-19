@@ -33,12 +33,21 @@ public class PDFService extends MfpKPIControllerBase {
 	private static final Logger log = LoggerFactory.getLogger(ContactReportPDFController.class);
 
 	public Resource createPDFResource(MFPUser mfpUser, ContactReportInfo report) {
+		return createBulkPDFResource(mfpUser, new ContactReportInfo[] { report });
+	}
+
+	public Resource createBulkPDFResource(MFPUser mfpUser, ContactReportInfo[] reports) {
 		//
-		Path filePath = getTmpFilePath(mfpUser, report.getContactReportId());
+		String postFix = "_BULK";
+		if (reports.length == 1)
+			postFix = "_" + reports[0].getContactReportId();
+		Path filePath = getTmpFilePath(mfpUser, postFix);
 		PDFReport pdfReport = new PDFReport("", "Contact Report", "Mazda North America Operations");
 		try {
 			pdfReport.openPdf(filePath.toString());
-			createPDFDocument(pdfReport, report, mfpUser);
+			for (ContactReportInfo report : reports) {
+				createPDFDocument(pdfReport, report, mfpUser);
+			}
 			pdfReport.closePdf();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -51,7 +60,6 @@ public class PDFService extends MfpKPIControllerBase {
 		}
 		return resource;
 	}
-	
 
 	private void createPDFDocument(PDFReport pdfReport, ContactReportInfo report, MFPUser mfpUser) {
 		PDFCRMain pdfMain = new PDFCRMain();
@@ -63,15 +71,14 @@ public class PDFService extends MfpKPIControllerBase {
 		pdfMain.createPDF(pdfReport, report, author, dInfo, dEmpInfos, revEmpInfo);
 	}
 
-
-	private Path getTmpFilePath(MFPUser mfpUser, long crId) {
-		String baseFileName = "contact_report_" + crId;
+	private Path getTmpFilePath(MFPUser mfpUser, String postFix) {
+		String baseFileName = "contact_report_" + postFix;
 		Path tmpFilePath = null;
 		File tmpFile = null;
 		try {
 			tmpFile = File.createTempFile(baseFileName, ".pdf");
 			tmpFile.deleteOnExit();
-			tmpFilePath =  tmpFile.toPath();
+			tmpFilePath = tmpFile.toPath();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
