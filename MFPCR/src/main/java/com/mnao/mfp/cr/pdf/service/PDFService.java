@@ -118,11 +118,11 @@ public class PDFService extends MfpKPIControllerBase {
 		List<DealerEmployeeInfo> dEmpInfos = new ArrayList<DealerEmployeeInfo>();
 		if (dPers != null) {
 			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALER_EMPLOYEES);
-			ListService<DealerEmployeeInfo> service = new ListService<DealerEmployeeInfo>();
+			MMAListService<DealerEmployeeInfo> service = new MMAListService<DealerEmployeeInfo>();
 			List<DealerEmployeeInfo> retRows = null;
 			DealerFilter df = new DealerFilter(mfpUser, dlrCd, null, null, null, null);
 			try {
-				retRows = service.getListData(sqlName, DealerEmployeeInfo.class, df);
+				retRows = service.getListData(sqlName, DealerEmployeeInfo.class, df, dlrCd);
 			} catch (InstantiationException | IllegalAccessException | ParseException e) {
 				log.error("ERROR retrieving list of Employees:", e);
 			}
