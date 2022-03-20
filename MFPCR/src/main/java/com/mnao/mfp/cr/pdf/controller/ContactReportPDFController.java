@@ -37,6 +37,7 @@ import com.mnao.mfp.list.controller.ListController;
 import com.mnao.mfp.list.service.ListService;
 import com.mnao.mfp.list.service.MMAListService;
 import com.mnao.mfp.user.dao.MFPUser;
+import com.mnao.mfp.user.service.UserDetailsService;
 
 @RestController
 @RequestMapping(path = "/ContactReport")
@@ -82,8 +83,9 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 		List<DealerEmployeeInfo> dEmpInfos = getDealerEmployeeInfos(mfpUser, report.getDlrCd(),
 				report.getDealerPersonnels());
 		ReviewerEmployeeInfo revEmpInfo = getReviewerEmployeeInfos(mfpUser, report.getContactReviewer());
+		MFPUser author = getAuthorUser(mfpUser, report.getContactAuthor());
 		try {
-			pdfMain.createPdfFile(filePath, report, dInfo, dEmpInfos, revEmpInfo);
+			pdfMain.createPdfFile(filePath, report, author, dInfo, dEmpInfos, revEmpInfo);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -94,6 +96,12 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 			e.printStackTrace();
 		}
 		return resource;
+	}
+
+	private MFPUser getAuthorUser(MFPUser mfpUser, String contactAuthor) {
+		UserDetailsService uds = new UserDetailsService();
+		MFPUser musr = uds.getMFPUser(contactAuthor);
+		return musr;
 	}
 
 	private ReviewerEmployeeInfo getReviewerEmployeeInfos(MFPUser mfpUser, String contactReviewer) {
