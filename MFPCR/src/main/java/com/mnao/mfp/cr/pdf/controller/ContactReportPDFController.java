@@ -18,7 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,7 +45,7 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 	//
 	private static final Logger log = LoggerFactory.getLogger(ListController.class);
 
-	@GetMapping(value = "/downloadPDF")
+	@PostMapping(value = "/downloadPDF")
 	public ResponseEntity<Resource> createPDF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
 			@RequestBody ContactReportInfo report, HttpServletRequest request) {
 		Resource pdfRes = createPDFResource(mfpUser, report);
