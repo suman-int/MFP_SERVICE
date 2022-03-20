@@ -1,13 +1,22 @@
 package com.mnao.mfp.cr.pdf.service;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.text.ParseException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -17,6 +26,7 @@ import com.mnao.mfp.common.controller.MfpKPIControllerBase;
 import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
+import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.pdf.controller.ContactReportPDFController;
 import com.mnao.mfp.cr.pdf.dao.DealerEmployeeInfo;
@@ -32,21 +42,33 @@ import com.mnao.mfp.user.service.UserDetailsService;
 public class PDFService extends MfpKPIControllerBase {
 	private static final Logger log = LoggerFactory.getLogger(ContactReportPDFController.class);
 
+	private static final String[] xlsHeaders = { "Region", "Area", "District", "Dealership",
+			"Issues and Topics Documented", "Required Issues not Documented", "Contact Location", "Contact Date",
+			"Author", "Title", "Create Date", "Submitted Date", "Reviewed Date", "Status" };
+	private static final int[] xlsColWidths = { 5, 5, 5, 60, 50, 50, 20, 12, 30, 25, 12, 12, 12, 20 };
+
 	public Resource createPDFResource(MFPUser mfpUser, ContactReportInfo report) {
-		return createBulkPDFResource(mfpUser, new ContactReportInfo[] { report });
+		ArrayList<ContactReportInfo> rpts = new ArrayList<ContactReportInfo>();
+		rpts.add(report);
+		return createBulkPDFResource(mfpUser, rpts);
 	}
 
-	public Resource createBulkPDFResource(MFPUser mfpUser, ContactReportInfo[] reports) {
+	public Resource createBulkPDFResource(MFPUser mfpUser, List<ContactReportInfo> reports) {
 		//
 		String postFix = "_BULK";
-		if (reports.length == 1)
-			postFix = "_" + reports[0].getContactReportId();
-		Path filePath = getTmpFilePath(mfpUser, postFix);
+		boolean first = true;
+		if (reports.size() == 1)
+			postFix = "_" + reports.get(0).getContactReportId();
+		Path filePath = getTmpFilePath(mfpUser, "contact_report_", postFix, ".pdf");
 		PDFReport pdfReport = new PDFReport("", "Contact Report", "Mazda North America Operations");
 		try {
 			pdfReport.openPdf(filePath.toString());
 			for (ContactReportInfo report : reports) {
+				if (!first) {
+					pdfReport.addPageBreak();
+				}
 				createPDFDocument(pdfReport, report, mfpUser);
+				first = false;
 			}
 			pdfReport.closePdf();
 		} catch (Exception e) {
@@ -61,6 +83,96 @@ public class PDFService extends MfpKPIControllerBase {
 		return resource;
 	}
 
+	public Resource createXLSFResource(MFPUser mfpUser, List<ContactReportInfo> reports) {
+		//
+		//
+		Resource resource = null;
+		HSSFWorkbook wkbk = new HSSFWorkbook();
+		HSSFSheet sheet = wkbk.createSheet("Contact Report Summary");
+		try {
+			int row = 0;
+			row = printXLSHeaders(sheet, row);
+			for (ContactReportInfo report : reports) {
+				row = printXLSRow(sheet, row, mfpUser, report);
+			}
+			// Write the workbook in file system
+			Path filePath = getTmpFilePath(mfpUser, "contact_report_summary_", mfpUser.getUserid(), ".xls");
+			FileOutputStream out = new FileOutputStream(filePath.toFile());
+			wkbk.write(out);
+			out.close();
+			resource = new UrlResource(filePath.toUri());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resource;
+	}
+
+	private int printXLSHeaders(HSSFSheet sheet, int rCnt) {
+		int col = 0;
+		Row row = sheet.createRow(rCnt++);
+		// Bold Font
+		HSSFCellStyle boldStyle = sheet.getWorkbook().createCellStyle();
+		HSSFFont bFont = sheet.getWorkbook().createFont();
+		bFont.setBold(true);
+		boldStyle.setFont(bFont);
+		boldStyle.setAlignment(HorizontalAlignment.CENTER);
+		for (int i = 0; i < xlsHeaders.length; i++) {
+			Cell cell = row.createCell(col++);
+			cell.setCellStyle(boldStyle);
+			cell.setCellValue(xlsHeaders[i]);
+			sheet.autoSizeColumn(i);
+			if( xlsColWidths[i] > xlsHeaders[i].length() ) {
+				sheet.setColumnWidth(i, xlsColWidths[i]*256);
+			}
+		}
+		return rCnt;
+
+	}
+
+	private int printXLSRow(HSSFSheet sheet, int rCnt, MFPUser mfpUser, ContactReportInfo report) {
+		DealerInfo dInfo = getDealerInfo(mfpUser, report.getDlrCd());
+		MFPUser uInfo = getAuthorUser(mfpUser, report.getContactAuthor());
+		List<String> topics = new ArrayList<String>();
+		if (report.getDiscussions() != null && report.getDiscussions().size() > 0) {
+			for (ContactReportDiscussion disc : report.getDiscussions()) {
+				topics.add(disc.getTopic());
+			}
+		}
+		if (topics.size() == 0) {
+			topics.add(" ");
+		}
+		for (String topic : topics) {
+			Row row = sheet.createRow(rCnt++);
+			int col = 0;
+			col = addXLSCellValue(row, dInfo.getRgnCd(), col);
+			col = addXLSCellValue(row, dInfo.getZoneCd(), col);
+			col = addXLSCellValue(row, dInfo.getDistrictCd(), col);
+			col = addXLSCellValue(row, dInfo.getDbaNm().trim() + " - " + dInfo.getDlrCd(), col);
+			col = addXLSCellValue(row, topic, col);
+			col = addXLSCellValue(row, "", col);
+			col = addXLSCellValue(row, report.getContactLocation(), col);
+			String dtVal = "";
+			if (report.getContactDt() != null) {
+				DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM-dd-YYYY");
+				dtVal = "" + report.getContactDt().format(dtf);
+			}
+			col = addXLSCellValue(row, dtVal, col);
+			col = addXLSCellValue(row, uInfo.getFirstName().trim() + " " + uInfo.getLastName().trim(), col);
+			col = addXLSCellValue(row, uInfo.getHrJobName(), col);
+			col = addXLSCellValue(row, "", col);
+			col = addXLSCellValue(row, "", col);
+			col = addXLSCellValue(row, "", col);
+			col = addXLSCellValue(row, "" + report.getContactStatus(), col);
+		}
+		return rCnt;
+	}
+
+	private int addXLSCellValue(Row row, String val, int col) {
+		Cell cell = row.createCell(col++);
+		cell.setCellValue(val);
+		return col;
+	}
+
 	private void createPDFDocument(PDFReport pdfReport, ContactReportInfo report, MFPUser mfpUser) {
 		PDFCRMain pdfMain = new PDFCRMain();
 		DealerInfo dInfo = getDealerInfo(mfpUser, report.getDlrCd());
@@ -71,12 +183,12 @@ public class PDFService extends MfpKPIControllerBase {
 		pdfMain.createPDF(pdfReport, report, author, dInfo, dEmpInfos, revEmpInfo);
 	}
 
-	private Path getTmpFilePath(MFPUser mfpUser, String postFix) {
-		String baseFileName = "contact_report_" + postFix;
+	private Path getTmpFilePath(MFPUser mfpUser, String prefix, String postfix, String extn) {
+		String baseFileName = prefix + postfix;
 		Path tmpFilePath = null;
 		File tmpFile = null;
 		try {
-			tmpFile = File.createTempFile(baseFileName, ".pdf");
+			tmpFile = File.createTempFile(baseFileName, extn);
 			tmpFile.deleteOnExit();
 			tmpFilePath = tmpFile.toPath();
 		} catch (IOException e1) {

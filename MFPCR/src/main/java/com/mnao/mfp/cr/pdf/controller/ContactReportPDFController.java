@@ -70,4 +70,50 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 		}
 	}
 
+	@GetMapping(value = "/downloadBulkPDF")
+	public ResponseEntity<Resource> createBulkPDF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
+			@RequestBody List<ContactReportInfo> report, HttpServletRequest request) {
+		PDFService service = new PDFService();
+		Resource pdfRes = service.createBulkPDFResource(mfpUser, report);
+		if (pdfRes != null) {
+			String contentType = null;
+			try {
+				contentType = request.getServletContext().getMimeType(pdfRes.getFile().getAbsolutePath());
+			} catch (IOException ex) {
+				System.out.println("Could not determine file type.");
+			}
+			// Fallback to the default content type if type could not be determined
+			if (contentType == null) {
+				contentType = "application/octet-stream";
+			}
+			return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + pdfRes.getFilename() + "\"")
+					.body(pdfRes);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+	@GetMapping(value = "/downloadStatusXLS")
+	public ResponseEntity<Resource> downloadStatusXLSF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
+			@RequestBody List<ContactReportInfo> report, HttpServletRequest request) {
+		PDFService service = new PDFService();
+		Resource pdfRes = service.createXLSFResource(mfpUser, report);
+		if (pdfRes != null) {
+			String contentType = null;
+			try {
+				contentType = request.getServletContext().getMimeType(pdfRes.getFile().getAbsolutePath());
+			} catch (IOException ex) {
+				System.out.println("Could not determine file type.");
+			}
+			// Fallback to the default content type if type could not be determined
+			if (contentType == null) {
+				contentType = "application/octet-stream";
+			}
+			return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + pdfRes.getFilename() + "\"")
+					.body(pdfRes);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
 }
