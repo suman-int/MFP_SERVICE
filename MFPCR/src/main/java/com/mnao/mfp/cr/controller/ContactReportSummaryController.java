@@ -9,15 +9,11 @@ import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.cr.model.ContactReportResponse;
 import com.mnao.mfp.cr.model.DealersByIssue;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -78,6 +74,14 @@ public class ContactReportSummaryController {
         return GenericResponseWrapper.contactReportResponseFunction
                 .apply(contactReportSummaryService.summaryByCurrentStatusDealershipList(issue), null);
     }
+
+
+    @GetMapping(value = "report-execution-coverage/{date}")
+    public ContactReportResponse reportExecutionBycoverage(@PathVariable("date") String date){
+        return GenericResponseWrapper.contactReportResponseFunction
+                .apply(contactReportSummaryService.reportExecutionBycoverage(date), null);
+    }
+
 
 
 }
