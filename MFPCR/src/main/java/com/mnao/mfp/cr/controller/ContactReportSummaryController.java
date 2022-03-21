@@ -69,7 +69,7 @@ public class ContactReportSummaryController {
                 .apply(contactReportSummaryService.summaryByCurrentStatus(issueType), null);
     }
 
-    @GetMapping(value = "summary-current-status-dealership-List/{issue}")
+    @GetMapping(value = "summary-current-status-dealership-list/{issue}")
     public ContactReportResponse summaryByCurrentStatusDealershipList(@PathVariable("issue") String issue){
         return GenericResponseWrapper.contactReportResponseFunction
                 .apply(contactReportSummaryService.summaryByCurrentStatusDealershipList(issue), null);
