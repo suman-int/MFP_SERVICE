@@ -1,5 +1,8 @@
 package com.mnao.mfp.cr.pdf.generate;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
@@ -13,35 +16,23 @@ import com.mnao.mfp.cr.pdf.dao.DealerInfo;
 import com.mnao.mfp.cr.pdf.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.user.dao.MFPUser;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
 public class PDFCRMain {
-	public void createPdfFile(Path p, ContactReportInfo crInfo, MFPUser author, DealerInfo dInfo,
-			List<DealerEmployeeInfo> dEmpInfos, ReviewerEmployeeInfo revEmpInfo) throws IOException {
-		byte[] b = createPDF(crInfo, author, dInfo, dEmpInfos, revEmpInfo);
-		Files.write(p, b, StandardOpenOption.CREATE);
-	}
-
-	public byte[] createPDF(ContactReportInfo crInfo, MFPUser author, DealerInfo dInfo,
+//	public void createPdfFile(Path p, ContactReportInfo crInfo, MFPUser author, DealerInfo dInfo,
+//			List<DealerEmployeeInfo> dEmpInfos, ReviewerEmployeeInfo revEmpInfo) throws IOException {
+//		byte[] b = createPDF(crInfo, author, dInfo, dEmpInfos, revEmpInfo);
+//		Files.write(p, b, StandardOpenOption.CREATE);
+//	}
+//
+	public void createPDF(PDFReport report, ContactReportInfo crInfo, MFPUser author, DealerInfo dInfo,
 			List<DealerEmployeeInfo> dEmpInfos, ReviewerEmployeeInfo revEmpInfo) {
-		byte[] pdfBytes = null;
-		PDFReport report = new PDFReport("", "Contact Report", "Mazda North America Operations");
 		try {
-			report.openPdf();
 			addHeadPortion(report, crInfo, dInfo, author);
 			addPersonnel(report, crInfo, dEmpInfos, revEmpInfo, author);
 			addDiscussions(report, crInfo);
-			report.closePdf();
-			pdfBytes = report.getBytes();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return pdfBytes;
+		return ;
 	}
 
 	private void addDiscussions(PDFReport report, ContactReportInfo crInfo) {
@@ -85,8 +76,8 @@ public class PDFCRMain {
 		if (author == null) {
 			addCell(tbl, crInfo.getContactAuthor());
 		} else {
-			String auth = author.getFirstName() + " " + author.getLastName();
-			String jDesc = author.getHrJobName();
+			String auth = getNameString(author.getFirstName(), author.getLastName() );
+			String jDesc = author.getHrJobName().trim();
 			if ((jDesc != null) && (jDesc.trim().length() > 0))
 				auth += ", " + jDesc;
 			addCell(tbl, auth);
@@ -95,11 +86,11 @@ public class PDFCRMain {
 		if (revEmpInfo == null) {
 			addCell(tbl, crInfo.getContactReviewer());
 		} else {
-			String person = revEmpInfo.getFirstNm();
-			if (revEmpInfo.getMidlNm() != null)
-				person += " " + revEmpInfo.getMidlNm();
-			person += " " + revEmpInfo.getLastNm();
-			person += ", " + revEmpInfo.getJobTitleTx();
+			String person = getNameString(revEmpInfo.getFirstNm(), revEmpInfo.getMidlNm(), revEmpInfo.getLastNm() );
+			String jDesc = revEmpInfo.getJobTitleTx().trim();
+			if ((jDesc != null) && (jDesc.trim().length() > 0)) {
+				person += ", " + jDesc;
+			}
 			addCell(tbl, person);
 		}
 		addCell(tbl, "DEALERSHIP CONTACTS", 1, 2);
@@ -108,11 +99,8 @@ public class PDFCRMain {
 		if (dps != null) {
 			if (dEmpInfos != null) {
 				for (DealerEmployeeInfo dei : dEmpInfos) {
-					String person = dei.getFirstNm();
-					if (dei.getMidlNm() != null)
-						person += " " + dei.getMidlNm();
-					person += " " + dei.getLastNm();
-					person += ", " + dei.getJobTitleTx();
+					String person = getNameString(dei.getFirstNm(), dei.getMidlNm(), dei.getLastNm() );
+					person += ", " + dei.getJobTitleTx().trim();
 					dpers.append(person);
 					dpers.append("\n");
 				}
@@ -127,6 +115,18 @@ public class PDFCRMain {
 		}
 		addCell(tbl, dpers.toString(), 1, 2);
 		report.addToReport(tbl);
+	}
+	
+	private String getNameString(String ... nParts) {
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0 ; i < nParts.length; i++) {
+			if( (nParts[i] != null) && (nParts[i].trim().length() > 0) ) {
+				if( i > 0 )
+					sb.append(" ");
+				sb.append(nParts[i].trim());
+			}
+		}
+		return sb.toString();
 	}
 
 	private void addHeadPortion(PDFReport report, ContactReportInfo crInfo, DealerInfo dInfo, MFPUser author) {
@@ -164,7 +164,7 @@ public class PDFCRMain {
 		if (author == null) {
 			addCell(tbl, crInfo.getContactAuthor());
 		} else {
-			String auth = author.getFirstName() + " " + author.getLastName();
+			String auth = getNameString(author.getFirstName(),  author.getLastName());
 			addCell(tbl, auth);
 		}
 		//

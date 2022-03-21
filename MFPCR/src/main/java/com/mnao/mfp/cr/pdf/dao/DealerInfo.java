@@ -80,7 +80,7 @@ public class DealerInfo extends MetricData {
 		mdaNm = rs.getString(24);
 		lat = rs.getString(25);
 		lon = rs.getString(26);
-		zoneCd = rs.getString(26);
+		zoneCd = rs.getString(27);
 		districtCd = rs.getString(28);
 		dealerStrtEnd = rs.getString(29);
 		dealerEffEnd = rs.getString(20);

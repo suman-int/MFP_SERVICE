@@ -18,7 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +33,7 @@ import com.mnao.mfp.cr.pdf.dao.DealerEmployeeInfo;
 import com.mnao.mfp.cr.pdf.dao.DealerInfo;
 import com.mnao.mfp.cr.pdf.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.cr.pdf.generate.PDFCRMain;
+import com.mnao.mfp.cr.pdf.service.PDFService;
 import com.mnao.mfp.list.controller.ListController;
 import com.mnao.mfp.list.service.ListService;
 import com.mnao.mfp.list.service.MMAListService;
@@ -43,12 +44,13 @@ import com.mnao.mfp.user.service.UserDetailsService;
 @RequestMapping(path = "/ContactReport")
 public class ContactReportPDFController extends MfpKPIControllerBase {
 	//
-	private static final Logger log = LoggerFactory.getLogger(ListController.class);
+	private static final Logger log = LoggerFactory.getLogger(ContactReportPDFController.class);
 
-	@PostMapping(value = "/downloadPDF")
+	@GetMapping(value = "/downloadPDF")
 	public ResponseEntity<Resource> createPDF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
 			@RequestBody ContactReportInfo report, HttpServletRequest request) {
-		Resource pdfRes = createPDFResource(mfpUser, report);
+		PDFService service = new PDFService();
+		Resource pdfRes = service.createPDFResource(mfpUser, report);
 		if (pdfRes != null) {
 			String contentType = null;
 			try {
@@ -68,121 +70,50 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 		}
 	}
 
-	private Resource createPDFResource(MFPUser mfpUser, ContactReportInfo report) {
-		String baseFileName = "contact_report_" + report.getContactReportId();
-		File tmpFile = null;
-		try {
-			tmpFile = File.createTempFile(baseFileName, ".pdf");
-		} catch (IOException e1) {
-			e1.printStackTrace();
-			return null;
-		}
-		Path filePath = tmpFile.toPath();
-		PDFCRMain pdfMain = new PDFCRMain();
-		DealerInfo dInfo = getDealerInfo(mfpUser, report.getDlrCd());
-		List<DealerEmployeeInfo> dEmpInfos = getDealerEmployeeInfos(mfpUser, report.getDlrCd(),
-				report.getDealerPersonnels());
-		ReviewerEmployeeInfo revEmpInfo = getReviewerEmployeeInfos(mfpUser, report.getContactReviewer());
-		MFPUser author = getAuthorUser(mfpUser, report.getContactAuthor());
-		try {
-			pdfMain.createPdfFile(filePath, report, author, dInfo, dEmpInfos, revEmpInfo);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		Resource resource = null;
-		try {
-			resource = new UrlResource(filePath.toUri());
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		return resource;
-	}
-
-	private MFPUser getAuthorUser(MFPUser mfpUser, String contactAuthor) {
-		UserDetailsService uds = new UserDetailsService();
-		MFPUser musr = uds.getMFPUser(contactAuthor);
-		return musr;
-	}
-
-	private ReviewerEmployeeInfo getReviewerEmployeeInfos(MFPUser mfpUser, String contactReviewer) {
-		ReviewerEmployeeInfo revEmp = null;
-		if (contactReviewer != null) {
-			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEES);
-			MMAListService<ReviewerEmployeeInfo> service = new MMAListService<ReviewerEmployeeInfo>();
-			List<ReviewerEmployeeInfo> retRows = null;
-			DealerFilter df = new DealerFilter(mfpUser, null, mfpUser.getRgnCd(), null, null, null);
+	@GetMapping(value = "/downloadBulkPDF")
+	public ResponseEntity<Resource> createBulkPDF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
+			@RequestBody List<ContactReportInfo> report, HttpServletRequest request) {
+		PDFService service = new PDFService();
+		Resource pdfRes = service.createBulkPDFResource(mfpUser, report);
+		if (pdfRes != null) {
+			String contentType = null;
 			try {
-				retRows = service.getListData(sqlName, ReviewerEmployeeInfo.class, df, mfpUser.getRgnCd());
-			} catch (InstantiationException | IllegalAccessException | ParseException e) {
-				log.error("ERROR retrieving list of Employees:", e);
+				contentType = request.getServletContext().getMimeType(pdfRes.getFile().getAbsolutePath());
+			} catch (IOException ex) {
+				System.out.println("Could not determine file type.");
 			}
-			if ((retRows != null) && retRows.size() > 0) {
-				revEmp = getReviewerEmployeeInfo(retRows, contactReviewer);
+			// Fallback to the default content type if type could not be determined
+			if (contentType == null) {
+				contentType = "application/octet-stream";
 			}
+			return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + pdfRes.getFilename() + "\"")
+					.body(pdfRes);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return revEmp;
 	}
-
-	private ReviewerEmployeeInfo getReviewerEmployeeInfo(List<ReviewerEmployeeInfo> retRows, String contactReviewer) {
-		for (int i = 0; i < retRows.size(); i++) {
-			ReviewerEmployeeInfo rei = retRows.get(i);
-			if (rei.getPrsnIdCd().equals(contactReviewer)) {
-				return rei;
-			}
-		}
-		return null;
-	}
-
-	private List<DealerEmployeeInfo> getDealerEmployeeInfos(MFPUser mfpUser, String dlrCd,
-			List<ContactReportDealerPersonnel> dPers) {
-		List<DealerEmployeeInfo> dEmpInfos = new ArrayList<DealerEmployeeInfo>();
-		if (dPers != null) {
-			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALER_EMPLOYEES);
-			ListService<DealerEmployeeInfo> service = new ListService<DealerEmployeeInfo>();
-			List<DealerEmployeeInfo> retRows = null;
-			DealerFilter df = new DealerFilter(mfpUser, dlrCd, null, null, null, null);
+	@GetMapping(value = "/downloadStatusXLS")
+	public ResponseEntity<Resource> downloadStatusXLSF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
+			@RequestBody List<ContactReportInfo> report, HttpServletRequest request) {
+		PDFService service = new PDFService();
+		Resource pdfRes = service.createXLSFResource(mfpUser, report);
+		if (pdfRes != null) {
+			String contentType = null;
 			try {
-				retRows = service.getListData(sqlName, DealerEmployeeInfo.class, df);
-			} catch (InstantiationException | IllegalAccessException | ParseException e) {
-				log.error("ERROR retrieving list of Employees:", e);
+				contentType = request.getServletContext().getMimeType(pdfRes.getFile().getAbsolutePath());
+			} catch (IOException ex) {
+				System.out.println("Could not determine file type.");
 			}
-			if ((retRows != null) && retRows.size() > 0) {
-				for (ContactReportDealerPersonnel dp : dPers) {
-					DealerEmployeeInfo dei = getDealerEmployeeInfo(retRows, dp);
-					if (dei != null) {
-						dEmpInfos.add(dei);
-					}
-				}
+			// Fallback to the default content type if type could not be determined
+			if (contentType == null) {
+				contentType = "application/octet-stream";
 			}
+			return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + pdfRes.getFilename() + "\"")
+					.body(pdfRes);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return dEmpInfos;
-	}
-
-	private DealerEmployeeInfo getDealerEmployeeInfo(List<DealerEmployeeInfo> retRows,
-			ContactReportDealerPersonnel dp) {
-		for (int i = 0; i < retRows.size(); i++) {
-			DealerEmployeeInfo dei = retRows.get(i);
-			if (dei.getPrsnIdCd().equals(dp.getPersonnelIdCd())) {
-				return dei;
-			}
-		}
-		return null;
-	}
-
-	private DealerInfo getDealerInfo(MFPUser mfpUser, String dlrCd) {
-		DealerInfo dInfo = null;
-		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS);
-		ListService<DealerInfo> service = new ListService<DealerInfo>();
-		List<DealerInfo> retRows = null;
-		DealerFilter df = new DealerFilter(mfpUser, dlrCd, null, null, null, null);
-		try {
-			retRows = service.getListData(sqlName, DealerInfo.class, df);
-		} catch (InstantiationException | IllegalAccessException | ParseException e) {
-			log.error("ERROR retrieving list of Dealers:", e);
-		}
-		if ((retRows != null) && (retRows.size() > 0)) {
-			dInfo = retRows.get(0);
-		}
-		return dInfo;
 	}
 }

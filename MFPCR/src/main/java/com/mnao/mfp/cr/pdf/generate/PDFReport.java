@@ -74,7 +74,7 @@ public class PDFReport {
 		openPdf(new PdfWriter(pdfName));
 	}
 
-	private void openPdf(PdfWriter pdfW) {
+	public void openPdf(PdfWriter pdfW) {
 		PdfDocument pdf = new PdfDocument(pdfW);
 		pdfDoc = new Document(pdf, getPageSize());
 		closed = false;
