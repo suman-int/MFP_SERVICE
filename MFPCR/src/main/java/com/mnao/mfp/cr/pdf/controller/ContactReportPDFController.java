@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +29,9 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import com.mnao.mfp.common.controller.MfpKPIControllerBase;
 import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.util.AppConstants;
+import com.mnao.mfp.cr.Service.ContactInfoService;
+import com.mnao.mfp.cr.Service.ContactInfoServiceImpl;
+import com.mnao.mfp.cr.dto.FilterCriteria;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.pdf.dao.DealerEmployeeInfo;
@@ -72,7 +77,10 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 
 	@GetMapping(value = "/downloadBulkPDF")
 	public ResponseEntity<Resource> createBulkPDF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
-			@RequestBody List<ContactReportInfo> report, HttpServletRequest request) {
+			// @RequestBody List<ContactReportInfo> report, HttpServletRequest request) {
+			@RequestBody FilterCriteria filterCriteria, HttpServletRequest request) {
+		ContactInfoServiceImpl cInfoServ = new ContactInfoServiceImpl();
+		List<ContactReportInfo> report = cInfoServ.filterContactReportsBasedOnFilter(filterCriteria);
 		PDFService service = new PDFService();
 		Resource pdfRes = service.createBulkPDFResource(mfpUser, report);
 		if (pdfRes != null) {
@@ -93,9 +101,13 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
+
 	@GetMapping(value = "/downloadStatusXLS")
 	public ResponseEntity<Resource> downloadStatusXLSF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
-			@RequestBody List<ContactReportInfo> report, HttpServletRequest request) {
+			// @RequestBody List<ContactReportInfo> report, HttpServletRequest request) {
+			@RequestBody FilterCriteria filterCriteria, HttpServletRequest request) {
+		ContactInfoServiceImpl cInfoServ = new ContactInfoServiceImpl();
+		List<ContactReportInfo> report = cInfoServ.filterContactReportsBasedOnFilter(filterCriteria);
 		PDFService service = new PDFService();
 		Resource pdfRes = service.createXLSFResource(mfpUser, report);
 		if (pdfRes != null) {

@@ -42,8 +42,8 @@ public class Employees {
     private LocalDate W_UPDT_DT;
     private String ZIP_CD;
 
-    @OneToMany(targetEntity = ContactReportDealerPersonnel.class, cascade = CascadeType.ALL)
-    @JoinColumn(name="personnelIdCd")
-    @NotNull
-    private List<ContactReportDealerPersonnel> dealerPersonnels;
+//    @OneToMany(targetEntity = ContactReportDealerPersonnel.class, cascade = CascadeType.ALL)
+//    @JoinColumn(name="personnelIdCd")
+//    @NotNull
+//    private List<ContactReportDealerPersonnel> dealerPersonnels;
 }

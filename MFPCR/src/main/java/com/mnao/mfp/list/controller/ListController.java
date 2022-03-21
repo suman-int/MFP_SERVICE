@@ -5,12 +5,14 @@ import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.dto.CommonResponse;
 import com.mnao.mfp.common.service.AbstractService;
 import com.mnao.mfp.common.util.AppConstants;
+import com.mnao.mfp.cr.Service.ContactInfoService;
 import com.mnao.mfp.list.dao.*;
 import com.mnao.mfp.list.service.ListService;
 import com.mnao.mfp.list.service.MMAListService;
 import com.mnao.mfp.user.dao.MFPUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -22,7 +24,8 @@ import java.util.List;
 public class ListController extends MfpKPIControllerBase {
 	//
 	private static final Logger log = LoggerFactory.getLogger(ListController.class);
-
+	//
+ 
 	//
 	@PostMapping("/ListDealers")
 	public CommonResponse<List<ListDealer>> listDealers(@RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
