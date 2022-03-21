@@ -13,6 +13,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -56,6 +57,7 @@ public class ContactReportAttachment {
 
 	@ManyToOne(targetEntity = ContactReportInfo.class,fetch = FetchType.EAGER)
 	@JoinColumn(name = "contactReportIdFk", referencedColumnName="contactReportId")
+	@JsonIgnore
 	private ContactReportInfo contactReport;
 	
 }

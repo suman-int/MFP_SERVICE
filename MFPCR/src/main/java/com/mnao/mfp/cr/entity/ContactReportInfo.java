@@ -22,7 +22,7 @@ import lombok.Setter;
 public class ContactReportInfo {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long contactReportId;
 	
 	@NotNull

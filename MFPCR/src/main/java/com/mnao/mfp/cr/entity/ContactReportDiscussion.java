@@ -7,6 +7,7 @@ import javax.persistence.criteria.Fetch;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,6 +38,7 @@ public class ContactReportDiscussion {
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name="contactReportId")
+	@JsonIgnore
 	private ContactReportInfo contactReportInfo;
 	
 }

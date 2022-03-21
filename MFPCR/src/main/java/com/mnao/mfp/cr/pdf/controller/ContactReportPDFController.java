@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,10 +52,11 @@ import com.mnao.mfp.user.service.UserDetailsService;
 public class ContactReportPDFController extends MfpKPIControllerBase {
 	//
 	private static final Logger log = LoggerFactory.getLogger(ContactReportPDFController.class);
+	@Autowired ContactInfoServiceImpl cInfoServ;
 
-	@GetMapping(value = "/downloadPDF")
+	@PostMapping(value = "/downloadPDF")
 	public ResponseEntity<Resource> createPDF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
-			@RequestBody ContactReportInfo report, HttpServletRequest request) {
+			@Valid @RequestBody ContactReportInfo report, HttpServletRequest request) {
 		PDFService service = new PDFService();
 		Resource pdfRes = service.createPDFResource(mfpUser, report);
 		if (pdfRes != null) {
@@ -75,11 +78,11 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 		}
 	}
 
-	@GetMapping(value = "/downloadBulkPDF")
+	@PostMapping(value = "/downloadBulkPDF")
 	public ResponseEntity<Resource> createBulkPDF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
 			// @RequestBody List<ContactReportInfo> report, HttpServletRequest request) {
 			@RequestBody FilterCriteria filterCriteria, HttpServletRequest request) {
-		ContactInfoServiceImpl cInfoServ = new ContactInfoServiceImpl();
+//		ContactInfoServiceImpl cInfoServ = new ContactInfoServiceImpl();
 		List<ContactReportInfo> report = cInfoServ.filterContactReportsBasedOnFilter(filterCriteria);
 		PDFService service = new PDFService();
 		Resource pdfRes = service.createBulkPDFResource(mfpUser, report);
@@ -102,11 +105,11 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 		}
 	}
 
-	@GetMapping(value = "/downloadStatusXLS")
+	@PostMapping(value = "/downloadStatusXLS")
 	public ResponseEntity<Resource> downloadStatusXLSF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
 			// @RequestBody List<ContactReportInfo> report, HttpServletRequest request) {
 			@RequestBody FilterCriteria filterCriteria, HttpServletRequest request) {
-		ContactInfoServiceImpl cInfoServ = new ContactInfoServiceImpl();
+//		ContactInfoServiceImpl cInfoServ = new ContactInfoServiceImpl();
 		List<ContactReportInfo> report = cInfoServ.filterContactReportsBasedOnFilter(filterCriteria);
 		PDFService service = new PDFService();
 		Resource pdfRes = service.createXLSFResource(mfpUser, report);
