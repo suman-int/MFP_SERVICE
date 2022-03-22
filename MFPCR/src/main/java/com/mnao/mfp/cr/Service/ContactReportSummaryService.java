@@ -17,7 +17,6 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -295,4 +294,34 @@ public class ContactReportSummaryService {
         }).collect(Collectors.toList());
     }
 
+    public List<Map<String, List<Object>>> reportExecutionByException(String date) {
+        LocalDate startDate = LocalDate.parse(date).withDayOfMonth(1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+        Map<String, String> dlrInfo = dealerService.findAll().stream().collect(Collectors.toMap(Dealers::getDlrCd,Dealers::getDbaNm));
+
+        List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactDtBetween(startDate, endDate);
+
+//        Map<String, List<Object>> finalsummaryMap = new HashMap<>();
+        Map<String, List<Object>> SummaryMap = new HashMap<>();
+        return contactReportInfos.stream().map(cr -> {
+            if (SummaryMap.containsKey(cr.getDlrCd())) {
+                List<Object> obj = SummaryMap.get(cr.getDlrCd());
+                List<Object> ob1 = new ArrayList<>();
+                ob1.add(cr.getDlrCd());
+                ob1.add(cr.getContactReportId());
+                ob1.add(cr.getContactAuthor());
+                obj.add(ob1);
+                SummaryMap.put(cr.getDlrCd(),obj);
+            }
+            else{
+                List<Object> ob1 = new ArrayList<>();
+                ob1.add(cr.getDlrCd());
+                ob1.add(cr.getContactReportId());
+                ob1.add(cr.getContactAuthor());
+               SummaryMap.put(cr.getDlrCd(),ob1);
+            }
+            return SummaryMap;
+    }).collect(Collectors.toList());
+}
 }
