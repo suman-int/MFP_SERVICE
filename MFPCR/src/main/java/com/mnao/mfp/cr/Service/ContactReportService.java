@@ -6,7 +6,7 @@ import com.mnao.mfp.user.dao.MFPUser;
 
 public interface ContactReportService {
 
-     String submitReportData(ContactReportInfo report, MFPUser mfpUser);
+     String submitReportData(ContactReportInfo report, MFPUser mfpUser) throws Exception;
 
      ContactReportDto findByContactReportId(long ContactreporId);
 

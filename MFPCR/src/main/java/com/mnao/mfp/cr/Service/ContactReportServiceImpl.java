@@ -44,7 +44,7 @@ public class ContactReportServiceImpl implements ContactReportService{
         }).collect(Collectors.toList());
     }
     
-    public String submitReportData(ContactReportInfo report, MFPUser mfpUser)  {
+    public String submitReportData(ContactReportInfo report, MFPUser mfpUser) throws Exception  {
         String submission = "Unable to save contact report";
         try {
 
@@ -90,6 +90,7 @@ public class ContactReportServiceImpl implements ContactReportService{
         } catch (Exception e) {
         	e.printStackTrace();
             submission = "Failed - Metrics | DealerPersonnel is missing";
+            throw new Exception (submission);
         }
         return submission;
     }

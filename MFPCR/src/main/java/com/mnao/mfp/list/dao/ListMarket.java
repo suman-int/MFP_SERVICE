@@ -24,7 +24,7 @@ public class ListMarket extends MetricData {
 
 	@Override
 	public void setResultSetRow(ResultSet rs) throws SQLException {
-		super.setFieldValue(".mdaCd", rs, 1);
+		super.setFieldValue("mdaCd", rs, 1);
 		super.setFieldValue("mdaNm", rs, 2);
 	}
 
