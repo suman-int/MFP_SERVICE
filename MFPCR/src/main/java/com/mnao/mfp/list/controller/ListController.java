@@ -111,7 +111,7 @@ public class ListController extends MfpKPIControllerBase {
 
 	//
 	@PostMapping("/ListDealerEmployees")
-	public CommonResponse<List<ListApprover>> listDealerEmployees(
+	public CommonResponse<List<ListPersonnel>> listDealerEmployees(
 			@RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
 			@RequestParam(value = "zoneCd", defaultValue = "") String zoneCd,
 			@RequestParam(value = "districtCd", defaultValue = "") String districtCd,
@@ -119,11 +119,11 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALER_EMPLOYEES);
-		MMAListService<ListApprover> service = new MMAListService<ListApprover>();
-		List<ListApprover> retRows = null;
+		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
+		List<ListPersonnel> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
 		try {
-			retRows = service.getListData(sqlName, ListApprover.class, df, df.getDlrCd());
+			retRows = service.getListData(sqlName, ListPersonnel.class, df, df.getDlrCd());
 		} catch (InstantiationException | IllegalAccessException | ParseException e) {
 			log.error("ERROR retrieving list of Employees:", e);
 		}
@@ -132,7 +132,7 @@ public class ListController extends MfpKPIControllerBase {
 
 	//
 	@PostMapping("/ListReviewerEmployees")
-	public CommonResponse<List<ListApprover>> listReviewerEmployees(
+	public CommonResponse<List<ListPersonnel>> listReviewerEmployees(
 			@RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
 			@RequestParam(value = "zoneCd", defaultValue = "") String zoneCd,
 			@RequestParam(value = "districtCd", defaultValue = "") String districtCd,
@@ -140,11 +140,11 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEES);
-		MMAListService<ListApprover> service = new MMAListService<ListApprover>();
-		List<ListApprover> retRows = null;
+		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
+		List<ListPersonnel> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
 		try {
-			retRows = service.getListData(sqlName, ListApprover.class, df, mfpUser.getRgnCd());
+			retRows = service.getListData(sqlName, ListPersonnel.class, df, mfpUser.getRgnCd());
 		} catch (InstantiationException | IllegalAccessException | ParseException e) {
 			log.error("ERROR retrieving list of Employees:", e);
 		}
@@ -153,7 +153,7 @@ public class ListController extends MfpKPIControllerBase {
 
 	//
 	@PostMapping("/ListCorporateEmployees")
-	public CommonResponse<List<ListApprover>> listCorporateEmployees(
+	public CommonResponse<List<ListPersonnel>> listCorporateEmployees(
 			@RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
 			@RequestParam(value = "zoneCd", defaultValue = "") String zoneCd,
 			@RequestParam(value = "districtCd", defaultValue = "") String districtCd,
@@ -161,11 +161,11 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEES);
-		MMAListService<ListApprover> service = new MMAListService<ListApprover>();
-		List<ListApprover> retRows = null;
+		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
+		List<ListPersonnel> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
 		try {
-			retRows = service.getListData(sqlName, ListApprover.class, df, mfpUser.getRgnCd());
+			retRows = service.getListData(sqlName, ListPersonnel.class, df, mfpUser.getRgnCd());
 		} catch (InstantiationException | IllegalAccessException | ParseException e) {
 			log.error("ERROR retrieving list of Employees:", e);
 		}

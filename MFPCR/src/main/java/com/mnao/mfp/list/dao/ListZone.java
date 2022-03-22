@@ -30,7 +30,7 @@ public class ListZone extends MetricData {
 
 	@Override
 	public void setResultSetRow(ResultSet rs) throws SQLException {
-		this.setZoneCd(rs.getString(1));
+		super.setFieldValue("zoneCd", rs, 1);
 	}
 
 	@Override

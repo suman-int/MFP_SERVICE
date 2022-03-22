@@ -45,8 +45,8 @@ public class ListRegion extends MetricData {
 
 	@Override
 	public void setResultSetRow(ResultSet rs) throws SQLException {
-		this.rgnCd = rs.getString(1);
-		this.rgnNm = rs.getString(2);
+		super.setFieldValue("rgnCd", rs, 1);
+		super.setFieldValue("rgnNm", rs, 2);
 	}
 
 }

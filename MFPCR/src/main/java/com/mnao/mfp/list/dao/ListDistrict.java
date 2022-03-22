@@ -35,7 +35,7 @@ public class ListDistrict extends MetricData {
 
 	@Override
 	public void setResultSetRow(ResultSet rs) throws SQLException {
-		this.districtCd = rs.getString(1);
+		super.setFieldValue("districtCd", rs, 1);
 	}
 
 }
