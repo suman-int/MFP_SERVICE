@@ -51,6 +51,15 @@ public class ContactReportInfo {
 	
 	private String corporateReps;
 
+	private String updatedBy;
+
+	private String createdBy;
+
+	private LocalDate createdDt;
+
+	private LocalDate updatedDt;
+
+
 	@OneToMany(targetEntity = ContactReportDealerPersonnel.class, cascade = CascadeType.ALL)
 	@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId", nullable = false)
 	@NotNull

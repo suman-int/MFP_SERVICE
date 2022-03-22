@@ -2,6 +2,7 @@ package com.mnao.mfp.cr.Service;
 
 import com.mnao.mfp.cr.model.DealersByIssue;
 import com.mnao.mfp.cr.util.ContactReportEnum;
+import com.mnao.mfp.user.dao.MFPUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +12,11 @@ import com.mnao.mfp.cr.dto.ReportByDealershipDto;
 import com.mnao.mfp.cr.entity.ContactReportAttachment;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
+import org.springframework.web.bind.annotation.SessionAttribute;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,9 +44,22 @@ public class ContactReportServiceImpl implements ContactReportService{
         }).collect(Collectors.toList());
     }
     
-    public String submitReportData(ContactReportInfo report)  {
+    public String submitReportData(ContactReportInfo report, MFPUser mfpUser)  {
         String submission = "Unable to save contact report";
         try {
+
+            //updating the auditing column when draft
+            if(report.getContactStatus() == 0){
+                report.setUpdatedDt(LocalDate.now());
+                report.setCreatedDt(LocalDate.now());
+                report.setUpdatedBy(mfpUser.getUserid());
+                report.setCreatedBy(mfpUser.getUserid());
+            }
+            else{
+                report.setUpdatedDt(LocalDate.now());
+                report.setUpdatedBy(mfpUser.getUserid());
+            }
+
             if(Objects.nonNull(report.getDealerPersonnels()) && report.getDealerPersonnels().size() > 0) {
                 String reps = report.getCorporateReps();
                 if(reps.length() > 250){

@@ -12,6 +12,7 @@ import com.mnao.mfp.cr.model.ContactReportResponse;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.list.dao.ListDealer;
 
+import com.mnao.mfp.user.dao.MFPUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -43,9 +44,10 @@ public class ReportController {
 	private FileHandlingServiceImpl fileHandlingService;
 
     @PostMapping(value = "/submitReport")
-    public ContactReportResponse submitReportData(@Valid @RequestBody ContactReportInfo report) {
+    public ContactReportResponse submitReportData(@Valid @RequestBody ContactReportInfo report, @SessionAttribute(name = "mfpUser")
+	MFPUser mfpUser){
         try {
-            return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportService.submitReportData(report), null);
+            return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportService.submitReportData(report, mfpUser), null);
         } catch (Exception e) {
             return GenericResponseWrapper.contactReportResponseFunction.apply(null, e.getMessage());
         }
