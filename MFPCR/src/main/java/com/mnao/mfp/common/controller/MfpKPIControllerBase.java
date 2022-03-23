@@ -1,6 +1,7 @@
 package com.mnao.mfp.common.controller;
 
 import java.io.File;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,10 +18,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.mnao.mfp.common.dao.DealerFilter;
+import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.common.db.KPIQuerySpecs;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.DateUtils;
 import com.mnao.mfp.common.util.Utils;
+import com.mnao.mfp.list.service.ListService;
+import com.mnao.mfp.user.dao.MFPUser;
 
 public abstract class MfpKPIControllerBase {
 	//
@@ -123,6 +128,23 @@ public abstract class MfpKPIControllerBase {
 			paging = PageRequest.of(pgNo, pgSize,
 					Sort.by(Direction.fromString(orderDirection.toUpperCase()), orderBy.toUpperCase()));
 		return paging;
+	}
+
+	protected DealerInfo getDealerInfo(MFPUser mfpUser, String dlrCd) {
+		DealerInfo dInfo = null;
+		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS);
+		ListService<DealerInfo> service = new ListService<DealerInfo>();
+		List<DealerInfo> retRows = null;
+		DealerFilter df = new DealerFilter(mfpUser, dlrCd, null, null, null, null);
+		try {
+			retRows = service.getListData(sqlName, DealerInfo.class, df);
+		} catch (InstantiationException | IllegalAccessException | ParseException e) {
+			log.error("ERROR retrieving list of Dealers:", e);
+		}
+		if ((retRows != null) && (retRows.size() > 0)) {
+			dInfo = retRows.get(0);
+		}
+		return dInfo;
 	}
 
 

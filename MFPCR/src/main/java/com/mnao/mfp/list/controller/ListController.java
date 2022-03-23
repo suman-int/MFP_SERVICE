@@ -2,6 +2,7 @@ package com.mnao.mfp.list.controller;
 
 import com.mnao.mfp.common.controller.MfpKPIControllerBase;
 import com.mnao.mfp.common.dao.DealerFilter;
+import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.common.dto.CommonResponse;
 import com.mnao.mfp.common.service.AbstractService;
 import com.mnao.mfp.common.util.AppConstants;
@@ -144,7 +145,8 @@ public class ListController extends MfpKPIControllerBase {
 		List<ListPersonnel> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
 		try {
-			retRows = service.getListData(sqlName, ListPersonnel.class, df, mfpUser.getRgnCd());
+			DealerInfo dlrInfo = getDealerInfo(mfpUser, dlrCd);
+			retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(), dlrInfo.getZoneCd());
 		} catch (InstantiationException | IllegalAccessException | ParseException e) {
 			log.error("ERROR retrieving list of Employees:", e);
 		}
@@ -160,12 +162,12 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "mdaCd", defaultValue = "") String mdaCd,
 			@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEES);
+		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_CORPORATE_EMPLOYEES);
 		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
 		List<ListPersonnel> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
 		try {
-			retRows = service.getListData(sqlName, ListPersonnel.class, df, mfpUser.getRgnCd());
+			retRows = service.getListData(sqlName, ListPersonnel.class, df);
 		} catch (InstantiationException | IllegalAccessException | ParseException e) {
 			log.error("ERROR retrieving list of Employees:", e);
 		}

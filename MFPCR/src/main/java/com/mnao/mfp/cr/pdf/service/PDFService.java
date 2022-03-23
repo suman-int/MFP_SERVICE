@@ -24,13 +24,13 @@ import org.springframework.core.io.UrlResource;
 
 import com.mnao.mfp.common.controller.MfpKPIControllerBase;
 import com.mnao.mfp.common.dao.DealerFilter;
+import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.pdf.controller.ContactReportPDFController;
 import com.mnao.mfp.cr.pdf.dao.DealerEmployeeInfo;
-import com.mnao.mfp.cr.pdf.dao.DealerInfo;
 import com.mnao.mfp.cr.pdf.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.cr.pdf.generate.PDFCRMain;
 import com.mnao.mfp.cr.pdf.generate.PDFReport;
@@ -268,21 +268,5 @@ public class PDFService extends MfpKPIControllerBase {
 		return null;
 	}
 
-	private DealerInfo getDealerInfo(MFPUser mfpUser, String dlrCd) {
-		DealerInfo dInfo = null;
-		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS);
-		ListService<DealerInfo> service = new ListService<DealerInfo>();
-		List<DealerInfo> retRows = null;
-		DealerFilter df = new DealerFilter(mfpUser, dlrCd, null, null, null, null);
-		try {
-			retRows = service.getListData(sqlName, DealerInfo.class, df);
-		} catch (InstantiationException | IllegalAccessException | ParseException e) {
-			log.error("ERROR retrieving list of Dealers:", e);
-		}
-		if ((retRows != null) && (retRows.size() > 0)) {
-			dInfo = retRows.get(0);
-		}
-		return dInfo;
-	}
 
 }

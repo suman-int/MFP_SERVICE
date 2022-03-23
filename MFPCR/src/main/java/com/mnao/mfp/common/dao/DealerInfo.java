@@ -1,11 +1,10 @@
-package com.mnao.mfp.cr.pdf.dao;
+package com.mnao.mfp.common.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.mnao.mfp.common.dao.MetricData;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 
 import lombok.AllArgsConstructor;

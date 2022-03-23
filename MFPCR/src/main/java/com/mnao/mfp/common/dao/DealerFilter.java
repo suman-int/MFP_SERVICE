@@ -47,7 +47,7 @@ public class DealerFilter {
 					rgnMulti = false;
 				}
 			}
-		} else if ((dom.getRegion() != null) && (dom.getRegion().getCode().trim().length() > 0)) {
+		} else if ((dom.getRegion() != null) && (dom.getRegion().getCode() != null) && (dom.getRegion().getCode().trim().length() > 0)) {
 			rgnCd = dom.getRegion().getCode().trim();
 		}
 		if ((dom.getZones() != null) && (dom.getZones().size() > 0)) {
@@ -59,7 +59,7 @@ public class DealerFilter {
 					zoneMulti = false;
 				}
 			}
-		} else if ((dom.getZone() != null) && (dom.getZone().getCode().trim().length() > 0)) {
+		} else if ((dom.getZone() != null) && (dom.getZone().getCode() != null) && (dom.getZone().getCode().trim().length() > 0)) {
 			zoneCd = dom.getZone().getCode().trim();
 		}
 		if ((dom.getDistricts() != null) && (dom.getDistricts().size() > 0)) {
@@ -71,7 +71,7 @@ public class DealerFilter {
 					districtMulti = false;
 				}
 			}
-		} else if ((dom.getDistrict() != null) && (dom.getDistrict().getCode().trim().length() > 0)) {
+		} else if ((dom.getDistrict() != null) && (dom.getDistrict().getCode() != null) && (dom.getDistrict().getCode().trim().length() > 0)) {
 			districtCd = dom.getDistrict().getCode().trim();
 		}
 	}

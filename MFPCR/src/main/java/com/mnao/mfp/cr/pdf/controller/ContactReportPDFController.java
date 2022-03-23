@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 
 import com.mnao.mfp.common.controller.MfpKPIControllerBase;
 import com.mnao.mfp.common.dao.DealerFilter;
+import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.cr.Service.ContactInfoService;
 import com.mnao.mfp.cr.Service.ContactInfoServiceImpl;
@@ -37,7 +38,6 @@ import com.mnao.mfp.cr.dto.FilterCriteria;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.pdf.dao.DealerEmployeeInfo;
-import com.mnao.mfp.cr.pdf.dao.DealerInfo;
 import com.mnao.mfp.cr.pdf.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.cr.pdf.generate.PDFCRMain;
 import com.mnao.mfp.cr.pdf.service.PDFService;
