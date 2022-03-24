@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "report-summary")
+@RequestMapping(value = "/report-summary")
 public class ContactReportSummaryController {
 
     @Autowired
@@ -26,12 +26,12 @@ public class ContactReportSummaryController {
     @Autowired
     private ContactReportSummaryService contactReportSummaryService;
 
-    @GetMapping(value = "dealer-issue")
+    @GetMapping(value = "/dealer-issue")
     public List<DealersByIssue> dealerIssue() {
         return contactReportService.getAllDealersByIssue();
     }
 
-    @GetMapping(value = "by-issue/{type}/{value}/{category}")
+    @GetMapping(value = "/by-issue/{type}/{value}/{category}")
     public ContactReportResponse summaryByIssue(@PathVariable("type") String type,
                                                 @PathVariable("value") String value,
                                                 @PathVariable("category") String category) {
@@ -51,7 +51,7 @@ public class ContactReportSummaryController {
                         ), null);
     }
 
-    @GetMapping(value = "by-month/{type}/{value}")
+    @GetMapping(value = "/by-month/{type}/{value}")
     public ContactReportResponse summaryByMonth(@PathVariable("type") String type,
                                                 @PathVariable("value") String value
                                                 ){
@@ -63,26 +63,27 @@ public class ContactReportSummaryController {
                                 .collect(Collectors.toList())), null);
     }
 
-    @GetMapping(value = "summary-current-status/{issueType}")
+    @GetMapping(value = "/summary-current-status/{issueType}")
     public ContactReportResponse summaryByCurrentStatus(@PathVariable("issueType") String issueType){
         return GenericResponseWrapper.contactReportResponseFunction
                 .apply(contactReportSummaryService.summaryByCurrentStatus(issueType), null);
     }
 
-    @GetMapping(value = "summary-current-status-dealership-list/{issue}")
+    @GetMapping(value = "/summary-current-status-dealership-list/{issue}")
     public ContactReportResponse summaryByCurrentStatusDealershipList(@PathVariable("issue") String issue){
+    	issue = issue.replaceAll("~", "/");
         return GenericResponseWrapper.contactReportResponseFunction
                 .apply(contactReportSummaryService.summaryByCurrentStatusDealershipList(issue), null);
     }
 
 
-    @GetMapping(value = "report-execution-coverage/{date}")
+    @GetMapping(value = "/report-execution-coverage/{date}")
     public ContactReportResponse reportExecutionBycoverage(@PathVariable("date") String date){
         return GenericResponseWrapper.contactReportResponseFunction
                 .apply(contactReportSummaryService.reportExecutionBycoverage(date), null);
     }
 
-    @GetMapping(value = "report-execution-exception/{date}")
+    @GetMapping(value = "/report-execution-exception/{date}")
     public ContactReportResponse reportExecutionByException(@PathVariable("date") String date){
         return GenericResponseWrapper.contactReportResponseFunction
                 .apply(contactReportSummaryService.reportExecutionByException(date), null);
