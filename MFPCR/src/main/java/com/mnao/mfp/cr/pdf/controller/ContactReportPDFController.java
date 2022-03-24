@@ -48,7 +48,7 @@ import com.mnao.mfp.user.dao.MFPUser;
 import com.mnao.mfp.user.service.UserDetailsService;
 
 @RestController
-@RequestMapping(path = "/ContactReport")
+@RequestMapping(value = "/ContactReport")
 public class ContactReportPDFController extends MfpKPIControllerBase {
 	//
 	private static final Logger log = LoggerFactory.getLogger(ContactReportPDFController.class);
