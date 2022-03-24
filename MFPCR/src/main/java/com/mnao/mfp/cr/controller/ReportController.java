@@ -34,7 +34,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(path = "/ContactReport")
+@RequestMapping(value = "ContactReport")
 public class ReportController {
 
     @Autowired(required = true)
@@ -43,7 +43,7 @@ public class ReportController {
     @Autowired(required = true)
 	private FileHandlingServiceImpl fileHandlingService;
 
-    @PostMapping(value = "/submitReport")
+    @PostMapping(value = "submitReport")
     public ContactReportResponse submitReportData(@Valid @RequestBody ContactReportInfo report, @SessionAttribute(name = "mfpUser")
 	MFPUser mfpUser){
         try {
@@ -58,30 +58,30 @@ public class ReportController {
 //		return contactReportService.updateDraftReport(report);
 //	}
 
-    @PostMapping(value = "/deleteReportById")
+    @PostMapping(value = "deleteReportById")
     public void deleteReportById(@RequestBody long contactReportId) {
         contactReportService.deleteReportById(contactReportId);
     }
     
-    @PostMapping(value = "/deleteAttachmentById/{attachmentId}")
+    @PostMapping(value = "deleteAttachmentById/{attachmentId}")
 	public CommonResponse<String> deleteReportAttachmentById(@PathVariable long attachmentId) {
 		String response= fileHandlingService.deleteAttachmentById(attachmentId);
 		return AbstractService.httpPostSuccess(response, "Success");
 	}
     
-    @RequestMapping(value = "/deleteAttachmentByPath",method = RequestMethod.POST)
+    @RequestMapping(value = "deleteAttachmentByPath",method = RequestMethod.POST)
 	public CommonResponse<String> deleteReportAttachmentByPath(@RequestBody Map<String, String> inputObject) {
 		String response=fileHandlingService.deleteAttachmentByAttachmentPath(inputObject.get("fileName"));
 		return AbstractService.httpPostSuccess(response, "Success");
 	}
 
-    @GetMapping(value = "/getReportById/{contactReportId}")
+    @GetMapping(value = "getReportById/{contactReportId}")
     public ContactReportResponse getReportById(@PathVariable long contactReportId) {
         return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportService.findByContactReportId(contactReportId), null);
 
     }
 
-    @GetMapping(value = "/getReportsByUserID/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "getReportsByUserID/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ContactReportResponse getMyContactReport(@PathVariable("userId") String userId) {
 
         try {
@@ -92,7 +92,7 @@ public class ReportController {
         }
     }
     
-    @PostMapping(value = "/uploadFile")
+    @PostMapping(value = "uploadFile")
 	public CommonResponse<List<ContactInfoAttachmentDto>>uploadFile(@RequestParam("files") MultipartFile[] files, HttpServletRequest request) {
 		
     	List<ContactInfoAttachmentDto>retRows= fileHandlingService.doUpload(files,request);
@@ -100,7 +100,7 @@ public class ReportController {
 //    	return fileHandlingService.doUpload(files,request);
 	}
     
-    @GetMapping(value = "/downloadFileByPath/{fileName:.+}")
+    @GetMapping(value = "downloadFileByPath/{fileName:.+}")
 	public ResponseEntity<Resource> downloadFileUsingFileName(@PathVariable String fileName, HttpServletRequest request) {
     	// Load file as Resource
         Resource resource = fileHandlingService.loadFileAsResource(fileName);
@@ -128,7 +128,7 @@ public class ReportController {
         	return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 	}
-    @GetMapping(value = "/downloadFileById/{attachmentId}")
+    @GetMapping(value = "downloadFileById/{attachmentId}")
 	public ResponseEntity<Resource> downloadFileUsingId(@PathVariable long attachmentId, HttpServletRequest request) {
     	// Load file as Resource
         Resource resource = fileHandlingService.loadFileAsResource(attachmentId);

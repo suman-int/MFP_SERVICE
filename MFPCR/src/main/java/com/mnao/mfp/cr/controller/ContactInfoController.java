@@ -14,7 +14,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping(path="/ContactReportInfo")
+@RequestMapping(value="ContactReportInfo")
 public class ContactInfoController {
 
 
@@ -27,21 +27,18 @@ public class ContactInfoController {
     @Autowired
     private ContactInfoService contactInfoService;
 
-    @PostMapping(value = "/byIssues")
+    @PostMapping(value = "byIssues")
     public List<ReportByIssuesDto> byIssues(@RequestBody FilterCriteria filterCriteria) {
         return reportByIssuesService.findReportByIssues(filterCriteria);
     }
    
-    @PostMapping(value = "/byDealership")
+    @PostMapping(value = "byDealership")
     public CommonResponse<ReportByDealerShipResponse> byDealership(@RequestBody FilterCriteria filterCriteria) {
     	return contactInfoService.byDealership(filterCriteria);
     }
 
-    @PostMapping(value = "/byMonth")
+    @PostMapping(value = "byMonth")
     public List<ReportByMonthDto> byMonth(@RequestBody FilterCriteria filterCriteria) {
         return reportByMonthService.findReportByMonth(filterCriteria);
     }
-
-
-
 }
