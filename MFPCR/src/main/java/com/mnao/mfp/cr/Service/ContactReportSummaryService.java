@@ -239,7 +239,7 @@ public class ContactReportSummaryService {
         List<ContactReportInfo> contactReportInfos = contactInfoRepository.findAll().stream().filter(contactReportInfo -> {
             Optional<ContactReportDiscussion> optionalContactReportDiscussion = contactReportInfo.getDiscussions()
                     .stream()
-                    .filter(contactReportDiscussion -> contactReportDiscussion.getDiscussion().equals(issue))
+                    .filter(contactReportDiscussion -> contactReportDiscussion.getTopic().equals(issue))
                     .findAny();
             return optionalContactReportDiscussion.isPresent();
         }).collect(Collectors.toList());
