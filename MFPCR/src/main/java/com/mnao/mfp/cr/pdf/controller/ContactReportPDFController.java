@@ -3,9 +3,13 @@ package com.mnao.mfp.cr.pdf.controller;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,7 +56,8 @@ import com.mnao.mfp.user.service.UserDetailsService;
 public class ContactReportPDFController extends MfpKPIControllerBase {
 	//
 	private static final Logger log = LoggerFactory.getLogger(ContactReportPDFController.class);
-	@Autowired ContactInfoServiceImpl cInfoServ;
+	@Autowired
+	ContactInfoServiceImpl cInfoServ;
 
 	@PostMapping(value = "/downloadPDF")
 	public ResponseEntity<Resource> createPDF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
@@ -112,7 +117,19 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 //		ContactInfoServiceImpl cInfoServ = new ContactInfoServiceImpl();
 		List<ContactReportInfo> report = cInfoServ.filterContactReportsBasedOnFilter(filterCriteria);
 		PDFService service = new PDFService();
-		Resource pdfRes = service.createXLSFResource(mfpUser, report);
+		Resource pdfRes = null;
+		try {
+			pdfRes = service.createXLSFResource(mfpUser, report);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Path excFile = service.getTmpFilePath(mfpUser, "ERROR_", "ExcelConversion", "txt");
+			try {
+				Files.write(excFile, Arrays.toString(e.getStackTrace()).getBytes(), StandardOpenOption.WRITE);
+				pdfRes = new UrlResource(excFile.toUri());
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
 		if (pdfRes != null) {
 			String contentType = null;
 			try {

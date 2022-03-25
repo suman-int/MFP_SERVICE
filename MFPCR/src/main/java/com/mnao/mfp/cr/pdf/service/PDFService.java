@@ -83,13 +83,12 @@ public class PDFService extends MfpKPIControllerBase {
 		return resource;
 	}
 
-	public Resource createXLSFResource(MFPUser mfpUser, List<ContactReportInfo> reports) {
+	public Resource createXLSFResource(MFPUser mfpUser, List<ContactReportInfo> reports) throws Exception {
 		//
 		//
 		Resource resource = null;
-		HSSFWorkbook wkbk = new HSSFWorkbook();
-		HSSFSheet sheet = wkbk.createSheet("Contact Report Summary");
-		try {
+		try (HSSFWorkbook wkbk = new HSSFWorkbook()) {
+			HSSFSheet sheet = wkbk.createSheet("Contact Report Summary");
 			int row = 0;
 			row = printXLSHeaders(sheet, row);
 			for (ContactReportInfo report : reports) {
@@ -103,6 +102,7 @@ public class PDFService extends MfpKPIControllerBase {
 			resource = new UrlResource(filePath.toUri());
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		}
 		return resource;
 	}
@@ -121,8 +121,8 @@ public class PDFService extends MfpKPIControllerBase {
 			cell.setCellStyle(boldStyle);
 			cell.setCellValue(xlsHeaders[i]);
 			sheet.autoSizeColumn(i);
-			if( xlsColWidths[i] > xlsHeaders[i].length() ) {
-				sheet.setColumnWidth(i, xlsColWidths[i]*256);
+			if (xlsColWidths[i] > xlsHeaders[i].length()) {
+				sheet.setColumnWidth(i, xlsColWidths[i] * 256);
 			}
 		}
 		return rCnt;
@@ -183,7 +183,7 @@ public class PDFService extends MfpKPIControllerBase {
 		pdfMain.createPDF(pdfReport, report, author, dInfo, dEmpInfos, revEmpInfo);
 	}
 
-	private Path getTmpFilePath(MFPUser mfpUser, String prefix, String postfix, String extn) {
+	public Path getTmpFilePath(MFPUser mfpUser, String prefix, String postfix, String extn) {
 		String baseFileName = prefix + postfix;
 		Path tmpFilePath = null;
 		File tmpFile = null;
@@ -267,6 +267,5 @@ public class PDFService extends MfpKPIControllerBase {
 		}
 		return null;
 	}
-
 
 }
