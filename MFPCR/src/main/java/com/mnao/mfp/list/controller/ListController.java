@@ -174,4 +174,13 @@ public class ListController extends MfpKPIControllerBase {
 		return AbstractService.httpPostSuccess(retRows, "Success");
 	}
 
+	//
+	@PostMapping("/GetDealerInfo")
+	public CommonResponse<DealerInfo> getDealerInfo(
+			@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
+			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
+		DealerInfo dlrInfo = getDealerInfo(mfpUser, dlrCd);
+		return AbstractService.httpPostSuccess(dlrInfo, "Success");
+	}
+
 }
