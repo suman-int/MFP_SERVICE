@@ -212,7 +212,8 @@ public class ContactReportSummaryService {
                  Optional<ContactReportDiscussion> optionalContactReportDiscussion = contactReportInfo.getDiscussions()
                         .stream()
                         .filter(contactReportDiscussion ->
-                            contactReportDiscussion.getDiscussion().equals(issueType)
+//                            contactReportDiscussion.getDiscussion().equals(issueType)
+                            contactReportDiscussion.getTopic().equals(issueType)
                         )
                         .findAny();
                 return optionalContactReportDiscussion.isPresent();
