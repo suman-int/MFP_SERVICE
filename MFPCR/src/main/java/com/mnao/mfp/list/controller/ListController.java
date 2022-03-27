@@ -26,24 +26,53 @@ public class ListController extends MfpKPIControllerBase {
 	//
 	private static final Logger log = LoggerFactory.getLogger(ListController.class);
 	//
- 
+
 	//
 	@PostMapping("/ListDealers")
-	public CommonResponse<List<ListDealer>> listDealers(@RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
+	public CommonResponse<List<DealerInfo>> listDealers(@RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
 			@RequestParam(value = "zoneCd", defaultValue = "") String zoneCd,
 			@RequestParam(value = "districtCd", defaultValue = "") String districtCd,
 			@RequestParam(value = "mdaCd", defaultValue = "") String mdaCd,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS);
-		ListService<ListDealer> service = new ListService<ListDealer>();
-		List<ListDealer> retRows = null;
+		ListService<DealerInfo> service = new ListService<DealerInfo>();
+		List<DealerInfo> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, null, rgnCd, zoneCd, districtCd, mdaCd);
 		try {
-			retRows = service.getListData(sqlName, ListDealer.class, df);
+			retRows = service.getListData(sqlName, DealerInfo.class, df);
 		} catch (InstantiationException | IllegalAccessException | ParseException e) {
 			log.error("ERROR retrieving list of Dealers:", e);
 		}
 		return AbstractService.httpPostSuccess(retRows, "Success");
+	}
+
+	//
+	@PostMapping("/ListDealersLike")
+	public CommonResponse<List<DealerInfo>> listDealersLike(
+			@RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
+			@RequestParam(value = "zoneCd", defaultValue = "") String zoneCd,
+			@RequestParam(value = "districtCd", defaultValue = "") String districtCd,
+			@RequestParam(value = "mdaCd", defaultValue = "") String mdaCd,
+			@RequestParam(value = "like", defaultValue = "") String like,
+			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
+		if (like == null || like.trim().length() == 0) {
+			return listDealers(rgnCd, zoneCd, districtCd, mdaCd, mfpUser);
+		} else {
+			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_LIKE);
+			ListService<DealerInfo> service = new ListService<DealerInfo>();
+			List<DealerInfo> retRows = null;
+			DealerFilter df = new DealerFilter(mfpUser, null, rgnCd, zoneCd, districtCd, mdaCd);
+			if( like.length() > 30 )
+				like = like.substring(0,30);
+			like = like.trim();
+			String likePat = "%" + like + "%";
+			try {
+				retRows = service.getListData(sqlName, DealerInfo.class, df, likePat, likePat);
+			} catch (InstantiationException | IllegalAccessException | ParseException e) {
+				log.error("ERROR retrieving list of Dealers:", e);
+			}
+			return AbstractService.httpPostSuccess(retRows, "Success");
+		}
 	}
 
 	//
@@ -176,8 +205,7 @@ public class ListController extends MfpKPIControllerBase {
 
 	//
 	@PostMapping("/GetDealerInfo")
-	public CommonResponse<DealerInfo> getDealerInfo(
-			@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
+	public CommonResponse<DealerInfo> getDealerInfo(@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		DealerInfo dlrInfo = getDealerInfo(mfpUser, dlrCd);
 		return AbstractService.httpPostSuccess(dlrInfo, "Success");

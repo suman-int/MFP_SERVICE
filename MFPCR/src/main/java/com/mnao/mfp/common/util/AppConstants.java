@@ -24,6 +24,7 @@ public class AppConstants {
 	public static final String API_VIEWS_METRICS_RetailInventoryByDate="RetailInventoryByDate";
 	//
 	public static final String SQL_LIST_DEALERS = "LIST_DEALERS.sql";
+	public static final String SQL_LIST_DEALERS_LIKE = "LIST_DEALERS_LIKE.sql";
 	public static final String SQL_LIST_DEALERS_BY_MARKET = "LIST_DEALERS.sql";
 	public static final String SQL_LIST_DISTRICTS = "LIST_DISTRICTS.sql";
 	public static final String SQL_LIST_MARKETS = "LIST_MARKETS.sql";
