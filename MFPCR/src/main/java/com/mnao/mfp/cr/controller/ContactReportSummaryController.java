@@ -1,5 +1,6 @@
 package com.mnao.mfp.cr.controller;
 
+import com.mnao.mfp.cr.Service.ContactReportService;
 import com.mnao.mfp.cr.Service.ContactReportServiceImpl;
 import com.mnao.mfp.cr.Service.ContactReportSummaryService;
 import com.mnao.mfp.cr.Service.GenericResponseWrapper;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 public class ContactReportSummaryController {
 
     @Autowired
-    private ContactReportServiceImpl contactReportService;
+    private ContactReportService contactReportService;
 
     @Autowired
     private ContactReportSummaryService contactReportSummaryService;

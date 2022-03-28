@@ -1,5 +1,6 @@
 package com.mnao.mfp.cr.Service;
 
+import com.mnao.mfp.cr.dto.SummaryByDealerListDto;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;
@@ -206,7 +207,6 @@ public class ContactReportSummaryService {
 		}
 		return summaryList;
 	}
-	
 
 	public List<Map<String, Object>> summaryByCurrentStatus(String category) {
 		List<String> issueTypes = issueType.getIssuesByCategory().get(category.toLowerCase());
@@ -222,49 +222,47 @@ public class ContactReportSummaryService {
 				return optionalContactReportDiscussion.isPresent();
 			}).collect(Collectors.toList());
 			//
-			contactReportInfoList.stream().forEach( (crList) -> {
+			contactReportInfoList.stream().forEach((crList) -> {
 				ContactReportEnum stat = null;
-				if( crList.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()) {
+				if (crList.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()) {
 					stat = ContactReportEnum.DRAFT;
-				}
-				else if( crList.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
+				} else if (crList.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
 					stat = ContactReportEnum.DISCUSSION_REQUESTED;
-				}
-				else if( crList.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
+				} else if (crList.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
 					stat = ContactReportEnum.SUBMITTED;
-				}
-				else if( crList.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+				} else if (crList.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
 					stat = ContactReportEnum.REVIEWED;
-				}
-				else if( crList.getContactStatus() == ContactReportEnum.COMPLETED.getStatusCode()) {
+				} else if (crList.getContactStatus() == ContactReportEnum.COMPLETED.getStatusCode()) {
 					stat = ContactReportEnum.COMPLETED;
 				}
-				if( stat != null ) {
+				if (stat != null) {
 					long lv = stCntMap.getOrDefault(stat.getDisplayText(), 0l);
 					lv++;
 					stCntMap.put(stat.getDisplayText(), lv);
 				}
 			});
 			/*
-		    draft: DRAFT,
-		    pendingReview: DISCUSSION_REQUESTED + SUBMITTED + REVIEWED
-		    completed: COMPLETED
+			 * draft: DRAFT, pendingReview: DISCUSSION_REQUESTED + SUBMITTED + REVIEWED
+			 * completed: COMPLETED
 			 */
 			summaryMap.put("draft", stCntMap.getOrDefault(ContactReportEnum.DRAFT.getDisplayText(), 0l));
 			summaryMap.put("completed", stCntMap.getOrDefault(ContactReportEnum.COMPLETED.getDisplayText(), 0l));
-			summaryMap.put("pendingReview", stCntMap.getOrDefault(ContactReportEnum.DISCUSSION_REQUESTED.getDisplayText(), 0l) 
-					+ stCntMap.getOrDefault(ContactReportEnum.SUBMITTED.getDisplayText(), 0l) 
-					+ stCntMap.getOrDefault(ContactReportEnum.REVIEWED.getDisplayText(), 0l) );
-			summaryMap.put("total", stCntMap.getOrDefault(ContactReportEnum.DISCUSSION_REQUESTED.getDisplayText(), 0l) 
-					+ stCntMap.getOrDefault(ContactReportEnum.SUBMITTED.getDisplayText(), 0l) 
-					+ stCntMap.getOrDefault(ContactReportEnum.REVIEWED.getDisplayText(), 0l) 
-					+ stCntMap.getOrDefault(ContactReportEnum.COMPLETED.getDisplayText(), 0l)
-					+ stCntMap.getOrDefault(ContactReportEnum.DRAFT.getDisplayText(), 0l) );
+			summaryMap.put("pendingReview",
+					stCntMap.getOrDefault(ContactReportEnum.DISCUSSION_REQUESTED.getDisplayText(), 0l)
+							+ stCntMap.getOrDefault(ContactReportEnum.SUBMITTED.getDisplayText(), 0l)
+							+ stCntMap.getOrDefault(ContactReportEnum.REVIEWED.getDisplayText(), 0l));
+			summaryMap.put("total",
+					stCntMap.getOrDefault(ContactReportEnum.DISCUSSION_REQUESTED.getDisplayText(), 0l)
+							+ stCntMap.getOrDefault(ContactReportEnum.SUBMITTED.getDisplayText(), 0l)
+							+ stCntMap.getOrDefault(ContactReportEnum.REVIEWED.getDisplayText(), 0l)
+							+ stCntMap.getOrDefault(ContactReportEnum.COMPLETED.getDisplayText(), 0l)
+							+ stCntMap.getOrDefault(ContactReportEnum.DRAFT.getDisplayText(), 0l));
 			summaryMap.put("issue", issueType);
 			return summaryMap;
 		}).collect(Collectors.toList());
 
 	}
+
 	//
 	// BACKUP of summaryByCurrentStatus
 	//
@@ -298,36 +296,17 @@ public class ContactReportSummaryService {
 
 	}
 
-
-	public List<Map<String, Object>> summaryByCurrentStatusDealershipList(String issue) {
-		List<Dealers> dealers = dealerService.findAll();
-		List<Map<String, String>> dealershipList;
-		List<Map<String, String>> summaryList;
-
-		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findAll().stream()
-				.filter(contactReportInfo -> {
-					Optional<ContactReportDiscussion> optionalContactReportDiscussion = contactReportInfo
-							.getDiscussions().stream()
-							.filter(contactReportDiscussion -> contactReportDiscussion.getTopic().equals(issue))
-							.findAny();
-					return optionalContactReportDiscussion.isPresent();
-				}).collect(Collectors.toList());
-
-		List<String> dlrCdList = contactReportInfos.stream().map(contactReportInfo -> contactReportInfo.getDlrCd())
+	public List<SummaryByDealerListDto> summaryByCurrentStatusDealershipList(String issue) {
+		List<ContactReportInfo> contactReportInfoList = contactInfoRepository.findByCurrentIssuesContaining(issue);
+		List<Dealers> dealerList = contactReportInfoList.stream().map(data -> data.getDealers())
 				.collect(Collectors.toList());
 
-		return dealers.stream().filter(dealer -> dlrCdList.contains(dealer.getDlrCd())).map(dlr -> {
-			Map<String, Object> summaryMap = new HashMap<>();
-
-			summaryMap.put("dealerCode", dlr.getDlrCd());
-			summaryMap.put("dealerName", dlr.getDbaNm());
-			summaryMap.put("stateName", dlr.getStCd());
-			summaryMap.put("cityName", dlr.getCityNm());
-			summaryMap.put("zipCode", dlr.getZipCd());
-			summaryMap.put("issue", issue);
-
-			return summaryMap;
+		List<SummaryByDealerListDto> listData = dealerList.stream().map(dlr -> {
+			return SummaryByDealerListDto.builder().cityName(dlr.getCityNm()).dealerCode(dlr.getDlrCd())
+					.dealerName(dlr.getDbaNm()).issue(issue).zipCode(dlr.getZipCd()).stateName(dlr.getStCd()).build();
 		}).collect(Collectors.toList());
+		return listData;
+
 	}
 
 	public List<Map<String, Object>> reportExecutionBycoverage(String date) {
