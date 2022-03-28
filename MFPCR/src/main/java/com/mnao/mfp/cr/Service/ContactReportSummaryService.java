@@ -331,42 +331,54 @@ public class ContactReportSummaryService {
 	}
 
 	public List<Map<String, Object>> reportExecutionBycoverage(String date) {
-		LocalDate startDate = LocalDate.parse(date).withDayOfMonth(1);
+		LocalDate startDate;
+		try {
+			startDate = LocalDate.parse(date).withDayOfMonth(1);
+		} catch (Exception e) {
+			throw new IllegalArgumentException("The date format should be yyyy-mm-dd");
+		}
+		startDate = LocalDate.parse(date).withDayOfMonth(1);
 		LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
 
 		List<Dealers> dealers = dealerService.findAll();
 
 		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactDtBetween(startDate, endDate);
 
-		List<String> dlrCdList = contactReportInfos.stream().map(contactReportInfo -> contactReportInfo.getDlrCd())
+		List<String> dlrCdList = contactReportInfos.stream().map(ContactReportInfo::getDlrCd)
 				.collect(Collectors.toList());
 
 		Map<String, Long> reportCount = dlrCdList.stream()
 				.collect(Collectors.groupingBy(e -> e, Collectors.counting()));
 
 		return dealers.stream().filter(dealer -> dlrCdList.contains(dealer.getDlrCd())).map(dlr -> {
-			Map<String, Object> summaryMap = new HashMap<>();
-			for (ContactReportInfo cr : contactReportInfos) {
-				if (cr.getDlrCd().equals(dlr.getDlrCd())) {
-					summaryMap.put("type", cr.getContactType());
-					summaryMap.put("author", cr.getContactAuthor());
-					String contactType = cr.getContactType();
-					if (contactType.equalsIgnoreCase("Sales | Service")
-							|| contactType.equalsIgnoreCase("Sales | Service | Other"))
-						summaryMap.put("coverage", "100");
-					else
-						summaryMap.put("coverage", "50");
-				}
-			}
-			summaryMap.put("reportCount", reportCount.get(dlr.getDlrCd()));
-			summaryMap.put("dealerCode", dlr.getDlrCd());
-			summaryMap.put("dealerName", dlr.getDbaNm());
-			return summaryMap;
-		}).collect(Collectors.toList());
+			List<ContactReportInfo> contactReportInfoList = contactReportInfos.stream().filter(cr -> cr.getDlrCd().equals(dlr.getDlrCd())).collect(Collectors.toList());
+			return contactReportInfoList.stream().map(cr -> {
+				Map<String, Object> summaryMap = new HashMap<>();
+				summaryMap.put("type", cr.getContactType());
+				summaryMap.put("author", cr.getContactAuthor());
+				String contactType = cr.getContactType();
+				if (contactType.equalsIgnoreCase("Sales | Service")
+						|| contactType.equalsIgnoreCase("Sales | Service | Other"))
+					summaryMap.put("coverage", "100");
+				else
+					summaryMap.put("coverage", "50");
+
+				summaryMap.put("reportCount", reportCount.get(dlr.getDlrCd()));
+				summaryMap.put("dealerCode", dlr.getDlrCd());
+				summaryMap.put("reports", contactReportInfoList);
+				summaryMap.put("dealerName", dlr.getDbaNm());
+				return summaryMap;
+			}).collect(Collectors.toList());
+		}).flatMap(List::stream).collect(Collectors.toList());
 	}
 
 	public List<Map<String, List<Object>>> reportExecutionByException(String date) {
-		LocalDate startDate = LocalDate.parse(date).withDayOfMonth(1);
+		LocalDate startDate;
+		try {
+			startDate = LocalDate.parse(date).withDayOfMonth(1);
+		}catch(Exception e){
+			throw new IllegalArgumentException("The date format should be yyyy-mm-dd");
+		}
 		LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
 
 		Map<String, String> dlrInfo = dealerService.findAll().stream()
@@ -374,7 +386,6 @@ public class ContactReportSummaryService {
 
 		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactDtBetween(startDate, endDate);
 
-//        Map<String, List<Object>> finalsummaryMap = new HashMap<>();
 		Map<String, List<Object>> SummaryMap = new HashMap<>();
 		return contactReportInfos.stream().map(cr -> {
 			if (SummaryMap.containsKey(cr.getDlrCd())) {
