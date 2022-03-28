@@ -216,9 +216,10 @@ public class ContactReportSummaryService {
 			Map<String, Long> stCntMap = new HashMap<>();
 			List<ContactReportInfo> contactReportInfoList = contactReportInfos.stream().filter(contactReportInfo -> {
 				Optional<ContactReportDiscussion> optionalContactReportDiscussion = contactReportInfo.getDiscussions()
-						.stream().filter(contactReportDiscussion ->
-//                            contactReportDiscussion.getDiscussion().equals(issueType)
-				contactReportDiscussion.getTopic().equals(issueType)).findAny();
+						.stream()
+						.filter(contactReportDiscussion -> contactReportDiscussion.getTopic() != null )
+						.filter(contactReportDiscussion -> contactReportDiscussion.getTopic().equals(issueType))
+						.findAny();
 				return optionalContactReportDiscussion.isPresent();
 			}).collect(Collectors.toList());
 			//
@@ -330,7 +331,8 @@ public class ContactReportSummaryService {
 				.collect(Collectors.groupingBy(e -> e, Collectors.counting()));
 
 		return dealers.stream().filter(dealer -> dlrCdList.contains(dealer.getDlrCd())).map(dlr -> {
-			List<ContactReportInfo> contactReportInfoList = contactReportInfos.stream().filter(cr -> cr.getDlrCd().equals(dlr.getDlrCd())).collect(Collectors.toList());
+			List<ContactReportInfo> contactReportInfoList = contactReportInfos.stream()
+					.filter(cr -> cr.getDlrCd().equals(dlr.getDlrCd())).collect(Collectors.toList());
 			return contactReportInfoList.stream().map(cr -> {
 				Map<String, Object> summaryMap = new HashMap<>();
 				summaryMap.put("type", cr.getContactType());
@@ -355,7 +357,7 @@ public class ContactReportSummaryService {
 		LocalDate startDate;
 		try {
 			startDate = LocalDate.parse(date).withDayOfMonth(1);
-		}catch(Exception e){
+		} catch (Exception e) {
 			throw new IllegalArgumentException("The date format should be yyyy-mm-dd");
 		}
 		LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());

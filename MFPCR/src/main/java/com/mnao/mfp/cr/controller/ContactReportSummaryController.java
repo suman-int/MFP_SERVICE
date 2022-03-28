@@ -9,6 +9,8 @@ import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.cr.model.ContactReportResponse;
 import com.mnao.mfp.cr.model.DealersByIssue;
+import com.mnao.mfp.cr.util.IssueType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +28,9 @@ public class ContactReportSummaryController {
 
     @Autowired
     private ContactReportSummaryService contactReportSummaryService;
+    
+	@Autowired
+	private IssueType issueType;
 
     @GetMapping(value = "/dealer-issue")
     public List<DealersByIssue> dealerIssue() {
@@ -65,9 +70,16 @@ public class ContactReportSummaryController {
     }
 
     @GetMapping(value = "/summary-current-status/{issueType}")
-    public ContactReportResponse summaryByCurrentStatus(@PathVariable("issueType") String issueType){
-        return GenericResponseWrapper.contactReportResponseFunction
-                .apply(contactReportSummaryService.summaryByCurrentStatus(issueType), null);
+    public ContactReportResponse summaryByCurrentStatus(@PathVariable("issueType") String issType){
+		List<Map<String, Object>> rList = new ArrayList<>();
+		if (! issType.equalsIgnoreCase("all")) {
+			rList = contactReportSummaryService.summaryByCurrentStatus(issType);
+		} else {
+			for(String iss: this.issueType.getIssuesByCategory().keySet()) {
+				rList.addAll(contactReportSummaryService.summaryByCurrentStatus(iss));
+			}
+		}
+		return GenericResponseWrapper.contactReportResponseFunction.apply(rList, null);
     }
 
     @GetMapping(value = "/summary-current-status-dealership-list/{issue}")
