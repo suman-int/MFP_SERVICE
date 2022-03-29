@@ -62,8 +62,8 @@ public class ListController extends MfpKPIControllerBase {
 			ListService<DealerInfo> service = new ListService<DealerInfo>();
 			List<DealerInfo> retRows = null;
 			DealerFilter df = new DealerFilter(mfpUser, null, rgnCd, zoneCd, districtCd, mdaCd);
-			if( like.length() > 30 )
-				like = like.substring(0,30);
+			if (like.length() > 30)
+				like = like.substring(0, 30);
 			like = like.trim();
 			String likePat = "%" + like + "%";
 			try {
@@ -172,10 +172,13 @@ public class ListController extends MfpKPIControllerBase {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEES);
 		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
 		List<ListPersonnel> retRows = null;
-		DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
+		DealerFilter df = new DealerFilter(null, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
 		try {
-			DealerInfo dlrInfo = getDealerInfo(mfpUser, dlrCd);
-			retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(), dlrInfo.getZoneCd());
+			DealerInfo dlrInfo = getDealerInfo(null, dlrCd);
+			if (dlrInfo != null) {
+				retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(),
+						dlrInfo.getZoneCd());
+			}
 		} catch (InstantiationException | IllegalAccessException | ParseException e) {
 			log.error("ERROR retrieving list of Employees:", e);
 		}
