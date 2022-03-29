@@ -1,14 +1,9 @@
 package com.mnao.mfp.cr.pdf.controller;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,14 +13,12 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,23 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
 import com.mnao.mfp.common.controller.MfpKPIControllerBase;
-import com.mnao.mfp.common.dao.DealerFilter;
-import com.mnao.mfp.common.dao.DealerInfo;
-import com.mnao.mfp.common.util.AppConstants;
-import com.mnao.mfp.cr.Service.ContactInfoService;
 import com.mnao.mfp.cr.Service.ContactInfoServiceImpl;
 import com.mnao.mfp.cr.dto.FilterCriteria;
-import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
-import com.mnao.mfp.cr.pdf.dao.DealerEmployeeInfo;
-import com.mnao.mfp.cr.pdf.dao.ReviewerEmployeeInfo;
-import com.mnao.mfp.cr.pdf.generate.PDFCRMain;
 import com.mnao.mfp.cr.pdf.service.PDFService;
-import com.mnao.mfp.list.controller.ListController;
-import com.mnao.mfp.list.service.ListService;
-import com.mnao.mfp.list.service.MMAListService;
 import com.mnao.mfp.user.dao.MFPUser;
-import com.mnao.mfp.user.service.UserDetailsService;
 
 @RestController
 @RequestMapping(value = "/ContactReport")
