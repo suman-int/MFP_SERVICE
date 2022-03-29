@@ -2,11 +2,13 @@ package com.mnao.mfp.cr.controller;
 
 import com.mnao.mfp.common.dto.CommonResponse;
 import com.mnao.mfp.common.service.AbstractService;
+import com.mnao.mfp.cr.Service.ContactReportService;
 import com.mnao.mfp.cr.Service.ContactReportServiceImpl;
 import com.mnao.mfp.cr.Service.FileHandlingServiceImpl;
 import com.mnao.mfp.cr.Service.GenericResponseWrapper;
 import com.mnao.mfp.cr.dto.ContactInfoAttachmentDto;
 import com.mnao.mfp.cr.dto.ContactReportDto;
+import com.mnao.mfp.cr.dto.ContactReportInfoDto;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.model.ContactReportResponse;
 import com.mnao.mfp.cr.util.ContactReportEnum;
@@ -38,13 +40,13 @@ import java.util.stream.Collectors;
 public class ReportController {
 
     @Autowired(required = true)
-    private ContactReportServiceImpl contactReportService;
+    private ContactReportService contactReportService;
 
     @Autowired(required = true)
 	private FileHandlingServiceImpl fileHandlingService;
 
     @PostMapping(value = "submitReport")
-    public ContactReportResponse submitReportData(@Valid @RequestBody ContactReportInfo report, @SessionAttribute(name = "mfpUser")
+    public ContactReportResponse submitReportData(@Valid @RequestBody ContactReportInfoDto report, @SessionAttribute(name = "mfpUser")
 	MFPUser mfpUser){
         try {
             return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportService.submitReportData(report, mfpUser), null);
@@ -82,13 +84,14 @@ public class ReportController {
     }
 
     @GetMapping(value = "getReportsByUserID/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ContactReportResponse getMyContactReport(@PathVariable("userId") String userId) {
+    public CommonResponse<Map<String,List<ContactReportInfoDto>>> getMyContactReport(@PathVariable("userId") String userId) {
 
         try {
-            return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportService.getMyContactReport(userId, (contactReportInfos, status) -> contactReportInfos.stream().filter(c -> c.getContactStatus() == status).collect(Collectors.toList())), null);
+        	Map<String, List<ContactReportInfoDto>> response = contactReportService.getMyContactReport(userId);
+            return AbstractService.httpPostSuccess(response, "Success Response");
 
         } catch (Exception e) {
-            return GenericResponseWrapper.contactReportResponseFunction.apply(null, e.getMessage());
+            return AbstractService.httpPostError(e);
         }
     }
     

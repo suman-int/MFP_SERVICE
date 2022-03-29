@@ -1,6 +1,8 @@
 package com.mnao.mfp.cr.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.mnao.mfp.common.util.AppConstants;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,9 +27,9 @@ public class FilterCriteria {
 
     private List<String> issuesFilter;
 
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
     private LocalDate startDate;
 
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
     private LocalDate endDate;
 }

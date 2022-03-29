@@ -8,6 +8,7 @@ import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.mnao.mfp.common.util.AppConstants;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,7 +34,7 @@ public class ContactReportMetrics {
 	private double metricsValue;
     
     @NotNull
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
 	private LocalDate metricsDt;
 
 }

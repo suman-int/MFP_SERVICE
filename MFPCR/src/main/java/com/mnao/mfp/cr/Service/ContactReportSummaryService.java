@@ -1,5 +1,6 @@
 package com.mnao.mfp.cr.Service;
 
+import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.cr.dto.SummaryByDealerListDto;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
@@ -315,7 +316,7 @@ public class ContactReportSummaryService {
 		try {
 			startDate = LocalDate.parse(date).withDayOfMonth(1);
 		} catch (Exception e) {
-			throw new IllegalArgumentException("The date format should be yyyy-mm-dd");
+			throw new IllegalArgumentException("The date format should be " + AppConstants.LOCALDATE_FORMAT);
 		}
 		startDate = LocalDate.parse(date).withDayOfMonth(1);
 		LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
@@ -358,7 +359,7 @@ public class ContactReportSummaryService {
 		try {
 			startDate = LocalDate.parse(date).withDayOfMonth(1);
 		} catch (Exception e) {
-			throw new IllegalArgumentException("The date format should be yyyy-mm-dd");
+			throw new IllegalArgumentException("The date format should be "  + AppConstants.LOCALDATE_FORMAT);
 		}
 		LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
 

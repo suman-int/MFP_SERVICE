@@ -30,4 +30,13 @@ public enum ContactReportEnum {
     public String getDisplayText() {
         return displayText;
     }
+    
+    public static ContactReportEnum valueByStatus(int statusCode) {
+    	for (ContactReportEnum element : values()) {
+			if (element.statusCode == statusCode) {
+				return element;
+			}
+		}
+    	throw new IllegalArgumentException("Please check the " + statusCode + ", Unable to find it in enum");
+    }
 }

@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mnao.mfp.common.util.AppConstants;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,7 +33,7 @@ public class ContactReportDiscussion {
     @NotNull
 	private String discussion;
 	
-	@JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
 	@NotNull
 	private LocalDate disscussionDt;
 
