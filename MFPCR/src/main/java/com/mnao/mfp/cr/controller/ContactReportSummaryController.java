@@ -1,5 +1,7 @@
 package com.mnao.mfp.cr.controller;
 
+import com.mnao.mfp.common.dto.CommonResponse;
+import com.mnao.mfp.common.service.AbstractService;
 import com.mnao.mfp.cr.Service.ContactReportService;
 import com.mnao.mfp.cr.Service.ContactReportServiceImpl;
 import com.mnao.mfp.cr.Service.ContactReportSummaryService;
@@ -10,6 +12,8 @@ import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.cr.model.ContactReportResponse;
 import com.mnao.mfp.cr.model.DealersByIssue;
 import com.mnao.mfp.cr.util.IssueType;
+import com.mnao.mfp.cr.util.LocationEnum;
+import com.mnao.mfp.cr.util.LocationFilter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -56,6 +60,57 @@ public class ContactReportSummaryController {
 
                         ), null);
     }
+    
+    @GetMapping(value = "/v2/by-issue/all/{category}")
+    public CommonResponse<List<Map<String,String>>> summaryByIssueForRegion(@PathVariable("category") String category) {
+        try {
+        	List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(LocationFilter.builder().build(), category);
+        	return AbstractService.httpPostSuccess(response, "Success");
+        } catch (Exception e) {
+        	return AbstractService.httpPostError(e);
+        }
+    }
+    
+    @GetMapping(value = "/v2/by-issue/region/{value}/{category}")
+    public CommonResponse<List<Map<String,String>>> summaryByIssueForRegion(@PathVariable("value") String value,
+                                                @PathVariable("category") String category) {
+        try {
+        	List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(LocationFilter.builder().regionCd(value).build(), category);
+        	return AbstractService.httpPostSuccess(response, "Success");
+        } catch (Exception e) {
+        	return AbstractService.httpPostError(e);
+        }
+    }
+    
+    @GetMapping(value = "/v2/by-issue/region/{value}/zone/{zoneValue}/{category}")
+    public CommonResponse<List<Map<String,String>>> summaryByIssueForZone(
+    											@PathVariable("value") String value,
+    											@PathVariable("zoneValue") String zoneValue,
+                                                @PathVariable("category") String category) {
+        try {
+        	List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(LocationFilter.builder()
+        			.regionCd(value).zoneCd(zoneValue).build(), category);
+        	return AbstractService.httpPostSuccess(response, "Success");
+        } catch (Exception e) {
+        	return AbstractService.httpPostError(e);
+        }
+    }
+    
+    @GetMapping(value = "/v2/by-issue/region/{value}/zone/{zoneValue}/district/{districtId}/{category}")
+    public CommonResponse<List<Map<String,String>>> summaryByIssueForDistrict(
+    											@PathVariable("value") String value,
+    											@PathVariable("zoneValue") String zoneValue,
+    											@PathVariable("districtId") String districtId,
+                                                @PathVariable("category") String category) {
+        try {
+        	List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(LocationFilter.builder()
+        			.regionCd(value).zoneCd(zoneValue).districtCd(districtId)
+        			.build(), category);
+        	return AbstractService.httpPostSuccess(response, "Success");
+        } catch (Exception e) {
+        	return AbstractService.httpPostError(e);
+        }
+    }
 
     @GetMapping(value = "/by-month/{type}/{value}")
     public ContactReportResponse summaryByMonth(@PathVariable("type") String type,
@@ -67,6 +122,58 @@ public class ContactReportSummaryController {
                                 .filter(c -> Objects.nonNull(c.getContactDt()))
                                 .filter(d -> d.getContactDt().getMonth().name().equals(i))
                                 .collect(Collectors.toList())), null);
+    }
+    
+    @GetMapping(value = "/v2/by-month/all")
+    public CommonResponse<List<Map<String,String>>> summaryByMonthForRegion() {
+        try {
+        	List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(LocationFilter.builder().build(), null);
+        	return AbstractService.httpPostSuccess(response, "Success");
+        } catch (Exception e) {
+        	e.printStackTrace();
+        	return AbstractService.httpPostError(e);
+        }
+    }
+    
+    @GetMapping(value = "/v2/by-month/region/{value}")
+    public CommonResponse<List<Map<String,String>>> summaryByMonthForRegion(@PathVariable("value") String value
+                                                ) {
+        try {
+        	List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(LocationFilter.builder().regionCd(value).build(), null);
+        	return AbstractService.httpPostSuccess(response, "Success");
+        } catch (Exception e) {
+        	return AbstractService.httpPostError(e);
+        }
+    }
+    
+    @GetMapping(value = "/v2/by-month/region/{value}/zone/{zoneValue}")
+    public CommonResponse<List<Map<String,String>>> summaryByMonthForZone(
+    											@PathVariable("value") String value,
+    											@PathVariable("zoneValue") String zoneValue
+                                                ) {
+        try {
+        	List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(LocationFilter.builder()
+        			.regionCd(value).zoneCd(zoneValue).build(), null);
+        	return AbstractService.httpPostSuccess(response, "Success");
+        } catch (Exception e) {
+        	return AbstractService.httpPostError(e);
+        }
+    }
+    
+    @GetMapping(value = "/v2/by-month/region/{value}/zone/{zoneValue}/district/{districtId}")
+    public CommonResponse<List<Map<String,String>>> summaryByMonthForDistrict(
+    											@PathVariable("value") String value,
+    											@PathVariable("zoneValue") String zoneValue,
+    											@PathVariable("districtId") String districtId
+                                                ) {
+        try {
+        	List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(LocationFilter.builder()
+        			.regionCd(value).zoneCd(zoneValue).districtCd(districtId)
+        			.build(), null);
+        	return AbstractService.httpPostSuccess(response, "Success");
+        } catch (Exception e) {
+        	return AbstractService.httpPostError(e);
+        }
     }
 
     @GetMapping(value = "/summary-current-status/{issueType}")

@@ -4,7 +4,8 @@ public enum LocationEnum {
     REGION("REGION"),
     ZONE("ZONE"),
     DEALER("DEALER"),
-    DISTRICT("DISTRICT");
+    DISTRICT("DISTRICT"),
+    ALL("all");
 
     private String locationText;
 

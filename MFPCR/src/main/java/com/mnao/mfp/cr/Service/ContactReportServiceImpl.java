@@ -86,9 +86,12 @@ public class ContactReportServiceImpl implements ContactReportService {
 				reportInfo.setDealerPersonnels(report.getDealerPersonnels());
 			}
 			duplicateAttachmentChecker(report.getAttachment());
+			if (!CollectionUtils.isEmpty(report.getAttachment())) {
+				reportInfo.setAttachment(report.getAttachment());
+			}
 
 			ContactReportInfo info = contactInfoRepository.save(reportInfo);
-			if (report.getContactStatus() == 1 && !CollectionUtils.isEmpty(info.getAttachment())) {
+			if (report.getContactStatus() == 1) {
 				fileHandlingService.copyToPermanentLocation(info);
 			}
 				

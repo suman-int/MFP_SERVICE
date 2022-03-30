@@ -45,7 +45,10 @@ public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, 
 
 	List<ContactReportInfo> findByContactDtBetween(LocalDate startDate, LocalDate endDate);
 	
-//	@Query(value="SELECT ContactReportInfo FROM ContactReportInfo c WHERE INSTR(c.currentIssues, :issue) > 0")
 	List<ContactReportInfo> findByCurrentIssuesContaining(String issue);
+	
+	List<ContactReportInfo> findByCurrentIssuesNotNull();
+	
+	List<ContactReportInfo> findByCurrentIssuesNotNullAndContactDtNotNull();
 
 }
