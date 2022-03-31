@@ -153,6 +153,8 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 		String contactReportId = Long.toString(report.getContactReportId());
 		String responsetext = "Files moved successfully";
 		ContactReportAttachment flaggedAttachment = null;
+		if( attachments == null )
+			return responsetext;
 		for (ContactReportAttachment attachment : attachments) {
 			String sourcePath = getTemporaryFilePath(attachment.getAttachmentPath());
 			String destinationPath = getStorageFilePath(attachment, contactReportId);
