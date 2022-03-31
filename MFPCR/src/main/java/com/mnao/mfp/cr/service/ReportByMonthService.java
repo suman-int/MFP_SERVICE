@@ -1,9 +1,8 @@
-package com.mnao.mfp.cr.Service;
+package com.mnao.mfp.cr.service;
 
 import org.springframework.stereotype.Service;
 
 import com.mnao.mfp.cr.dto.FilterCriteria;
-import com.mnao.mfp.cr.dto.ReportByIssuesDto;
 import com.mnao.mfp.cr.dto.ReportByMonthDto;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;

@@ -1,4 +1,4 @@
-package com.mnao.mfp.cr.Service;
+package com.mnao.mfp.cr.service;
 
 import com.mnao.mfp.cr.model.DealersByIssue;
 import com.mnao.mfp.cr.util.ContactReportEnum;
@@ -10,22 +10,15 @@ import org.springframework.util.CollectionUtils;
 //import com.mnao.mfp.cr.Mapper.ContactInfoMapper;
 import com.mnao.mfp.cr.dto.ContactReportDto;
 import com.mnao.mfp.cr.dto.ContactReportInfoDto;
-import com.mnao.mfp.cr.dto.ReportByDealershipDto;
 import com.mnao.mfp.cr.entity.ContactReportAttachment;
-import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
-import org.springframework.web.bind.annotation.SessionAttribute;
 
 import javax.transaction.Transactional;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Service

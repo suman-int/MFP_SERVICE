@@ -1,4 +1,4 @@
-package com.mnao.mfp.cr.Service;
+package com.mnao.mfp.cr.service;
 
 
 import org.springframework.stereotype.Service;

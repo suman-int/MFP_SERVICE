@@ -2,18 +2,12 @@ package com.mnao.mfp.cr.controller;
 
 import com.mnao.mfp.common.dto.CommonResponse;
 import com.mnao.mfp.common.service.AbstractService;
-import com.mnao.mfp.cr.Service.ContactReportService;
-import com.mnao.mfp.cr.Service.ContactReportServiceImpl;
-import com.mnao.mfp.cr.Service.FileHandlingServiceImpl;
-import com.mnao.mfp.cr.Service.GenericResponseWrapper;
+import com.mnao.mfp.cr.service.ContactReportService;
+import com.mnao.mfp.cr.service.FileHandlingServiceImpl;
+import com.mnao.mfp.cr.service.GenericResponseWrapper;
 import com.mnao.mfp.cr.dto.ContactInfoAttachmentDto;
-import com.mnao.mfp.cr.dto.ContactReportDto;
 import com.mnao.mfp.cr.dto.ContactReportInfoDto;
-import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.model.ContactReportResponse;
-import com.mnao.mfp.cr.util.ContactReportEnum;
-import com.mnao.mfp.list.dao.ListDealer;
-
 import com.mnao.mfp.user.dao.MFPUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -26,14 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
 import java.io.IOException;
-
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "ContactReport")

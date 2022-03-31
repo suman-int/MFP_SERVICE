@@ -1,4 +1,4 @@
-package com.mnao.mfp.cr.Service;
+package com.mnao.mfp.cr.service;
 
 import com.mnao.mfp.common.dto.CommonResponse;
 import com.mnao.mfp.cr.dto.FilterCriteria;

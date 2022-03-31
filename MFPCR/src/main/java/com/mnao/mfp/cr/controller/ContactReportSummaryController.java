@@ -2,24 +2,18 @@ package com.mnao.mfp.cr.controller;
 
 import com.mnao.mfp.common.dto.CommonResponse;
 import com.mnao.mfp.common.service.AbstractService;
-import com.mnao.mfp.cr.Service.ContactReportService;
-import com.mnao.mfp.cr.Service.ContactReportServiceImpl;
-import com.mnao.mfp.cr.Service.ContactReportSummaryService;
-import com.mnao.mfp.cr.Service.GenericResponseWrapper;
+import com.mnao.mfp.cr.service.ContactReportService;
+import com.mnao.mfp.cr.service.ContactReportSummaryService;
+import com.mnao.mfp.cr.service.GenericResponseWrapper;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
-import com.mnao.mfp.cr.entity.ContactReportInfo;
-import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.cr.model.ContactReportResponse;
 import com.mnao.mfp.cr.model.DealersByIssue;
 import com.mnao.mfp.cr.util.IssueType;
-import com.mnao.mfp.cr.util.LocationEnum;
 import com.mnao.mfp.cr.util.LocationFilter;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -75,7 +69,7 @@ public class ContactReportSummaryController {
     public CommonResponse<List<Map<String,String>>> summaryByIssueForRegion(@PathVariable("value") String value,
                                                 @PathVariable("category") String category) {
         try {
-        	List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(LocationFilter.builder().regionCd(value).build(), category);
+        	List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(LocationFilter.builder().rgnCd(value).build(), category);
         	return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
         	return AbstractService.httpPostError(e);
@@ -89,7 +83,7 @@ public class ContactReportSummaryController {
                                                 @PathVariable("category") String category) {
         try {
         	List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(LocationFilter.builder()
-        			.regionCd(value).zoneCd(zoneValue).build(), category);
+        			.rgnCd(value).zoneCd(zoneValue).build(), category);
         	return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
         	return AbstractService.httpPostError(e);
@@ -104,7 +98,7 @@ public class ContactReportSummaryController {
                                                 @PathVariable("category") String category) {
         try {
         	List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(LocationFilter.builder()
-        			.regionCd(value).zoneCd(zoneValue).districtCd(districtId)
+        			.rgnCd(value).zoneCd(zoneValue).districtCd(districtId)
         			.build(), category);
         	return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
@@ -139,7 +133,7 @@ public class ContactReportSummaryController {
     public CommonResponse<List<Map<String,String>>> summaryByMonthForRegion(@PathVariable("value") String value
                                                 ) {
         try {
-        	List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(LocationFilter.builder().regionCd(value).build(), null);
+        	List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(LocationFilter.builder().rgnCd(value).build(), null);
         	return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
         	return AbstractService.httpPostError(e);
@@ -153,7 +147,7 @@ public class ContactReportSummaryController {
                                                 ) {
         try {
         	List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(LocationFilter.builder()
-        			.regionCd(value).zoneCd(zoneValue).build(), null);
+        			.rgnCd(value).zoneCd(zoneValue).build(), null);
         	return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
         	return AbstractService.httpPostError(e);
@@ -168,7 +162,7 @@ public class ContactReportSummaryController {
                                                 ) {
         try {
         	List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(LocationFilter.builder()
-        			.regionCd(value).zoneCd(zoneValue).districtCd(districtId)
+        			.rgnCd(value).zoneCd(zoneValue).districtCd(districtId)
         			.build(), null);
         	return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
@@ -200,7 +194,7 @@ public class ContactReportSummaryController {
     @GetMapping(value = "/report-execution-coverage/{date}")
     public ContactReportResponse reportExecutionBycoverage(@PathVariable("date") String date){
         return GenericResponseWrapper.contactReportResponseFunction
-                .apply(contactReportSummaryService.reportExecutionBycoverage(date), null);
+                .apply(contactReportSummaryService.reportExecutionCoverage(date), null);
     }
 
     @GetMapping(value = "/report-execution-exception/{date}")

@@ -4,36 +4,34 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
 @Builder
 public class LocationFilter {
-	private String regionCd;
+	private String rgnCd;
 	private String zoneCd;
 	private String districtCd;
-	private String dealerCd;
+	private String dlrCd;
 
 	public LocationEnum forLocation() {
-		if (notIsNullOrEmpty(this.regionCd) && isNullOrEmpty(zoneCd) && isNullOrEmpty(districtCd) && isNullOrEmpty(dealerCd)) {
+		if (isNotNullOrEmpty(this.rgnCd) && isNullOrEmpty(zoneCd) && isNullOrEmpty(districtCd) && isNullOrEmpty(dlrCd)) {
 			return LocationEnum.REGION;
-		} else if (notIsNullOrEmpty(this.regionCd) && notIsNullOrEmpty(zoneCd) && isNullOrEmpty(districtCd) && isNullOrEmpty(dealerCd)) {
+		} else if (isNotNullOrEmpty(this.rgnCd) && isNotNullOrEmpty(zoneCd) && isNullOrEmpty(districtCd) && isNullOrEmpty(dlrCd)) {
 			return LocationEnum.ZONE;
-		} else if (notIsNullOrEmpty(this.regionCd) && notIsNullOrEmpty(zoneCd) && notIsNullOrEmpty(districtCd) && isNullOrEmpty(dealerCd)) {
+		} else if (isNotNullOrEmpty(this.rgnCd) && isNotNullOrEmpty(zoneCd) && isNotNullOrEmpty(districtCd) && isNullOrEmpty(dlrCd)) {
 			return LocationEnum.DISTRICT;
-		} else if (notIsNullOrEmpty(this.regionCd) && notIsNullOrEmpty(zoneCd) && notIsNullOrEmpty(districtCd) && notIsNullOrEmpty(dealerCd)) {
+		} else if (isNotNullOrEmpty(this.rgnCd) && isNotNullOrEmpty(zoneCd) && isNotNullOrEmpty(districtCd) && isNotNullOrEmpty(dlrCd)) {
 			return LocationEnum.DEALER;
 		}
 		return LocationEnum.ALL;
 	}
 
-	private boolean notIsNullOrEmpty(String value) {
+	private boolean isNotNullOrEmpty(String value) {
 		return (value != null && value.trim().length() > 0);
 	}
 	private boolean isNullOrEmpty(String value) {
-		return !notIsNullOrEmpty(value);
+		return !isNotNullOrEmpty(value);
 	}
 }

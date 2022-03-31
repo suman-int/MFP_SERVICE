@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
 import com.mnao.mfp.common.controller.MfpKPIControllerBase;
-import com.mnao.mfp.cr.Service.ContactInfoServiceImpl;
+import com.mnao.mfp.cr.service.ContactInfoServiceImpl;
 import com.mnao.mfp.cr.dto.FilterCriteria;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.pdf.service.PDFService;
