@@ -17,11 +17,13 @@ import lombok.ToString;
 @Setter
 @Builder
 public class ContactReportExecutionCoverageDto {
-	private String type;
-	private String author;
-	private String coverage;
-	private Integer reportCount;
+	//private String type;
+
+	//private String coverage;
+	private Long reportCount;
 	private String dealerCode;
-	private List<ContactReportInfo> reports;
+	private boolean isDealerDefeciencyIdentified;
+	private boolean isServiceRetentionFysl;
+	private List<ContactReportExecutionCoverageAuthorDto> authorDtos;
 	private String dealerName;	
 }

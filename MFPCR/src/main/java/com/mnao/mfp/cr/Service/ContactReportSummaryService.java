@@ -2,6 +2,7 @@ package com.mnao.mfp.cr.Service;
 
 import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.util.AppConstants;
+import com.mnao.mfp.cr.dto.ContactReportExecutionCoverageAuthorDto;
 import com.mnao.mfp.cr.dto.ContactReportExecutionCoverageDto;
 import com.mnao.mfp.cr.dto.SummaryByDealerListDto;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
@@ -377,13 +378,27 @@ public class ContactReportSummaryService {
 
 		Set<Dealers> dealers = contactReportInfos.stream().map(ContactReportInfo::getDealers)
 				.collect(Collectors.toSet());
+		Map<String, List<ContactReportInfo>> authorContactReports = contactReportInfos.stream()
+				.collect(Collectors.groupingBy(ContactReportInfo::getContactAuthor));
+		return dealers.stream().map(dealer ->
+			 ContactReportExecutionCoverageDto.builder()
+					.dealerName(dealer.getDbaNm().trim())
+					.dealerCode(dealer.getDlrCd().trim())
+					.reportCount(reportCount.get(dealer.getDlrCd()))
+					.authorDtos(dealer.getCRI().stream().map(contactReportInfo ->{
+						List<ContactReportInfo> lists = authorContactReports.get(contactReportInfo.getContactAuthor());
+						Function<String, Boolean> isExist = issueTopic -> lists.stream().filter(l-> l.getDiscussions().stream().filter(x->x.getTopic().equals(issueTopic)).findAny().isPresent()).findAny().isPresent();
+						return ContactReportExecutionCoverageAuthorDto.builder()
+								.author(contactReportInfo.getContactAuthor())
+								.isDealerDefeciencyIdentified(isExist.apply("Dealer Dev Deficiencies Identifed"))
+								.isServiceRetentionFysl(isExist.apply("Service Retention/FYSL"))
+								.reportsCreatedByAuthor(lists.size())
+								.build();
+							}
 
-		return dealers.stream().map(dealer -> {
-			return ContactReportExecutionCoverageDto.builder().coverage(getCoverage(dealer.getCRI().get(0).getContactType()))
-					.type(dealer.getCRI().get(0).getContactType()).author(dealer.getCRI().get(0).getContactAuthor())
-					.dealerName(dealer.getDbaNm()).dealerCode(dealer.getDlrCd()).reports(dealer.getCRI())
-					.reportCount(dealer.getCRI().size()).build();
-		}).collect(Collectors.toList());
+					).collect(Collectors.toList()))
+					.build()
+		).collect(Collectors.toList());
 
 	}
 
