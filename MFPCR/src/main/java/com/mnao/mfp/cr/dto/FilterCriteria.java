@@ -2,6 +2,7 @@ package com.mnao.mfp.cr.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mnao.mfp.common.util.AppConstants;
+import com.mnao.mfp.cr.util.LocationEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,4 +33,26 @@ public class FilterCriteria {
 
     @JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
     private LocalDate endDate;
+
+	public LocationEnum forLocation() {
+		if (notIsNullOrEmpty(this.rgnCd) && isNullOrEmpty(zoneCd) && isNullOrEmpty(districtCd) && isNullOrEmpty(dlrCd)) {
+			return LocationEnum.REGION;
+		} else if (notIsNullOrEmpty(this.rgnCd) && notIsNullOrEmpty(zoneCd) && isNullOrEmpty(districtCd) && isNullOrEmpty(dlrCd)) {
+			return LocationEnum.ZONE;
+		} else if (notIsNullOrEmpty(this.rgnCd) && notIsNullOrEmpty(zoneCd) && notIsNullOrEmpty(districtCd) && isNullOrEmpty(dlrCd)) {
+			return LocationEnum.DISTRICT;
+		} else if (notIsNullOrEmpty(this.rgnCd) && notIsNullOrEmpty(zoneCd) && notIsNullOrEmpty(districtCd) && notIsNullOrEmpty(dlrCd)) {
+			return LocationEnum.DEALER;
+		}
+		return LocationEnum.ALL;
+	}
+
+	private boolean notIsNullOrEmpty(String value) {
+		return (value != null && value.trim().length() > 0);
+	}
+	private boolean isNullOrEmpty(String value) {
+		return !notIsNullOrEmpty(value);
+	}
+
+
 }
