@@ -17,6 +17,7 @@ import com.mnao.mfp.cr.util.LocationFilter;
 import com.mnao.mfp.cr.util.TriFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -491,8 +492,11 @@ public class ContactReportSummaryService {
 					responseData.put(newEntry.getKey(), String.format("%d/%d", submittedCount, reviewedCount));
 				}
 			});
-			responseData.put(getStringByType(filter.forLocation().name()), entry.getKey());
-			finalListData.add(responseData);
+			if (!CollectionUtils.isEmpty(responseData)) {
+				responseData.put(getStringByType(filter.forLocation().name()), entry.getKey());
+				finalListData.add(responseData);
+			}
+			
 		});
 		
 		return finalListData;
@@ -521,29 +525,24 @@ public class ContactReportSummaryService {
 					.filter(cr -> filter.getRegionCd().equalsIgnoreCase(cr.getDealers().getRgnCd()))
 					.collect(Collectors.groupingBy(group -> group.getDealers().getZoneCd(), Collectors.groupingBy(gr -> formatDate(gr.getContactDt()))));
 		} else {
-			reports = contactReports.stream().collect(Collectors.groupingBy(group -> group.getDealers().getRgnCd(), Collectors.groupingBy(gr -> formatDate(gr.getContactDt()))));
+			reports = contactReports.stream().collect(Collectors.groupingBy(group -> group.getDealers().getRgnCd(), Collectors.groupingBy(gr -> gr.getContactDt().format(DateTimeFormatter.ofPattern("MMM")))));
 		}
 		
 		reports.entrySet().forEach(entry -> {
 			HashMap<String, List<ContactReportInfo>> finalData = new HashMap<>();
 			HashMap<String, String> responseData = new HashMap<>();
 			entry.getValue().entrySet().forEach(childEtry -> {
-				months.forEach(issue -> {
-					if (finalData.containsKey(issue)) {
-						List<ContactReportInfo> existingData = finalData.get(issue);
-						existingData.addAll(childEtry.getValue());
-						finalData.put(issue, existingData);
-					} else if (issue.equalsIgnoreCase((String) childEtry.getKey())){
-						finalData.put(issue, childEtry.getValue());
-					} else {
-						finalData.put(issue, new ArrayList<>());
-					}
-				});
+				finalData.put((String) childEtry.getKey(), childEtry.getValue());
 			});
 			finalData.entrySet().stream().forEach(newEntry -> {
 				Long submittedCount = newEntry.getValue().stream().filter(report -> report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()).count();
 				Long reviewedCount = newEntry.getValue().stream().filter(report -> report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()).count();
 				responseData.put(newEntry.getKey(), String.format("%d/%d", submittedCount, reviewedCount));
+			});
+			months.forEach(value -> {
+				if (!responseData.containsKey(value)) {
+					responseData.put(value, "0/0");
+				}
 			});
 			responseData.put(getStringByType(filter.forLocation().name()), entry.getKey());
 			finalListData.add(responseData);
