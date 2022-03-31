@@ -16,17 +16,24 @@ public class LocationFilter {
 	private String zoneCd;
 	private String districtCd;
 	private String dealerCd;
-	
+
 	public LocationEnum forLocation() {
-		if (this.regionCd != null && (zoneCd == null && districtCd == null && dealerCd == null)) {
+		if (notIsNullOrEmpty(this.regionCd) && isNullOrEmpty(zoneCd) && isNullOrEmpty(districtCd) && isNullOrEmpty(dealerCd)) {
 			return LocationEnum.REGION;
-		} else if (this.regionCd != null && zoneCd != null && (districtCd == null && dealerCd == null)) {
+		} else if (notIsNullOrEmpty(this.regionCd) && notIsNullOrEmpty(zoneCd) && isNullOrEmpty(districtCd) && isNullOrEmpty(dealerCd)) {
 			return LocationEnum.ZONE;
-		} else if (this.regionCd != null && zoneCd != null && districtCd != null && (dealerCd == null)) {
+		} else if (notIsNullOrEmpty(this.regionCd) && notIsNullOrEmpty(zoneCd) && notIsNullOrEmpty(districtCd) && isNullOrEmpty(dealerCd)) {
 			return LocationEnum.DISTRICT;
-		} else if (this.regionCd != null && zoneCd != null && districtCd != null && dealerCd != null) {
+		} else if (notIsNullOrEmpty(this.regionCd) && notIsNullOrEmpty(zoneCd) && notIsNullOrEmpty(districtCd) && notIsNullOrEmpty(dealerCd)) {
 			return LocationEnum.DEALER;
 		}
 		return LocationEnum.ALL;
+	}
+
+	private boolean notIsNullOrEmpty(String value) {
+		return (value != null && value.trim().length() > 0);
+	}
+	private boolean isNullOrEmpty(String value) {
+		return !notIsNullOrEmpty(value);
 	}
 }
