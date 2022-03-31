@@ -389,7 +389,7 @@ public class ContactReportSummaryService {
 					 .coverage(getCoverage(dealer.getCRI().get(0).getContactType()))
 					.reportCount(reportCount.get(dealer.getDlrCd()))
 					.authorDtos(dealer.getCRI().stream().map(contactReportInfo ->{
-						List<ContactReportInfo> lists = authorContactReports.get(contactReportInfo.getContactAuthor());
+						List<ContactReportInfo> lists = authorContactReports.get(contactReportInfo.getContactAuthor()).stream().filter(c-> c.getDlrCd().equals(dealer.getDlrCd())).collect(Collectors.toList());
 						Function<String, Boolean> isExist = issueTopic -> lists.stream().filter(l-> l.getDiscussions().stream().filter(x->x.getTopic().equals(issueTopic)).findAny().isPresent()).findAny().isPresent();
 						return ContactReportExecutionCoverageAuthorDto.builder()
 								.author(contactReportInfo.getContactAuthor())
