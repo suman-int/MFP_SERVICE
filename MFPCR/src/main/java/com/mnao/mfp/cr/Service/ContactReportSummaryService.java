@@ -384,6 +384,9 @@ public class ContactReportSummaryService {
 			 ContactReportExecutionCoverageDto.builder()
 					.dealerName(dealer.getDbaNm().trim())
 					.dealerCode(dealer.getDlrCd().trim())
+					 .type(dealer.getCRI().get(0).getContactType())
+					 .author(dealer.getCRI().get(0).getContactAuthor())
+					 .coverage(getCoverage(dealer.getCRI().get(0).getContactType()))
 					.reportCount(reportCount.get(dealer.getDlrCd()))
 					.authorDtos(dealer.getCRI().stream().map(contactReportInfo ->{
 						List<ContactReportInfo> lists = authorContactReports.get(contactReportInfo.getContactAuthor());
