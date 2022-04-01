@@ -32,7 +32,7 @@ public class PDFCRMain {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return ;
+		return;
 	}
 
 	private void addDiscussions(PDFReport report, ContactReportInfo crInfo) {
@@ -76,7 +76,7 @@ public class PDFCRMain {
 		if (author == null) {
 			addCell(tbl, crInfo.getContactAuthor());
 		} else {
-			String auth = getNameString(author.getFirstName(), author.getLastName() );
+			String auth = getNameString(author.getFirstName(), author.getLastName());
 			String jDesc = author.getHrJobName().trim();
 			if ((jDesc != null) && (jDesc.trim().length() > 0))
 				auth += ", " + jDesc;
@@ -86,7 +86,7 @@ public class PDFCRMain {
 		if (revEmpInfo == null) {
 			addCell(tbl, crInfo.getContactReviewer());
 		} else {
-			String person = getNameString(revEmpInfo.getFirstNm(), revEmpInfo.getMidlNm(), revEmpInfo.getLastNm() );
+			String person = getNameString(revEmpInfo.getFirstNm(), revEmpInfo.getMidlNm(), revEmpInfo.getLastNm());
 			String jDesc = revEmpInfo.getJobTitleTx().trim();
 			if ((jDesc != null) && (jDesc.trim().length() > 0)) {
 				person += ", " + jDesc;
@@ -99,7 +99,7 @@ public class PDFCRMain {
 		if (dps != null) {
 			if (dEmpInfos != null) {
 				for (DealerEmployeeInfo dei : dEmpInfos) {
-					String person = getNameString(dei.getFirstNm(), dei.getMidlNm(), dei.getLastNm() );
+					String person = getNameString(dei.getFirstNm(), dei.getMidlNm(), dei.getLastNm());
 					person += ", " + dei.getJobTitleTx().trim();
 					dpers.append(person);
 					dpers.append("\n");
@@ -116,12 +116,12 @@ public class PDFCRMain {
 		addCell(tbl, dpers.toString(), 1, 2);
 		report.addToReport(tbl);
 	}
-	
-	private String getNameString(String ... nParts) {
+
+	private String getNameString(String... nParts) {
 		StringBuilder sb = new StringBuilder();
-		for(int i = 0 ; i < nParts.length; i++) {
-			if( (nParts[i] != null) && (nParts[i].trim().length() > 0) ) {
-				if( i > 0 )
+		for (int i = 0; i < nParts.length; i++) {
+			if ((nParts[i] != null) && (nParts[i].trim().length() > 0)) {
+				if (i > 0)
 					sb.append(" ");
 				sb.append(nParts[i].trim());
 			}
@@ -164,7 +164,7 @@ public class PDFCRMain {
 		if (author == null) {
 			addCell(tbl, crInfo.getContactAuthor());
 		} else {
-			String auth = getNameString(author.getFirstName(),  author.getLastName());
+			String auth = getNameString(author.getFirstName(), author.getLastName());
 			addCell(tbl, auth);
 		}
 		//
@@ -181,7 +181,11 @@ public class PDFCRMain {
 
 	private void addCell(Table tbl, String str, int row, int col) {
 		Cell c = new Cell(row, col);
-		c.add(new Paragraph(str));
+		if (str == null) {
+			c.add(new Paragraph(" "));
+		} else {
+			c.add(new Paragraph(str));
+		}
 		tbl.addCell(c);
 	}
 }

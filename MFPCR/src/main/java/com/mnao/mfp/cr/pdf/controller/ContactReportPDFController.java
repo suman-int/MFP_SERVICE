@@ -91,9 +91,7 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 
 	@PostMapping(value = "/downloadStatusXLS")
 	public ResponseEntity<Resource> downloadStatusXLSF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
-			// @RequestBody List<ContactReportInfo> report, HttpServletRequest request) {
 			@RequestBody FilterCriteria filterCriteria, HttpServletRequest request) {
-//		ContactInfoServiceImpl cInfoServ = new ContactInfoServiceImpl();
 		List<ContactReportInfo> report = cInfoServ.filterContactReportsBasedOnFilter(filterCriteria);
 		PDFService service = new PDFService();
 		Resource pdfRes = null;
