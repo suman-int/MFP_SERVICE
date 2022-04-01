@@ -159,7 +159,11 @@ public class PDFService extends MfpKPIControllerBase {
 			col = addXLSCellValue(row, dtVal, col);
 			col = addXLSCellValue(row, uInfo.getFirstName().trim() + " " + uInfo.getLastName().trim(), col);
 			col = addXLSCellValue(row, uInfo.getHrJobName(), col);
-			col = addXLSCellValue(row, "", col);
+			dtVal = "";
+			if (report.getCreatedDt() != null) {
+				DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM-dd-YYYY");
+				dtVal = "" + report.getCreatedDt().format(dtf);
+			}			col = addXLSCellValue(row, "", col);
 			col = addXLSCellValue(row, "", col);
 			col = addXLSCellValue(row, "", col);
 			col = addXLSCellValue(row, "" + report.getContactStatus(), col);
@@ -178,7 +182,7 @@ public class PDFService extends MfpKPIControllerBase {
 		DealerInfo dInfo = getDealerInfo(mfpUser, report.getDlrCd());
 		List<DealerEmployeeInfo> dEmpInfos = getDealerEmployeeInfos(mfpUser, report.getDlrCd(),
 				report.getDealerPersonnels());
-		ReviewerEmployeeInfo revEmpInfo = getReviewerEmployeeInfos(mfpUser, report.getContactReviewer());
+		ReviewerEmployeeInfo revEmpInfo = getReviewerEmployeeInfos(mfpUser, report.getContactReviewer(), dInfo);
 		MFPUser author = getAuthorUser(mfpUser, report.getContactAuthor());
 		pdfMain.createPDF(pdfReport, report, author, dInfo, dEmpInfos, revEmpInfo);
 	}
@@ -203,7 +207,7 @@ public class PDFService extends MfpKPIControllerBase {
 		return musr;
 	}
 
-	private ReviewerEmployeeInfo getReviewerEmployeeInfos(MFPUser mfpUser, String contactReviewer) {
+	private ReviewerEmployeeInfo getReviewerEmployeeInfos(MFPUser mfpUser, String contactReviewer, DealerInfo dInfo) {
 		ReviewerEmployeeInfo revEmp = null;
 		if (contactReviewer != null) {
 			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEES);
@@ -211,7 +215,7 @@ public class PDFService extends MfpKPIControllerBase {
 			List<ReviewerEmployeeInfo> retRows = null;
 			DealerFilter df = new DealerFilter(mfpUser, null, mfpUser.getRgnCd(), null, null, null);
 			try {
-				retRows = service.getListData(sqlName, ReviewerEmployeeInfo.class, df, mfpUser.getRgnCd());
+				retRows = service.getListData(sqlName, ReviewerEmployeeInfo.class, df, dInfo.getRgnCd(), dInfo.getZoneCd());
 			} catch (InstantiationException | IllegalAccessException | ParseException e) {
 				log.error("ERROR retrieving list of Employees:", e);
 			}

@@ -20,6 +20,7 @@ import com.mnao.mfp.cr.dto.ReportByDealerShipResponse;
 import com.mnao.mfp.cr.dto.ReportByDealershipDto;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
 import com.mnao.mfp.cr.util.ContactReportEnum;
+import com.mnao.mfp.cr.util.LocationEnum;
 
 @Service
 public class ContactInfoServiceImpl implements ContactInfoService {
@@ -55,16 +56,41 @@ public class ContactInfoServiceImpl implements ContactInfoService {
 
 	public List<ContactReportInfo> filterContactReportsBasedOnFilter(FilterCriteria filterCriteria){
 		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findAll();
-		List<ContactReportInfo> regionContactReportInfos = contactReportInfos.stream()
-				.filter(c-> regionFilter.test(c, filterCriteria)).collect(Collectors.toList());
-		List<ContactReportInfo> zoneContactReportInfos = regionContactReportInfos.stream()
-				.filter(c-> zoneFilter.test(c, filterCriteria)).collect(Collectors.toList());
-		List<ContactReportInfo> districtContactReportInfos = zoneContactReportInfos.stream()
-				.filter(c-> districtFilter.test(c, filterCriteria)).collect(Collectors.toList());
-		List<ContactReportInfo> dealerContactReportInfos = districtContactReportInfos.stream()
-				.filter(c-> dealerFilter.test(c, filterCriteria)).collect(Collectors.toList());
-		return dealerContactReportInfos;
+		if( filterCriteria.forLocation() == LocationEnum.REGION ) {
+			contactReportInfos = contactReportInfos.stream()
+				.filter(c-> c.getDealers().getRgnCd().equalsIgnoreCase(filterCriteria.getRgnCd()))
+				.collect(Collectors.toList());
+		} else if( filterCriteria.forLocation() == LocationEnum.ZONE ) {
+			contactReportInfos = contactReportInfos.stream()
+				.filter(c-> c.getDealers().getRgnCd().equalsIgnoreCase(filterCriteria.getRgnCd()))
+				.filter(c-> c.getDealers().getZoneCd().equalsIgnoreCase(filterCriteria.getZoneCd()))
+				.collect(Collectors.toList());
+		} else if( filterCriteria.forLocation() == LocationEnum.DISTRICT ) {
+			contactReportInfos = contactReportInfos.stream()
+				.filter(c-> c.getDealers().getRgnCd().equalsIgnoreCase(filterCriteria.getRgnCd()))
+				.filter(c-> c.getDealers().getZoneCd().equalsIgnoreCase(filterCriteria.getZoneCd()))
+				.filter(c-> c.getDealers().getDistrictCd().equalsIgnoreCase(filterCriteria.getDistrictCd()))
+				.collect(Collectors.toList());
+		} else if( filterCriteria.forLocation() == LocationEnum.DEALER ) {
+			contactReportInfos = contactReportInfos.stream()
+				.filter(c-> c.getDlrCd().equalsIgnoreCase(filterCriteria.getDlrCd()))
+				.collect(Collectors.toList());
+		}		
+		return contactReportInfos;
 	}
+
+//	public List<ContactReportInfo> filterContactReportsBasedOnFilter(FilterCriteria filterCriteria){
+//		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findAll();
+//		List<ContactReportInfo> regionContactReportInfos = contactReportInfos.stream()
+//				.filter(c-> regionFilter.test(c, filterCriteria)).collect(Collectors.toList());
+//		List<ContactReportInfo> zoneContactReportInfos = regionContactReportInfos.stream()
+//				.filter(c-> zoneFilter.test(c, filterCriteria)).collect(Collectors.toList());
+//		List<ContactReportInfo> districtContactReportInfos = zoneContactReportInfos.stream()
+//				.filter(c-> districtFilter.test(c, filterCriteria)).collect(Collectors.toList());
+//		List<ContactReportInfo> dealerContactReportInfos = districtContactReportInfos.stream()
+//				.filter(c-> dealerFilter.test(c, filterCriteria)).collect(Collectors.toList());
+//		return dealerContactReportInfos;
+//	}
 
 	@Override
 	public CommonResponse<ReportByDealerShipResponse> byDealership(FilterCriteria filterCriteria) {
