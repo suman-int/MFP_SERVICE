@@ -1,5 +1,6 @@
-package com.mnao.mfp.cr.Service;
+package com.mnao.mfp.cr.service.impl;
 
+import com.mnao.mfp.cr.service.FileHandlingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -15,11 +16,9 @@ import com.mnao.mfp.cr.repository.ContactReportAttachmentRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -27,9 +26,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 @Service
 public class FileHandlingServiceImpl implements FileHandlingService {

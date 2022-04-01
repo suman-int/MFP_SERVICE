@@ -1,4 +1,4 @@
-package com.mnao.mfp.cr.Service;
+package com.mnao.mfp.cr.service;
 
 import com.mnao.mfp.cr.model.ContactReportResponse;
 import com.mnao.mfp.cr.util.ContactReportEnum;

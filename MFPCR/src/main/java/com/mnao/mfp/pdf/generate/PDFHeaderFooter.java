@@ -1,4 +1,4 @@
-package com.mnao.mfp.cr.pdf.generate;
+package com.mnao.mfp.pdf.generate;
 import com.itextpdf.kernel.events.Event;
 import com.itextpdf.kernel.events.IEventHandler;
 import com.itextpdf.kernel.events.PdfDocumentEvent;

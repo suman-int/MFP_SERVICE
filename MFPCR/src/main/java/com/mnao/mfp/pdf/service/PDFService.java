@@ -1,4 +1,4 @@
-package com.mnao.mfp.cr.pdf.service;
+package com.mnao.mfp.pdf.service;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,12 +29,11 @@ import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
-import com.mnao.mfp.cr.pdf.controller.ContactReportPDFController;
-import com.mnao.mfp.cr.pdf.dao.DealerEmployeeInfo;
-import com.mnao.mfp.cr.pdf.dao.ReviewerEmployeeInfo;
-import com.mnao.mfp.cr.pdf.generate.PDFCRMain;
-import com.mnao.mfp.cr.pdf.generate.PDFReport;
-import com.mnao.mfp.list.service.ListService;
+import com.mnao.mfp.pdf.controller.ContactReportPDFController;
+import com.mnao.mfp.pdf.dao.DealerEmployeeInfo;
+import com.mnao.mfp.pdf.dao.ReviewerEmployeeInfo;
+import com.mnao.mfp.pdf.generate.PDFCRMain;
+import com.mnao.mfp.pdf.generate.PDFReport;
 import com.mnao.mfp.list.service.MMAListService;
 import com.mnao.mfp.user.dao.MFPUser;
 import com.mnao.mfp.user.service.UserDetailsService;

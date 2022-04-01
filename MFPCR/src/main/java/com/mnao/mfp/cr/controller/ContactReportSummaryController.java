@@ -1,25 +1,21 @@
 package com.mnao.mfp.cr.controller;
 
+import com.mnao.mfp.common.datafilters.FilterCriteria;
 import com.mnao.mfp.common.dto.CommonResponse;
 import com.mnao.mfp.common.service.AbstractService;
-import com.mnao.mfp.cr.Service.ContactReportService;
-import com.mnao.mfp.cr.Service.ContactReportServiceImpl;
-import com.mnao.mfp.cr.Service.ContactReportSummaryService;
-import com.mnao.mfp.cr.Service.GenericResponseWrapper;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
-import com.mnao.mfp.cr.entity.ContactReportInfo;
-import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.cr.model.ContactReportResponse;
 import com.mnao.mfp.cr.model.DealersByIssue;
+import com.mnao.mfp.cr.service.ContactReportService;
+import com.mnao.mfp.cr.service.ContactReportSummaryService;
+import com.mnao.mfp.cr.service.GenericResponseWrapper;
 import com.mnao.mfp.cr.util.IssueType;
-import com.mnao.mfp.cr.util.LocationEnum;
-import com.mnao.mfp.cr.util.LocationFilter;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,9 +28,9 @@ public class ContactReportSummaryController {
 
     @Autowired
     private ContactReportSummaryService contactReportSummaryService;
-    
-	@Autowired
-	private IssueType issueType;
+
+    @Autowired
+    private IssueType issueType;
 
     @GetMapping(value = "/dealer-issue")
     public List<DealersByIssue> dealerIssue() {
@@ -42,6 +38,7 @@ public class ContactReportSummaryController {
     }
 
     @GetMapping(value = "/by-issue/{type}/{value}/{category}")
+    @Deprecated()
     public ContactReportResponse summaryByIssue(@PathVariable("type") String type,
                                                 @PathVariable("value") String value,
                                                 @PathVariable("category") String category) {
@@ -60,155 +57,154 @@ public class ContactReportSummaryController {
 
                         ), null);
     }
-    
+
     @GetMapping(value = "/v2/by-issue/all/{category}")
-    public CommonResponse<List<Map<String,String>>> summaryByIssueForRegion(@PathVariable("category") String category) {
+    public CommonResponse<List<Map<String, String>>> summaryByIssueForRegion(@PathVariable("category") String category) {
         try {
-        	List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(LocationFilter.builder().build(), category);
-        	return AbstractService.httpPostSuccess(response, "Success");
+            List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(FilterCriteria.builder().build(), category);
+            return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
-        	return AbstractService.httpPostError(e);
+            return AbstractService.httpPostError(e);
         }
     }
-    
+
     @GetMapping(value = "/v2/by-issue/region/{value}/{category}")
-    public CommonResponse<List<Map<String,String>>> summaryByIssueForRegion(@PathVariable("value") String value,
-                                                @PathVariable("category") String category) {
+    public CommonResponse<List<Map<String, String>>> summaryByIssueForRegion(@PathVariable("value") String value,
+                                                                             @PathVariable("category") String category) {
         try {
-        	List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(LocationFilter.builder().regionCd(value).build(), category);
-        	return AbstractService.httpPostSuccess(response, "Success");
+            List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(FilterCriteria.builder().rgnCd(value).build(), category);
+            return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
-        	return AbstractService.httpPostError(e);
+            return AbstractService.httpPostError(e);
         }
     }
-    
+
     @GetMapping(value = "/v2/by-issue/region/{value}/zone/{zoneValue}/{category}")
-    public CommonResponse<List<Map<String,String>>> summaryByIssueForZone(
-    											@PathVariable("value") String value,
-    											@PathVariable("zoneValue") String zoneValue,
-                                                @PathVariable("category") String category) {
+    public CommonResponse<List<Map<String, String>>> summaryByIssueForZone(
+            @PathVariable("value") String value,
+            @PathVariable("zoneValue") String zoneValue,
+            @PathVariable("category") String category) {
         try {
-        	List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(LocationFilter.builder()
-        			.regionCd(value).zoneCd(zoneValue).build(), category);
-        	return AbstractService.httpPostSuccess(response, "Success");
+            List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(FilterCriteria.builder()
+                    .rgnCd(value).zoneCd(zoneValue).build(), category);
+            return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
-        	return AbstractService.httpPostError(e);
+            return AbstractService.httpPostError(e);
         }
     }
-    
+
     @GetMapping(value = "/v2/by-issue/region/{value}/zone/{zoneValue}/district/{districtId}/{category}")
-    public CommonResponse<List<Map<String,String>>> summaryByIssueForDistrict(
-    											@PathVariable("value") String value,
-    											@PathVariable("zoneValue") String zoneValue,
-    											@PathVariable("districtId") String districtId,
-                                                @PathVariable("category") String category) {
+    public CommonResponse<List<Map<String, String>>> summaryByIssueForDistrict(
+            @PathVariable("value") String value,
+            @PathVariable("zoneValue") String zoneValue,
+            @PathVariable("districtId") String districtId,
+            @PathVariable("category") String category) {
         try {
-        	List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(LocationFilter.builder()
-        			.regionCd(value).zoneCd(zoneValue).districtCd(districtId)
-        			.build(), category);
-        	return AbstractService.httpPostSuccess(response, "Success");
+            List<Map<String, String>> response = contactReportSummaryService.getSummaryByLocation(FilterCriteria.builder()
+                    .rgnCd(value).zoneCd(zoneValue).districtCd(districtId)
+                    .build(), category);
+            return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
-        	return AbstractService.httpPostError(e);
+            return AbstractService.httpPostError(e);
         }
     }
 
     @GetMapping(value = "/by-month/{type}/{value}")
     public ContactReportResponse summaryByMonth(@PathVariable("type") String type,
                                                 @PathVariable("value") String value
-                                                ){
+    ) {
         return GenericResponseWrapper.contactReportResponseFunction
-                .apply(contactReportSummaryService.getSummaryByMonth(type,value,(contactReportInfoList, i) ->
+                .apply(contactReportSummaryService.getSummaryByMonth(type, value, (contactReportInfoList, i) ->
                         contactReportInfoList.stream()
                                 .filter(c -> Objects.nonNull(c.getContactDt()))
                                 .filter(d -> d.getContactDt().getMonth().name().equals(i))
                                 .collect(Collectors.toList())), null);
     }
-    
+
     @GetMapping(value = "/v2/by-month/all")
-    public CommonResponse<List<Map<String,String>>> summaryByMonthForRegion() {
+    public CommonResponse<List<Map<String, String>>> summaryByMonthForRegion() {
         try {
-        	List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(LocationFilter.builder().build(), null);
-        	return AbstractService.httpPostSuccess(response, "Success");
+            List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(FilterCriteria.builder().build(), null);
+            return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
-        	e.printStackTrace();
-        	return AbstractService.httpPostError(e);
+            e.printStackTrace();
+            return AbstractService.httpPostError(e);
         }
     }
-    
+
     @GetMapping(value = "/v2/by-month/region/{value}")
-    public CommonResponse<List<Map<String,String>>> summaryByMonthForRegion(@PathVariable("value") String value
-                                                ) {
+    public CommonResponse<List<Map<String, String>>> summaryByMonthForRegion(@PathVariable("value") String value
+    ) {
         try {
-        	List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(LocationFilter.builder().regionCd(value).build(), null);
-        	return AbstractService.httpPostSuccess(response, "Success");
+            List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(FilterCriteria.builder().rgnCd(value).build(), null);
+            return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
-        	return AbstractService.httpPostError(e);
+            return AbstractService.httpPostError(e);
         }
     }
-    
+
     @GetMapping(value = "/v2/by-month/region/{value}/zone/{zoneValue}")
-    public CommonResponse<List<Map<String,String>>> summaryByMonthForZone(
-    											@PathVariable("value") String value,
-    											@PathVariable("zoneValue") String zoneValue
-                                                ) {
+    public CommonResponse<List<Map<String, String>>> summaryByMonthForZone(
+            @PathVariable("value") String value,
+            @PathVariable("zoneValue") String zoneValue
+    ) {
         try {
-        	List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(LocationFilter.builder()
-        			.regionCd(value).zoneCd(zoneValue).build(), null);
-        	return AbstractService.httpPostSuccess(response, "Success");
+            List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(FilterCriteria.builder()
+                    .rgnCd(value).zoneCd(zoneValue).build(), null);
+            return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
-        	return AbstractService.httpPostError(e);
+            return AbstractService.httpPostError(e);
         }
     }
-    
+
     @GetMapping(value = "/v2/by-month/region/{value}/zone/{zoneValue}/district/{districtId}")
-    public CommonResponse<List<Map<String,String>>> summaryByMonthForDistrict(
-    											@PathVariable("value") String value,
-    											@PathVariable("zoneValue") String zoneValue,
-    											@PathVariable("districtId") String districtId
-                                                ) {
+    public CommonResponse<List<Map<String, String>>> summaryByMonthForDistrict(
+            @PathVariable("value") String value,
+            @PathVariable("zoneValue") String zoneValue,
+            @PathVariable("districtId") String districtId
+    ) {
         try {
-        	List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(LocationFilter.builder()
-        			.regionCd(value).zoneCd(zoneValue).districtCd(districtId)
-        			.build(), null);
-        	return AbstractService.httpPostSuccess(response, "Success");
+            List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(FilterCriteria.builder()
+                    .rgnCd(value).zoneCd(zoneValue).districtCd(districtId)
+                    .build(), null);
+            return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
-        	return AbstractService.httpPostError(e);
+            return AbstractService.httpPostError(e);
         }
     }
 
     @GetMapping(value = "/summary-current-status/{issueType}")
-    public ContactReportResponse summaryByCurrentStatus(@PathVariable("issueType") String issType){
-		List<Map<String, Object>> rList = new ArrayList<>();
-		if (! issType.equalsIgnoreCase("all")) {
-			rList = contactReportSummaryService.summaryByCurrentStatus(issType);
-		} else {
-			for(String iss: this.issueType.getIssuesByCategory().keySet()) {
-				rList.addAll(contactReportSummaryService.summaryByCurrentStatus(iss));
-			}
-		}
-		return GenericResponseWrapper.contactReportResponseFunction.apply(rList, null);
+    public ContactReportResponse summaryByCurrentStatus(@PathVariable("issueType") String issType) {
+        List<Map<String, Object>> rList = new ArrayList<>();
+        if (!issType.equalsIgnoreCase("all")) {
+            rList = contactReportSummaryService.summaryByCurrentStatus(issType);
+        } else {
+            for (String iss : this.issueType.getIssuesByCategory().keySet()) {
+                rList.addAll(contactReportSummaryService.summaryByCurrentStatus(iss));
+            }
+        }
+        return GenericResponseWrapper.contactReportResponseFunction.apply(rList, null);
     }
 
     @GetMapping(value = "/summary-current-status-dealership-list/{issue}")
-    public ContactReportResponse summaryByCurrentStatusDealershipList(@PathVariable("issue") String issue){
-    	issue = issue.replaceAll("~", "/");
+    public ContactReportResponse summaryByCurrentStatusDealershipList(@PathVariable("issue") String issue) {
+        issue = issue.replaceAll("~", "/");
         return GenericResponseWrapper.contactReportResponseFunction
                 .apply(contactReportSummaryService.summaryByCurrentStatusDealershipList(issue), null);
     }
 
 
     @GetMapping(value = "/report-execution-coverage/{date}")
-    public ContactReportResponse reportExecutionBycoverage(@PathVariable("date") String date){
+    public ContactReportResponse reportExecutionBycoverage(@PathVariable("date") String date) {
         return GenericResponseWrapper.contactReportResponseFunction
-                .apply(contactReportSummaryService.reportExecutionBycoverage(date), null);
+                .apply(contactReportSummaryService.reportExecutionByCoverage(date), null);
     }
 
     @GetMapping(value = "/report-execution-exception/{date}")
-    public ContactReportResponse reportExecutionByException(@PathVariable("date") String date){
+    public ContactReportResponse reportExecutionByException(@PathVariable("date") String date) {
         return GenericResponseWrapper.contactReportResponseFunction
                 .apply(contactReportSummaryService.reportExecutionByException(date), null);
     }
-
 
 
 }

@@ -1,6 +1,8 @@
-package com.mnao.mfp.cr.Service;
+package com.mnao.mfp.cr.service.impl;
 
+import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.model.DealersByIssue;
+import com.mnao.mfp.cr.service.ContactReportService;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.user.dao.MFPUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,22 +12,15 @@ import org.springframework.util.CollectionUtils;
 //import com.mnao.mfp.cr.Mapper.ContactInfoMapper;
 import com.mnao.mfp.cr.dto.ContactReportDto;
 import com.mnao.mfp.cr.dto.ContactReportInfoDto;
-import com.mnao.mfp.cr.dto.ReportByDealershipDto;
 import com.mnao.mfp.cr.entity.ContactReportAttachment;
-import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
-import org.springframework.web.bind.annotation.SessionAttribute;
 
 import javax.transaction.Transactional;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,7 +72,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 				reportInfo.setDiscussions(report.getDiscussions());
 				reportInfo.setCurrentIssues(
 						report.getDiscussions().stream().filter(val -> Objects.nonNull(val.getTopic()))
-								.map(value -> value.getTopic()).collect(Collectors.joining("|")));
+								.map(ContactReportDiscussion::getTopic).collect(Collectors.joining("|")));
 			}
 			reportInfo.setDlrCd(report.getDlrCd() != null ? report.getDlrCd() : reportInfo.getDlrCd());
 
@@ -135,7 +130,8 @@ public class ContactReportServiceImpl implements ContactReportService {
 
 	public Map<String, List<ContactReportInfoDto>> getMyContactReport(String userId) {
 		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthor(userId);
-		Map<String, List<ContactReportInfoDto>> contactReportInfoDtos = contactReportInfos.stream().map(reportInfo -> ContactReportInfoDto.builder()
+
+		return contactReportInfos.stream().map(reportInfo -> ContactReportInfoDto.builder()
 				.contactReportId(reportInfo.getContactReportId())
 				.contactDt(reportInfo.getContactDt())
 				.dealers(reportInfo.getDealers())
@@ -143,8 +139,6 @@ public class ContactReportServiceImpl implements ContactReportService {
 				.updatedDt(reportInfo.getUpdatedDt() != null ? reportInfo.getUpdatedDt(): reportInfo.getCreatedDt())
 				.build())
 				.collect(Collectors.groupingBy( element -> ContactReportEnum.valueByStatus(element.getContactStatus()).getDisplayText()));
-
-		return contactReportInfoDtos;
 	}
 
 	@Transactional

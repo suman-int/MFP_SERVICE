@@ -1,4 +1,4 @@
-package com.mnao.mfp.cr.pdf.dao;
+package com.mnao.mfp.pdf.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

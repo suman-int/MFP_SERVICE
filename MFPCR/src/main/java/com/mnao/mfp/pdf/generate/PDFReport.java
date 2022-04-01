@@ -1,4 +1,4 @@
-package com.mnao.mfp.cr.pdf.generate;
+package com.mnao.mfp.pdf.generate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,7 +12,6 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
-import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.BlockElement;
 import com.itextpdf.layout.element.Cell;
