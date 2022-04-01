@@ -310,7 +310,7 @@ public class ContactReportSummaryService {
 			 */
 			summaryMap.put("draft", stCntMap.getOrDefault(ContactReportEnum.DRAFT.getDisplayText(), 0l));
 			summaryMap.put("completed", stCntMap.getOrDefault(ContactReportEnum.COMPLETED.getDisplayText(), 0l)
-							+ stCntMap.getOrDefault(ContactReportEnum.REVIEWED.getDisplayText(), 0l));
+					+ stCntMap.getOrDefault(ContactReportEnum.REVIEWED.getDisplayText(), 0l));
 			summaryMap.put("pendingReview",
 					stCntMap.getOrDefault(ContactReportEnum.DISCUSSION_REQUESTED.getDisplayText(), 0l)
 							+ stCntMap.getOrDefault(ContactReportEnum.SUBMITTED.getDisplayText(), 0l));
@@ -372,7 +372,55 @@ public class ContactReportSummaryService {
 
 	}
 
+	private boolean isNullOrEmpty(String val) {
+		return (val == null || val.trim().length() == 0);
+	}
+
+	private boolean notIsNullOrEmpty(String val) {
+		return !isNullOrEmpty(val);
+	}
+
 	public List<ContactReportExecutionCoverageDto> reportExecutionBycoverage(String date) {
+		LocalDate startDate;
+		try {
+			startDate = LocalDate.parse(date).withDayOfMonth(1);
+		} catch (Exception e) {
+			throw new IllegalArgumentException("The date format should be " + AppConstants.LOCALDATE_FORMAT);
+		}
+		LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactDtBetween(startDate, endDate);
+		Map<String, Long> reportCount = contactReportInfos.stream().map(ContactReportInfo::getDlrCd)
+				.collect(Collectors.groupingBy(e -> e, Collectors.counting()));
+
+		Set<Dealers> dealers = contactReportInfos.stream().map(ContactReportInfo::getDealers)
+				.collect(Collectors.toSet());
+		Map<String, List<ContactReportInfo>> authorContactReports = contactReportInfos.stream()
+				.collect(Collectors.groupingBy(ContactReportInfo::getContactAuthor));
+		return dealers.stream()
+				.map(dealer -> ContactReportExecutionCoverageDto.builder().dealerName(dealer.getDbaNm().trim())
+						.dealerCode(dealer.getDlrCd().trim()).type(dealer.getCRI().get(0).getContactType())
+						.author(dealer.getCRI().get(0).getContactAuthor())
+						.coverage(getCoverage(dealer.getCRI().get(0).getContactType()))
+						.reportCount(reportCount.get(dealer.getDlrCd()))
+						.authorDtos(dealer.getCRI().stream().map(contactReportInfo -> {
+							List<ContactReportInfo> lists = authorContactReports
+									.get(contactReportInfo.getContactAuthor());
+							Function<String, Boolean> isExist = issueTopic -> lists.stream()
+									.filter(l -> l.getDiscussions().stream()
+											.filter(x -> x.getTopic().equals(issueTopic)).findAny().isPresent())
+									.findAny().isPresent();
+							return ContactReportExecutionCoverageAuthorDto.builder()
+									.author(contactReportInfo.getContactAuthor())
+									.isDealerDefeciencyIdentified(isExist.apply("Dealer Dev Deficiencies Identifed"))
+									.isServiceRetentionFysl(isExist.apply("Service Retention/FYSL"))
+									.reportsCreatedByAuthor(lists.size()).build();
+						}
+
+						).collect(Collectors.toList())).build()).collect(Collectors.toList());
+	}
+
+	public List<ContactReportExecutionCoverageDto> reportExecutionBycoverageBAK(String date) {
 		LocalDate startDate;
 		try {
 			startDate = LocalDate.parse(date).withDayOfMonth(1);
