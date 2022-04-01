@@ -526,6 +526,12 @@ public class ContactReportSummaryService {
     public List<Map<String, String>> getSummaryOfMonthByLocation(FilterCriteria filter, String category) {
         List<Map<String, String>> finalListData = new ArrayList<>();
         List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNullAndContactDtNotNull();
+        if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
+            contactReports = filterContactReportsByIssues(filter, contactReports);
+        }
+        if (filter.isNotNullOrEmpty(filter.getStartDate()) && filter.isNotNullOrEmpty(filter.getEndDate())) {
+            contactReports = filterContactReportsByDateRange(filter, contactReports);
+        }
         contactReports.forEach(value -> System.out.println(value.getContactReportId() + ">" + value.getContactDt()));
         Map<String, Map<Object, List<ContactReportInfo>>> reports;
         if (filter.forLocation() == LocationEnum.DISTRICT) {

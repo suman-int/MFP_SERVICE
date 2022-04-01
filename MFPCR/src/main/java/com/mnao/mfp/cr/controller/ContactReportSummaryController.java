@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
@@ -122,9 +123,15 @@ public class ContactReportSummaryController {
     }
 
     @GetMapping(value = "/v2/by-month/all")
-    public CommonResponse<List<Map<String, String>>> summaryByMonthForRegion() {
+    public CommonResponse<List<Map<String, String>>> summaryByMonthForAll(
+    		@RequestParam(required = false) String issues
+    ) {
         try {
-            List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(FilterCriteria.builder().build(), null);
+        	List<String> issuesList = new ArrayList<>();
+        	if (issues != null) {
+        		issuesList = Arrays.asList(issues.split(","));
+        	}
+            List<Map<String, String>> response = contactReportSummaryService.getSummaryOfMonthByLocation(FilterCriteria.builder().issuesFilter(issuesList).build(), null);
             return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
             e.printStackTrace();
