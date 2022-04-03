@@ -9,9 +9,9 @@ public enum ContactReportEnum {
     DRAFT(0, "Draft","draft"),
     DISCUSSION_REQUESTED(2, "Discussion Requested", "discussionRequested"),
     REVIEWED(3,"Reviewed","reviewed");
-    private int statusCode;
-    private String statusText;
-    private String displayText;
+    private final int statusCode;
+    private final String statusText;
+    private final String displayText;
 
     ContactReportEnum(int statusCode, String statusText,String displayText) {
         this.statusCode = statusCode;

@@ -516,8 +516,8 @@ public class ContactReportSummaryService {
 				&& cr.getContactDt().isBefore(filter.getEndDate())).collect(Collectors.toList());
 	}
 
-	private List<ContactReportInfo> filterContactReportsByIssues(FilterCriteria filter,
-			List<ContactReportInfo> contactReports) {
+	public List<ContactReportInfo> filterContactReportsByIssues(FilterCriteria filter,
+																List<ContactReportInfo> contactReports) {
 		return contactReports.stream().filter(
 				cr -> filter.getIssuesFilter().stream().anyMatch(value -> cr.getCurrentIssues().contains(value)))
 				.collect(Collectors.toList());
