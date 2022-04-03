@@ -1,14 +1,14 @@
 package com.mnao.mfp.cr.util;
 
+import lombok.Getter;
+
+@Getter
 public enum ContactReportEnum {
     CANCELLED(-1,"",""),
     SUBMITTED(1, "Submitted","submitted"),
     DRAFT(0, "Draft","draft"),
     DISCUSSION_REQUESTED(2, "Discussion Requested", "discussionRequested"),
-    REVIEWED(3,"Reviewed","reviewed"),
-    COMPLETED(4,"Completed","Completed"),
-    SUCCESS(200,"Success","Success"),
-    ERROR(500,"Error","Error");
+    REVIEWED(3,"Reviewed","reviewed");
     private int statusCode;
     private String statusText;
     private String displayText;
@@ -17,18 +17,6 @@ public enum ContactReportEnum {
         this.statusCode = statusCode;
         this.statusText = statusText;
         this.displayText = displayText;
-    }
-
-    public int getStatusCode(){
-        return this.statusCode;
-    }
-
-    public String getStatusText(){
-        return statusText;
-    }
-
-    public String getDisplayText() {
-        return displayText;
     }
     
     public static ContactReportEnum valueByStatus(int statusCode) {
