@@ -49,7 +49,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
             try {
                 contentType = request.getServletContext().getMimeType(pdfRes.getFile().getAbsolutePath());
             } catch (IOException ex) {
-                System.out.println("Could not determine file type.");
+                log.error("Could not determine file type.");
             }
             // Fallback to the default content type if type could not be determined
             if (contentType == null) {
@@ -88,7 +88,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
             try {
                 contentType = request.getServletContext().getMimeType(pdfRes.getFile().getAbsolutePath());
             } catch (IOException ex) {
-                System.out.println("Could not determine file type.");
+                log.error("Could not determine file type.");
             }
             // Fallback to the default content type if type could not be determined
             if (contentType == null) {
