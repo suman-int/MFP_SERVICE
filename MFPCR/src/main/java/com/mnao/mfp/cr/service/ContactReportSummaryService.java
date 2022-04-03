@@ -448,16 +448,18 @@ public class ContactReportSummaryService {
 				}
 			}));
 			finalData.forEach((key1, value1) -> {
-				long submittedCount = value1.stream()
-						.filter(report -> report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode())
-						.count();
-				long reviewedCount = value1.stream()
-						.filter(report -> report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode())
-						.count();
-				if (submittedCount > 0 || reviewedCount > 0) {
-					responseData.put(key1, String.format("%d/%d", submittedCount, reviewedCount));
+				if (filter.getIssuesFilter().contains(key1)) {
+					long submittedCount = value1.stream()
+							.filter(report -> report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode())
+							.count();
+					long reviewedCount = value1.stream()
+							.filter(report -> report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode())
+							.count();
+					if (submittedCount > 0 || reviewedCount > 0) {
+						responseData.put(key1, String.format("%d/%d", submittedCount, reviewedCount));
+					}
 				}
-			});
+ 			});
 			if (!CollectionUtils.isEmpty(responseData)) {
 				responseData.put(getStringByType(filter.forLocation().name()), key);
 				finalListData.add(responseData);
@@ -640,5 +642,53 @@ public class ContactReportSummaryService {
 						.build())
 				.collect(Collectors.toList());
 
+	}
+	
+	public List<ContactReportExecutionCoverageDto> reportExecutionCoverageByReportTime(String date) {
+		LocalDate startDate;
+		try {
+			startDate = LocalDate.parse(date).withDayOfMonth(1);
+		} catch (Exception e) {
+			throw new IllegalArgumentException("The date format should be " + AppConstants.LOCALDATE_FORMAT);
+		}
+		LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+		List<ContactReportExecutionCoverageDto> contactReportExecCoverageList = new ArrayList<>(0);
+		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactDtBetweenAndContactStatusGreaterThan(startDate, endDate, ContactReportEnum.DRAFT.getStatusCode());
+		Map<Dealers, Map<String, List<ContactReportInfo>>> reportMap = contactReportInfos.stream().collect(Collectors.groupingBy(ContactReportInfo::getDealers, 
+				Collectors.groupingBy(ContactReportInfo::getContactAuthor)));
+		
+		reportMap.forEach((key, value) -> {
+			List<ContactReportExecutionCoverageAuthorDto> authorDetailsDto =  new ArrayList<>(0);
+			value.forEach((key1, value1) -> {
+				Boolean isDealerDefeciencyIdentified = value1.stream().anyMatch(cr -> cr.getCurrentIssues().contains("Dealer Dev Deficiencies Identifed"));
+				Boolean isServiceRetentionFysl = value1.stream().anyMatch(cr -> cr.getCurrentIssues().contains("Service Retention/FYSL"));
+				authorDetailsDto.add(ContactReportExecutionCoverageAuthorDto.builder()
+						.author(key1)
+						.reportCount((long) value1.size())
+						.isDealerDefeciencyIdentified(isDealerDefeciencyIdentified)
+						.isServiceRetentionFysl(isServiceRetentionFysl)
+						.isSales(value1.stream().anyMatch(cr -> cr.getContactType().contains("SALES")))
+						.isOthers(value1.stream().anyMatch(cr -> cr.getContactType().contains("SERVICE")))
+						.isService(value1.stream().anyMatch(cr -> cr.getContactType().contains("OTHER")))
+						.coveredBySalesService(value1.stream().anyMatch(cr -> (cr.getContactType().equalsIgnoreCase("SALES,SERVICE") || cr.getContactType().equalsIgnoreCase("SALES,SERVICE,OTHER"))))
+						.build());
+				
+			});
+			
+			contactReportExecCoverageList.add(ContactReportExecutionCoverageDto.builder()
+					.dealerCode(key.getDlrCd())
+					.dealerName(key.getDbaNm())
+					.reportCount((long) authorDetailsDto.stream().mapToLong(cr -> cr.getReportCount()).sum())
+					.authorDtos(authorDetailsDto)
+					.author(authorDetailsDto.stream().map(cr -> cr.getAuthor()).collect(Collectors.joining(",")))
+					.isDealerDefeciencyIdentified(authorDetailsDto.stream().anyMatch(cdto -> cdto.isDealerDefeciencyIdentified()))
+					.isServiceRetentionFysl(authorDetailsDto.stream().anyMatch(cdto -> cdto.isServiceRetentionFysl()))
+					.coverage(authorDetailsDto.stream().anyMatch(cto -> cto.isCoveredBySalesService()) ? "100" : "50")
+					.isSales(authorDetailsDto.stream().anyMatch(cr -> cr.isSales()))
+					.isOthers(authorDetailsDto.stream().anyMatch(cr -> cr.isOthers()))
+					.isService(authorDetailsDto.stream().anyMatch(cr -> cr.isService()))
+					.build());
+		});
+		return contactReportExecCoverageList;
 	}
 }

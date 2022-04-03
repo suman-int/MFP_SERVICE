@@ -19,4 +19,7 @@ public class ContactReportExecutionCoverageDto {
     private boolean isServiceRetentionFysl;
     private List<ContactReportExecutionCoverageAuthorDto> authorDtos;
     private String dealerName;
+    private boolean isSales;
+    private boolean isService;
+    private boolean isOthers;
 }

@@ -247,7 +247,7 @@ public class ContactReportSummaryController {
     @GetMapping(value = "/report-execution-coverage/{date}")
     public ContactReportResponse reportExecutionBycoverage(@PathVariable("date") String date) {
         return GenericResponseWrapper.contactReportResponseFunction
-                .apply(contactReportSummaryService.reportExecutionByCoverage(date), null);
+                .apply(contactReportSummaryService.reportExecutionCoverageByReportTime(date), null);
     }
 
     @GetMapping(value = "/report-execution-exception/{date}")

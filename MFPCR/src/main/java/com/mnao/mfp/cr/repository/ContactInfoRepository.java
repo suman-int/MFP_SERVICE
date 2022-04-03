@@ -50,5 +50,7 @@ public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, 
 	List<ContactReportInfo> findByCurrentIssuesNotNull();
 	
 	List<ContactReportInfo> findByCurrentIssuesNotNullAndContactDtNotNull();
+	
+	List<ContactReportInfo> findByContactDtBetweenAndContactStatusGreaterThan(LocalDate startDate, LocalDate endDate, Integer status);
 
 }
