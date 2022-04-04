@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,8 +41,8 @@ public class ContactReportExecutionServiceImpl implements ContactReportExecution
         reportMap.forEach((key, value) -> {
             List<ContactReportExecutionCoverageAuthorDto> authorDetailsDto =  new ArrayList<>(0);
             value.forEach((key1, value1) -> {
-                boolean isDealerDefeciencyIdentified = value1.stream().anyMatch(cr -> cr.getCurrentIssues().contains("Dealer Dev Deficiencies Identifed"));
-                boolean isServiceRetentionFysl = value1.stream().anyMatch(cr -> cr.getCurrentIssues().contains("Service Retention/FYSL"));
+                boolean isDealerDefeciencyIdentified = value1.stream().filter(cr -> Objects.nonNull(cr.getCurrentIssues())).anyMatch(cr -> cr.getCurrentIssues().contains("Dealer Dev Deficiencies Identifed"));
+                boolean isServiceRetentionFysl = value1.stream().filter(cr -> Objects.nonNull(cr.getCurrentIssues())).anyMatch(cr -> cr.getCurrentIssues().contains("Service Retention/FYSL"));
                 authorDetailsDto.add(ContactReportExecutionCoverageAuthorDto.builder()
                         .author(key1)
                         .reportCount(value1.size())

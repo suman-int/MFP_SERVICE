@@ -12,6 +12,7 @@ import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
+import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.pdf.dao.DealerEmployeeInfo;
 import com.mnao.mfp.pdf.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.user.dao.MFPUser;
@@ -140,7 +141,8 @@ public class PDFCRMain {
 			addCell(tbl, crInfo.getDlrCd());
 		}
 		addCell(tbl, "STATUS:");
-		addCell(tbl, "" + crInfo.getContactStatus());
+		//addCell(tbl, "" + crInfo.getContactStatus());
+		addCell(tbl, "" + ContactReportEnum.valueByStatus(crInfo.getContactStatus()));
 		//
 		addCell(tbl, "ADDRESS:");
 		if (dInfo != null) {

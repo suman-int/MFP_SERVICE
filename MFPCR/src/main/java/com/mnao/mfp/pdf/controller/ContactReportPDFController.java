@@ -7,6 +7,7 @@ import com.mnao.mfp.cr.service.ContactReportSummaryService;
 import com.mnao.mfp.pdf.service.ContactReportPDFService;
 import com.mnao.mfp.pdf.service.PDFService;
 import com.mnao.mfp.cr.service.impl.ContactInfoServiceImpl;
+import com.mnao.mfp.cr.util.FilterCriteriaBuilder;
 import com.mnao.mfp.user.dao.MFPUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,20 +66,35 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
     }
 
     @PostMapping(value = "/downloadBulkPDF")
-    public ResponseEntity<Resource> createBulkPDF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
-                                                  @RequestBody FilterCriteria filterCriteria, HttpServletRequest request) {
-        try {
-           return contactReportPDFService.createBulkPdfByFilterCriteria(filterCriteria, mfpUser, request);
+    public ResponseEntity<Resource> createBulkPDF(
+    		@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
+          @RequestBody FilterCriteria filterCriteria, 
+          HttpServletRequest request,
+          @RequestParam(required = false) String issues,
+          @RequestParam(required = false) String startOf,
+          @RequestParam(required = false) String endOf
+        ) {
+                                              try {
+                                                  FilterCriteria filterCriteria1 = FilterCriteriaBuilder.buildFilterByIssueAndTiming(issues, startOf, endOf);
+                                                  return contactReportPDFService.createBulkPdfByFilterCriteria(filterCriteria1, mfpUser, request);
         } catch (Exception exp) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping(value = "/downloadStatusXLS")
-    public ResponseEntity<Resource> downloadStatusXLSF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
-                                                       @RequestBody FilterCriteria filterCriteria, HttpServletRequest request) {
+    public ResponseEntity<Resource> downloadStatusXLSF(
+    		@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
+    		@RequestBody FilterCriteria filterCriteria,
+    		@RequestParam(required = false) String issues,
+            @RequestParam(required = false) String startOf,
+            @RequestParam(required = false) String endOf,
+            HttpServletRequest request
+    ) {
         try {
-            return contactReportPDFService.createBulkExcelReportByFilterCriteria(filterCriteria, mfpUser, request);
+            FilterCriteria filterCriteria1 = FilterCriteriaBuilder.buildFilterByIssueAndTiming(issues, startOf, endOf);
+           
+            return contactReportPDFService.createBulkExcelReportByFilterCriteria(filterCriteria1, mfpUser, request);
         } catch (Exception exp) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

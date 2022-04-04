@@ -74,8 +74,9 @@ public class DataOperationFilter {
 
     public  List<ContactReportInfo> filterContactReportsByIssues(FilterCriteria filter,
                                                                 List<ContactReportInfo> contactReports) {
-        return contactReports.stream().filter(
-                        cr -> filter.getIssuesFilter().stream().anyMatch(value -> cr.getCurrentIssues().contains(value)))
+        return contactReports.stream()
+        		.filter(cr -> Objects.nonNull(cr.getCurrentIssues()))
+        		.filter(cr -> filter.getIssuesFilter().stream().anyMatch(value -> cr.getCurrentIssues().contains(value)))
                 .collect(Collectors.toList());
     }
 
