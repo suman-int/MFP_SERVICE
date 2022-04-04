@@ -4,6 +4,7 @@ import com.mnao.mfp.common.datafilters.FilterCriteria;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.service.ContactReportSummaryService;
 import com.mnao.mfp.cr.service.impl.ContactInfoServiceImpl;
+import com.mnao.mfp.cr.util.DataOperationFilter;
 import com.mnao.mfp.user.dao.MFPUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,13 +35,13 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
     ContactInfoServiceImpl cInfoServ;
 
     @Autowired
-    ContactReportSummaryService contactReportSummaryService;
+    private DataOperationFilter dataOperationFilter;
 
     @Override
     public ResponseEntity<Resource> createBulkPdfByFilterCriteria(FilterCriteria filter, MFPUser mfpUser, HttpServletRequest request) {
         List<ContactReportInfo> contactReports = cInfoServ.filterContactReportsBasedOnFilter(filter);
         if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
-            contactReports = contactReportSummaryService.filterContactReportsByIssues(filter, contactReports);
+            contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
         }
         PDFService service = new PDFService();
         Resource pdfRes = service.createBulkPDFResource(mfpUser, contactReports);
@@ -67,7 +68,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
     public ResponseEntity<Resource> createBulkExcelReportByFilterCriteria(FilterCriteria filter, MFPUser mfpUser, HttpServletRequest request) {
         List<ContactReportInfo> contactReports = cInfoServ.filterContactReportsBasedOnFilter(filter);
         if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
-            contactReports = contactReportSummaryService.filterContactReportsByIssues(filter, contactReports);
+            contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
         }
         PDFService service = new PDFService();
         Resource pdfRes = null;

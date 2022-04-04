@@ -47,10 +47,6 @@ public class ReportController {
         }
     }
 
-//	@PostMapping(value ="/updateReport")
-//	public String updateReportData(@Valid @RequestBody ContactReportInfoDto report) {
-//		return contactReportService.updateDraftReport(report);
-//	}
 
     @PostMapping(value = "deleteReportById")
     public void deleteReportById(@RequestBody long contactReportId) {

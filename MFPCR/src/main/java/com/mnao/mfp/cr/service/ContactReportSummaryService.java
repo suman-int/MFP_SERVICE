@@ -10,10 +10,7 @@ import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
-import com.mnao.mfp.cr.util.ContactReportEnum;
-import com.mnao.mfp.cr.util.IssueType;
-import com.mnao.mfp.cr.util.LocationEnum;
-import com.mnao.mfp.cr.util.TriFunction;
+import com.mnao.mfp.cr.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -27,6 +24,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.mnao.mfp.common.util.AppConstants.MONTHS_LIST;
+
 @Service
 public class ContactReportSummaryService {
 
@@ -39,8 +38,8 @@ public class ContactReportSummaryService {
 	@Autowired
 	private DealerService dealerService;
 
-	private final List<String> months = Arrays.asList("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
-			"Oct", "Nov", "Dec");
+	@Autowired
+	private DataOperationFilter dataOperationFilter;
 
 	Function<List<Dealers>, List<String>> extractDealerCodes = dealers -> dealers.stream().map(Dealers::getDlrCd)
 			.collect(Collectors.toList());
@@ -100,7 +99,7 @@ public class ContactReportSummaryService {
 			summaryList = dealerSet.stream().map(r -> {
 				List<ContactReportInfo> contactReportInfoList = contactInfoRepository.findByDlrCdInAndContactStatusNot(
 						extractDealerCodes.apply(dealersByDealer.get(r)), ContactReportEnum.DRAFT.getStatusCode());
-				return calcMetrics(contactReportInfoList, months, LocationEnum.DEALER.getLocationText(), r,
+				return calcMetrics(contactReportInfoList, MONTHS_LIST, LocationEnum.DEALER.getLocationText(), r,
 						filteredByMonth);
 			}).collect(Collectors.toList());
 		} else if (type.equalsIgnoreCase(LocationEnum.ZONE.name())) {
@@ -111,7 +110,7 @@ public class ContactReportSummaryService {
 			summaryList = districts.stream().map(r -> {
 				List<ContactReportInfo> contactReportInfoList = contactInfoRepository.findByDlrCdInAndContactStatusNot(
 						extractDealerCodes.apply(dealersByDistrict.get(r)), ContactReportEnum.DRAFT.getStatusCode());
-				return calcMetrics(contactReportInfoList, months, LocationEnum.DISTRICT.getLocationText(), r,
+				return calcMetrics(contactReportInfoList, MONTHS_LIST, LocationEnum.DISTRICT.getLocationText(), r,
 						filteredByMonth);
 			}).collect(Collectors.toList());
 		} else if (type.equalsIgnoreCase(LocationEnum.REGION.name())) {
@@ -122,7 +121,7 @@ public class ContactReportSummaryService {
 			summaryList = zones.stream().map(r -> {
 				List<ContactReportInfo> contactReportInfoList = contactInfoRepository.findByDlrCdInAndContactStatusNot(
 						extractDealerCodes.apply(dealersByZone.get(r)), ContactReportEnum.DRAFT.getStatusCode());
-				return calcMetrics(contactReportInfoList, months, LocationEnum.ZONE.getLocationText(), r,
+				return calcMetrics(contactReportInfoList, MONTHS_LIST, LocationEnum.ZONE.getLocationText(), r,
 						filteredByMonth);
 			}).collect(Collectors.toList());
 		} else if (type.equalsIgnoreCase(LocationEnum.DEALER.name())) {
@@ -133,7 +132,7 @@ public class ContactReportSummaryService {
 			summaryList = regions.stream().map(r -> {
 				List<ContactReportInfo> contactReportInfoList = contactInfoRepository.findByDlrCdInAndContactStatusNot(
 						extractDealerCodes.apply(dealersByRegion.get(r)), ContactReportEnum.DRAFT.getStatusCode());
-				return calcMetrics(contactReportInfoList, months, LocationEnum.REGION.getLocationText(), r,
+				return calcMetrics(contactReportInfoList, MONTHS_LIST, LocationEnum.REGION.getLocationText(), r,
 						filteredByMonth);
 			}).collect(Collectors.toList());
 		} else {
@@ -143,7 +142,7 @@ public class ContactReportSummaryService {
 			summaryList = regions.stream().map(r -> {
 				List<ContactReportInfo> contactReportInfoList = contactInfoRepository.findByDlrCdInAndContactStatusNot(
 						extractDealerCodes.apply(dealersByRegion.get(r)), ContactReportEnum.DRAFT.getStatusCode());
-				return calcMetrics(contactReportInfoList, months, LocationEnum.REGION.getLocationText(), r,
+				return calcMetrics(contactReportInfoList, MONTHS_LIST, LocationEnum.REGION.getLocationText(), r,
 						filteredByMonth);
 			}).collect(Collectors.toList());
 		}
@@ -165,7 +164,7 @@ public class ContactReportSummaryService {
 			reports = contactReports.stream().collect(Collectors.groupingBy(group -> group.getDealers().getDlrCd(),
 					Collectors.groupingBy(ContactReportInfo::getCurrentIssues)));
 		} else if (type.equalsIgnoreCase(LocationEnum.REGION.name())) {
-			reports = filterContactReportByRegion(contactReports, value)
+			reports = dataOperationFilter.filterContactReportByRegion(contactReports, value)
 					.collect(Collectors.groupingBy(group -> group.getDealers().getZoneCd(),
 							Collectors.groupingBy(ContactReportInfo::getCurrentIssues)));
 		} else {
@@ -423,163 +422,9 @@ public class ContactReportSummaryService {
 		}).collect(Collectors.toList());
 	}
 
-	public List<Map<String, String>> getSummaryByLocation(FilterCriteria filter, String category) {
-		List<Map<String, String>> finalListData = new ArrayList<>();
-		List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNull();
-		if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
-			contactReports = filterContactReportsByIssues(filter, contactReports);
-		}
-		if (filter.isNotNullOrEmpty(filter.getStartDate()) && filter.isNotNullOrEmpty(filter.getEndDate())) {
-			contactReports = filterContactReportsByDateRange(filter, contactReports);
-		}
-		Map<String, Map<String, List<ContactReportInfo>>> reports;
-		reports = filterContactReportsByLocation(filter, contactReports);
 
-		reports.forEach((key, value) -> {
-			HashMap<String, List<ContactReportInfo>> finalData = new HashMap<>();
-			HashMap<String, String> responseData = new HashMap<>();
-			value.forEach((key1, value1) -> Arrays.asList(key1.split("\\|")).forEach(issue -> {
-				if (finalData.containsKey(issue)) {
-					List<ContactReportInfo> existingData = finalData.get(issue);
-					existingData.addAll(value1);
-					finalData.put(issue, existingData);
-				} else {
-					finalData.put(issue, value1);
-				}
-			}));
-			finalData.forEach((key1, value1) -> {
-				if (filter.getIssuesFilter().contains(key1)) {
-					long submittedCount = value1.stream()
-							.filter(report -> report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode())
-							.count();
-					long reviewedCount = value1.stream()
-							.filter(report -> report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode())
-							.count();
-					if (submittedCount > 0 || reviewedCount > 0) {
-						responseData.put(key1, String.format("%d/%d", submittedCount, reviewedCount));
-					}
-				}
- 			});
-			if (!CollectionUtils.isEmpty(responseData)) {
-				responseData.put(getStringByType(filter.forLocation().name()), key);
-				finalListData.add(responseData);
-			}
 
-		});
 
-		return finalListData;
-	}
-
-	private Map<String, Map<String, List<ContactReportInfo>>> filterContactReportsByLocation(FilterCriteria filter,
-			List<ContactReportInfo> contactReports) {
-		Map<String, Map<String, List<ContactReportInfo>>> reports;
-		if (filter.forLocation() == LocationEnum.DISTRICT) {
-			reports = filterContactReportByDistrict(contactReports, filter)
-					.collect(Collectors.groupingBy(group -> group.getDealers().getDlrCd(),
-							Collectors.groupingBy(ContactReportInfo::getCurrentIssues)));
-		} else if (filter.forLocation() == LocationEnum.ZONE) {
-			reports = filterContactReportByZone(contactReports, filter)
-					.collect(Collectors.groupingBy(group -> group.getDealers().getDistrictCd(),
-							Collectors.groupingBy(ContactReportInfo::getCurrentIssues)));
-		} else if (filter.forLocation() == LocationEnum.DEALER) {
-			reports = contactReports.stream().collect(Collectors.groupingBy(group -> group.getDealers().getDlrCd(),
-					Collectors.groupingBy(ContactReportInfo::getCurrentIssues)));
-		} else if (filter.forLocation() == LocationEnum.REGION) {
-			reports = filterContactReportByRegion(contactReports, filter.getRgnCd())
-					.collect(Collectors.groupingBy(group -> group.getDealers().getZoneCd(),
-							Collectors.groupingBy(ContactReportInfo::getCurrentIssues)));
-		} else {
-			reports = contactReports.stream().collect(Collectors.groupingBy(group -> group.getDealers().getRgnCd(),
-					Collectors.groupingBy(ContactReportInfo::getCurrentIssues)));
-		}
-		return reports;
-	}
-
-	private Stream<ContactReportInfo> filterContactReportByRegion(List<ContactReportInfo> contactReports,
-			String filter) {
-		return contactReports.stream().filter(cr -> filter.equalsIgnoreCase(cr.getDealers().getRgnCd()));
-	}
-
-	private Stream<ContactReportInfo> filterContactReportByZone(List<ContactReportInfo> contactReports,
-			FilterCriteria filter) {
-		return filterContactReportByRegion(contactReports, filter.getRgnCd())
-				.filter(cr -> filter.getZoneCd().equalsIgnoreCase(cr.getDealers().getZoneCd()));
-	}
-
-	private Stream<ContactReportInfo> filterContactReportByDistrict(List<ContactReportInfo> contactReports,
-			FilterCriteria filter) {
-		return filterContactReportByZone(contactReports, filter)
-				.filter(cr -> filter.getDistrictCd().equalsIgnoreCase(cr.getDealers().getDistrictCd()));
-	}
-
-	private List<ContactReportInfo> filterContactReportsByDateRange(FilterCriteria filter,
-			List<ContactReportInfo> contactReports) {
-		return contactReports.stream().filter(cr -> cr.getContactDt().isAfter(filter.getStartDate())
-				&& cr.getContactDt().isBefore(filter.getEndDate())).collect(Collectors.toList());
-	}
-
-	public List<ContactReportInfo> filterContactReportsByIssues(FilterCriteria filter,
-																List<ContactReportInfo> contactReports) {
-		return contactReports.stream().filter(
-				cr -> filter.getIssuesFilter().stream().anyMatch(value -> cr.getCurrentIssues().contains(value)))
-				.collect(Collectors.toList());
-	}
-
-	public List<Map<String, String>> getSummaryOfMonthByLocation(FilterCriteria filter, String category) {
-		List<Map<String, String>> finalListData = new ArrayList<>();
-		List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNullAndContactDtNotNull();
-		if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
-			contactReports = filterContactReportsByIssues(filter, contactReports);
-		}
-		if (filter.isNotNullOrEmpty(filter.getStartDate()) && filter.isNotNullOrEmpty(filter.getEndDate())) {
-			contactReports = filterContactReportsByDateRange(filter, contactReports);
-		}
-		contactReports.forEach(value -> System.out.println(value.getContactReportId() + ">" + value.getContactDt()));
-		Map<String, Map<Object, List<ContactReportInfo>>> reports;
-		if (filter.forLocation() == LocationEnum.DISTRICT) {
-			reports = filterContactReportByDistrict(contactReports, filter)
-					.collect(Collectors.groupingBy(group -> group.getDealers().getDlrCd(),
-							Collectors.groupingBy(gr -> formatDate(gr.getContactDt()))));
-		} else if (filter.forLocation() == LocationEnum.ZONE) {
-			reports = filterContactReportByZone(contactReports, filter)
-					.collect(Collectors.groupingBy(group -> group.getDealers().getDistrictCd(),
-							Collectors.groupingBy(gr -> formatDate(gr.getContactDt()))));
-		} else if (filter.forLocation() == LocationEnum.DEALER) {
-			reports = contactReports.stream().collect(Collectors.groupingBy(group -> group.getDealers().getDlrCd(),
-					Collectors.groupingBy(gr -> formatDate(gr.getContactDt()))));
-		} else if (filter.forLocation() == LocationEnum.REGION) {
-			reports = filterContactReportByRegion(contactReports, filter.getRgnCd())
-					.collect(Collectors.groupingBy(group -> group.getDealers().getZoneCd(),
-							Collectors.groupingBy(gr -> formatDate(gr.getContactDt()))));
-		} else {
-			reports = contactReports.stream().collect(Collectors.groupingBy(group -> group.getDealers().getRgnCd(),
-					Collectors.groupingBy(gr -> gr.getContactDt().format(DateTimeFormatter.ofPattern("MMM")))));
-		}
-
-		reports.forEach((key1, value1) -> {
-			HashMap<String, List<ContactReportInfo>> finalData = new HashMap<>();
-			HashMap<String, String> responseData = new HashMap<>();
-			value1.forEach((key, value) -> finalData.put((String) key, value));
-			finalData.entrySet().stream().forEach(newEntry -> {
-				Long submittedCount = newEntry.getValue().stream()
-						.filter(report -> report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode())
-						.count();
-				Long reviewedCount = newEntry.getValue().stream()
-						.filter(report -> report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode())
-						.count();
-				responseData.put(newEntry.getKey(), String.format("%d/%d", submittedCount, reviewedCount));
-			});
-			months.forEach(value -> {
-				if (!responseData.containsKey(value)) {
-					responseData.put(value, "0/0");
-				}
-			});
-			responseData.put(getStringByType(filter.forLocation().name()), key1);
-			finalListData.add(responseData);
-		});
-
-		return finalListData;
-	}
 
 	private String formatDate(LocalDate contactDt) {
 		return DateTimeFormatter.ofPattern("MMM").format(contactDt);
@@ -589,7 +434,7 @@ public class ContactReportSummaryService {
 		List<SummaryByContactStatusDto> finalListData = new ArrayList<>();
 		List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNull();
 		if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
-			contactReports = filterContactReportsByIssues(filter, contactReports);
+			contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
 		}
 		Map<String, List<ContactReportInfo>> reports;
 		Map<String, List<ContactReportInfo>> finalData = new HashMap<>();
@@ -660,11 +505,11 @@ public class ContactReportSummaryService {
 		reportMap.forEach((key, value) -> {
 			List<ContactReportExecutionCoverageAuthorDto> authorDetailsDto =  new ArrayList<>(0);
 			value.forEach((key1, value1) -> {
-				Boolean isDealerDefeciencyIdentified = value1.stream().anyMatch(cr -> cr.getCurrentIssues().contains("Dealer Dev Deficiencies Identifed"));
-				Boolean isServiceRetentionFysl = value1.stream().anyMatch(cr -> cr.getCurrentIssues().contains("Service Retention/FYSL"));
+				boolean isDealerDefeciencyIdentified = value1.stream().anyMatch(cr -> cr.getCurrentIssues().contains("Dealer Dev Deficiencies Identifed"));
+				boolean isServiceRetentionFysl = value1.stream().anyMatch(cr -> cr.getCurrentIssues().contains("Service Retention/FYSL"));
 				authorDetailsDto.add(ContactReportExecutionCoverageAuthorDto.builder()
 						.author(key1)
-						.reportCount((long) value1.size())
+						.reportCount(value1.size())
 						.isDealerDefeciencyIdentified(isDealerDefeciencyIdentified)
 						.isServiceRetentionFysl(isServiceRetentionFysl)
 						.isSales(value1.stream().anyMatch(cr -> cr.getContactType().contains("SALES")))
@@ -678,15 +523,15 @@ public class ContactReportSummaryService {
 			contactReportExecCoverageList.add(ContactReportExecutionCoverageDto.builder()
 					.dealerCode(key.getDlrCd())
 					.dealerName(key.getDbaNm())
-					.reportCount((long) authorDetailsDto.stream().mapToLong(cr -> cr.getReportCount()).sum())
+					.reportCount(authorDetailsDto.stream().mapToLong(ContactReportExecutionCoverageAuthorDto::getReportCount).sum())
 					.authorDtos(authorDetailsDto)
-					.author(authorDetailsDto.stream().map(cr -> cr.getAuthor()).collect(Collectors.joining(",")))
-					.isDealerDefeciencyIdentified(authorDetailsDto.stream().anyMatch(cdto -> cdto.isDealerDefeciencyIdentified()))
-					.isServiceRetentionFysl(authorDetailsDto.stream().anyMatch(cdto -> cdto.isServiceRetentionFysl()))
-					.coverage(authorDetailsDto.stream().anyMatch(cto -> cto.isCoveredBySalesService()) ? "100" : "50")
-					.isSales(authorDetailsDto.stream().anyMatch(cr -> cr.isSales()))
-					.isOthers(authorDetailsDto.stream().anyMatch(cr -> cr.isOthers()))
-					.isService(authorDetailsDto.stream().anyMatch(cr -> cr.isService()))
+					.author(authorDetailsDto.stream().map(ContactReportExecutionCoverageAuthorDto::getAuthor).collect(Collectors.joining(",")))
+					.isDealerDefeciencyIdentified(authorDetailsDto.stream().anyMatch(ContactReportExecutionCoverageAuthorDto::isDealerDefeciencyIdentified))
+					.isServiceRetentionFysl(authorDetailsDto.stream().anyMatch(ContactReportExecutionCoverageAuthorDto::isServiceRetentionFysl))
+					.coverage(authorDetailsDto.stream().anyMatch(ContactReportExecutionCoverageAuthorDto::isCoveredBySalesService) ? "100" : "50")
+					.isSales(authorDetailsDto.stream().anyMatch(ContactReportExecutionCoverageAuthorDto::isSales))
+					.isOthers(authorDetailsDto.stream().anyMatch(ContactReportExecutionCoverageAuthorDto::isOthers))
+					.isService(authorDetailsDto.stream().anyMatch(ContactReportExecutionCoverageAuthorDto::isService))
 					.build());
 		});
 		return contactReportExecCoverageList;

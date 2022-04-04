@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -79,5 +80,16 @@ public class Utils {
 			e1.printStackTrace();
 		}
 		return retSql;
+	}
+
+	public static boolean isNotNullOrEmpty(String value) {
+		return (value != null && value.trim().length() > 0);
+	}
+
+	public static boolean isNullOrEmpty(String value) {
+		return !isNotNullOrEmpty(value);
+	}
+	public static boolean isNotNullOrEmpty(LocalDate value) {
+		return (value != null);
 	}
 }
