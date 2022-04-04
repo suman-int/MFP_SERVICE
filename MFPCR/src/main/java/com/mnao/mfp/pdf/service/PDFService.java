@@ -29,6 +29,7 @@ import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
+import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.pdf.controller.ContactReportPDFController;
 import com.mnao.mfp.pdf.dao.DealerEmployeeInfo;
 import com.mnao.mfp.pdf.dao.ReviewerEmployeeInfo;
@@ -165,7 +166,8 @@ public class PDFService extends MfpKPIControllerBase {
 			}			col = addXLSCellValue(row, "", col);
 			col = addXLSCellValue(row, "", col);
 			col = addXLSCellValue(row, "", col);
-			col = addXLSCellValue(row, "" + report.getContactStatus(), col);
+			ContactReportEnum cre = ContactReportEnum.valueByStatus(report.getContactStatus());
+			col = addXLSCellValue(row, "" + cre.getStatusText(), col);
 		}
 		return rCnt;
 	}
