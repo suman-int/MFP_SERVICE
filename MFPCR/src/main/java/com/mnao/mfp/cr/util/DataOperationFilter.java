@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -67,8 +68,8 @@ public class DataOperationFilter {
 
     public List<ContactReportInfo> filterContactReportsByDateRange(FilterCriteria filter,
                                                                    List<ContactReportInfo> contactReports) {
-        return contactReports.stream().filter(cr -> cr.getContactDt().isAfter(filter.getStartDate())
-                && cr.getContactDt().isBefore(filter.getEndDate())).collect(Collectors.toList());
+        return contactReports.stream().filter(cr -> Objects.nonNull(cr.getContactDt())).filter(cr -> cr.getContactDt().isAfter(filter.getStartDate().minusDays(1))
+                && cr.getContactDt().isBefore(filter.getEndDate().plusDays(1))).collect(Collectors.toList());
     }
 
     public  List<ContactReportInfo> filterContactReportsByIssues(FilterCriteria filter,

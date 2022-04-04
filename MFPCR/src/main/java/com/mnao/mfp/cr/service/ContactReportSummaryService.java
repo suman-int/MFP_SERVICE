@@ -453,7 +453,7 @@ public class ContactReportSummaryService {
 		});
 
 		finalData.forEach((key, value) -> {
-			if (filter.getIssuesFilter().contains(key)) {
+//			if (filter.getIssuesFilter().contains(key)) {
 				long submittedCount = value.stream()
 						.filter(report -> report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()).count();
 				long reviewedCount = value.stream()
@@ -469,7 +469,7 @@ public class ContactReportSummaryService {
 						.reviewCount(reviewedCount)
 						.total(draftCount + submittedCount + discussionReqCount + reviewedCount)
 						.build());
-			}
+//			}
 		});
 
 		return finalListData;
