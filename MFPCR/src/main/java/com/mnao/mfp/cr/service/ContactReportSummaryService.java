@@ -433,9 +433,10 @@ public class ContactReportSummaryService {
 	public List<SummaryByContactStatusDto> filterSummaryByCurrentStatusUsingIssues(FilterCriteria filter) {
 		List<SummaryByContactStatusDto> finalListData = new ArrayList<>();
 		List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNull();
-		if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
-			contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
-		}
+//		if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
+//			contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
+//		}
+		contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports);
 		Map<String, List<ContactReportInfo>> reports;
 		Map<String, List<ContactReportInfo>> finalData = new HashMap<>();
 		reports = contactReports.stream().collect(Collectors.groupingBy(ContactReportInfo::getCurrentIssues));

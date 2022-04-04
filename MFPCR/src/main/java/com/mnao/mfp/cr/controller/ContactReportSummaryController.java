@@ -11,6 +11,7 @@ import com.mnao.mfp.cr.model.DealersByIssue;
 import com.mnao.mfp.cr.service.ContactReportService;
 import com.mnao.mfp.cr.service.ContactReportSummaryService;
 import com.mnao.mfp.cr.service.GenericResponseWrapper;
+import com.mnao.mfp.cr.util.FilterCriteriaBuilder;
 import com.mnao.mfp.cr.util.IssueType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -111,13 +112,15 @@ public class ContactReportSummaryController {
     }
     
     @GetMapping(value = "/v2/summary-current-status")
-    public CommonResponse<List<SummaryByContactStatusDto>> summaryByCurrentStatusUsingIssues( @RequestParam(required = false) String issues) {
+    public CommonResponse<List<SummaryByContactStatusDto>> summaryByCurrentStatusUsingIssues( 
+    		 @RequestParam(required = false) String regionId,
+             @RequestParam(required = false) String zoneId,
+             @RequestParam(required = false) String districtId,
+             @RequestParam(required = false) String dealerId
+    		) {
     	 try {
-         	List<String> issuesList = new ArrayList<>();
-         	if (issues != null) {
-         		issuesList = Arrays.asList(issues.split(","));
-         	}
-         	List<SummaryByContactStatusDto> response = contactReportSummaryService.filterSummaryByCurrentStatusUsingIssues(FilterCriteria.builder().issuesFilter(issuesList).build());
+    		 FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByLocationAndIssueAndTiming(regionId, zoneId, districtId, dealerId, null, null, null);
+             List<SummaryByContactStatusDto> response = contactReportSummaryService.filterSummaryByCurrentStatusUsingIssues(filterCriteria);
              return AbstractService.httpPostSuccess(response, "Success");
          } catch (Exception e) {
              return AbstractService.httpPostError(e);
