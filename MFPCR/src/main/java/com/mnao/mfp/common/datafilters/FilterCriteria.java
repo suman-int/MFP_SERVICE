@@ -8,6 +8,9 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.mnao.mfp.common.util.Utils.isNotNullOrEmpty;
+import static com.mnao.mfp.common.util.Utils.isNullOrEmpty;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -24,13 +27,7 @@ public class FilterCriteria {
     @JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
     private LocalDate endDate;
 
-    public boolean isNotNullOrEmpty(String value) {
-        return (value != null && value.trim().length() > 0);
-    }
 
-    public boolean isNullOrEmpty(String value) {
-        return !isNotNullOrEmpty(value);
-    }
 
     public LocationEnum forLocation() {
         if (isNotNullOrEmpty(this.rgnCd) && isNullOrEmpty(zoneCd) && isNullOrEmpty(districtCd) && isNullOrEmpty(dlrCd)) {
@@ -45,7 +42,4 @@ public class FilterCriteria {
         return LocationEnum.ALL;
     }
 
-    public boolean isNotNullOrEmpty(LocalDate value) {
-        return (value != null);
-    }
 }

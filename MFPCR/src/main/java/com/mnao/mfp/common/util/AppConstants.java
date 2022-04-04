@@ -1,5 +1,8 @@
 package com.mnao.mfp.common.util;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class AppConstants {
 	public static final String MFP_PROPS_FILE = System.getProperty("mfp.prop.file","/mfp.properties");
 //	public static final String MFP_PROPS_FILE = System.getProperty("mfp.prop.file","C:/SmWrk/MFP/MicroServices/Sales/MFPSalesKPI-MS/src/main/resources/mfp.properties");
@@ -40,4 +43,6 @@ public class AppConstants {
     public static final int StatusDraft=0;
     public static final String file_storage_format="%s_%s_%s";
     public static final String LOCALDATE_FORMAT =  "yyyy-MM-dd";
+	public static final List<String> MONTHS_LIST = Arrays.asList("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
+			"Oct", "Nov", "Dec");
 	}

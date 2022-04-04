@@ -170,7 +170,7 @@ public class PDFCRMain {
 		//
 		addCell(tbl, "CONTACT LOCATION:");
 		addCell(tbl, crInfo.getContactLocation());
-		addCell(tbl, "REVIEWER:");
+		addCell(tbl, " ");
 		addCell(tbl, " ");
 		report.addToReport(tbl);
 	}
