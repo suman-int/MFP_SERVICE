@@ -57,11 +57,15 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
                     long submittedCount = value1.stream()
                             .filter(report -> report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode())
                             .count();
+                    long discussionReqCount = value1.stream()
+                            .filter(report -> report.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode())
+                            .count();
+                    long pendingReviewCount = discussionReqCount + submittedCount;
                     long reviewedCount = value1.stream()
                             .filter(report -> report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode())
                             .count();
-                    if (submittedCount > 0 || reviewedCount > 0) {
-                        responseData.put(key1, String.format("%d/%d", submittedCount, reviewedCount));
+                    if (pendingReviewCount > 0 || reviewedCount > 0) {
+                        responseData.put(key1, String.format("%d/%d", pendingReviewCount, reviewedCount));
                     }
                 }
             });
@@ -112,13 +116,17 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
             HashMap<String, String> responseData = new HashMap<>();
             value1.forEach((key, value) -> finalData.put((String) key, value));
             finalData.forEach((key, value) -> {
-                Long submittedCount = value.stream()
+                long submittedCount = value.stream()
                         .filter(report -> report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode())
                         .count();
-                Long reviewedCount = value.stream()
+                long discussionReqCount = value.stream()
+                        .filter(report -> report.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode())
+                        .count();
+                long pendingReqvieCount = discussionReqCount + submittedCount;
+                long reviewedCount = value.stream()
                         .filter(report -> report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode())
                         .count();
-                responseData.put(key, String.format("%d/%d", submittedCount, reviewedCount));
+                responseData.put(key, String.format("%d/%d", pendingReqvieCount, reviewedCount));
             });
             MONTHS_LIST.forEach(value -> {
                 if (!responseData.containsKey(value)) {

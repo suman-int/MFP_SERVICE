@@ -13,10 +13,14 @@ import org.springframework.util.CollectionUtils;
 import com.mnao.mfp.cr.dto.ContactReportDto;
 import com.mnao.mfp.cr.dto.ContactReportInfoDto;
 import com.mnao.mfp.cr.entity.ContactReportAttachment;
+import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
+import com.mnao.mfp.cr.repository.ContactReportDealerPersonnelRepository;
 
 import javax.transaction.Transactional;
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +35,9 @@ public class ContactReportServiceImpl implements ContactReportService {
 
 	@Autowired
 	private FileHandlingServiceImpl fileHandlingService;
+	
+	@Autowired
+	private ContactReportDealerPersonnelRepository contactReportDealerPersonnelRepository;
 
 	public List<DealersByIssue> getAllDealersByIssue() {
 		return contactInfoRepository.findAll().stream().map(contactReportInfo -> {
@@ -49,8 +56,18 @@ public class ContactReportServiceImpl implements ContactReportService {
 		String submission = "Unable to save contact report";
 		try {
 			ContactReportInfo reportInfo = new ContactReportInfo();
+			boolean isDealerUpdated = false;
 			if (report != null && report.getContactReportId() > 0) {
 				reportInfo = contactInfoRepository.getById(report.getContactReportId());
+				if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode() && report.getContactStatus() == ContactReportEnum.CANCELLED.getStatusCode()) {
+					contactInfoRepository.delete(reportInfo);
+				}
+				if (report.getDealers() != null) {
+					isDealerUpdated = !reportInfo.getDealers().getDlrCd().equalsIgnoreCase(report.getDealers().getDlrCd());
+				}
+			}
+			if (isDealerUpdated && report != null && report.getContactReportId() > 0) {
+//				reportInfo.setDealers(null);;
 			}
 
 			reportInfo.setContactAuthor(
@@ -77,6 +94,27 @@ public class ContactReportServiceImpl implements ContactReportService {
 			reportInfo.setDlrCd(report.getDlrCd() != null ? report.getDlrCd() : reportInfo.getDlrCd());
 
 			reportInfo.setDealers(report.getDealers() != null ? report.getDealers() : reportInfo.getDealers());
+//			if (!CollectionUtils.isEmpty(report.getDealerPersonnels()) && !CollectionUtils.isEmpty(reportInfo.getDealerPersonnels())) {
+//				List<ContactReportDealerPersonnel> removedList = new ArrayList<>();
+//				for(int i = 0 ; i < reportInfo.getDealerPersonnels().size(); i++) {
+//					ContactReportDealerPersonnel existingDp = reportInfo.getDealerPersonnels().get(i);
+//					boolean found = false;
+//					for(int j = 0 ; j < report.getDealerPersonnels().size(); j++ ) {
+//						ContactReportDealerPersonnel newDp = report.getDealerPersonnels().get(j);
+//						if( newDp.getPersonnelIdCd().equalsIgnoreCase(existingDp.getPersonnelIdCd())) {
+//							found = true;
+//							break;
+//						}
+//					}
+//					if( ! found ) {
+//						existingDp.setPersonnelId(i);
+//						removedList.add(existingDp);
+//					}
+//				}
+//				if (!CollectionUtils.isEmpty(removedList)) {
+//					contactReportDealerPersonnelRepository.saveAll(removedList);
+//				}
+//			} else 
 			if (!CollectionUtils.isEmpty(report.getDealerPersonnels())) {
 				reportInfo.setDealerPersonnels(report.getDealerPersonnels());
 			}
