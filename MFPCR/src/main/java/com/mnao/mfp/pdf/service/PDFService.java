@@ -62,12 +62,13 @@ public class PDFService extends MfpKPIControllerBase {
 		Path filePath = getTmpFilePath(mfpUser, "contact_report_", postFix, ".pdf");
 		PDFReport pdfReport = new PDFReport("", "Contact Report", "Mazda North America Operations");
 		try {
+			boolean success = false;
 			pdfReport.openPdf(filePath.toString());
 			for (ContactReportInfo report : reports) {
-				if (!first) {
+				if (success && !first) {
 					pdfReport.addPageBreak();
 				}
-				createPDFDocument(pdfReport, report, mfpUser);
+				success = createPDFDocument(pdfReport, report, mfpUser);
 				first = false;
 			}
 			pdfReport.closePdf();
@@ -131,6 +132,10 @@ public class PDFService extends MfpKPIControllerBase {
 
 	private int printXLSRow(HSSFSheet sheet, int rCnt, MFPUser mfpUser, ContactReportInfo report) {
 		DealerInfo dInfo = getDealerInfo(mfpUser, report.getDlrCd());
+		if( dInfo == null ) {
+			// Dealer is of region different than logged in user.
+			return rCnt;
+		}
 		MFPUser uInfo = getAuthorUser(mfpUser, report.getContactAuthor());
 		List<String> topics = new ArrayList<String>();
 		if (report.getDiscussions() != null && report.getDiscussions().size() > 0) {
@@ -178,14 +183,19 @@ public class PDFService extends MfpKPIControllerBase {
 		return col;
 	}
 
-	private void createPDFDocument(PDFReport pdfReport, ContactReportInfo report, MFPUser mfpUser) {
-		PDFCRMain pdfMain = new PDFCRMain();
+	private boolean createPDFDocument(PDFReport pdfReport, ContactReportInfo report, MFPUser mfpUser) {
 		DealerInfo dInfo = getDealerInfo(mfpUser, report.getDlrCd());
+		if( dInfo == null ) {
+			// Dealer is of region different than logged in user.
+			return false;
+		}
+		PDFCRMain pdfMain = new PDFCRMain();
 		List<DealerEmployeeInfo> dEmpInfos = getDealerEmployeeInfos(mfpUser, report.getDlrCd(),
 				report.getDealerPersonnels());
 		ReviewerEmployeeInfo revEmpInfo = getReviewerEmployeeInfos(mfpUser, report.getContactReviewer(), dInfo);
 		MFPUser author = getAuthorUser(mfpUser, report.getContactAuthor());
 		pdfMain.createPDF(pdfReport, report, author, dInfo, dEmpInfos, revEmpInfo);
+		return true;
 	}
 
 	public Path getTmpFilePath(MFPUser mfpUser, String prefix, String postfix, String extn) {
