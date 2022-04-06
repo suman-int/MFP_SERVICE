@@ -3,6 +3,7 @@ package com.mnao.mfp.user.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,13 +22,19 @@ public class MFPUserController {
 
 	//
 	@PostMapping("/UserDetails")
-	public MFPUser listDesalers(@RequestParam(value = "userID", defaultValue = "") String userID,
+	public MFPUser userDetails(@RequestParam(value = "userID", defaultValue = "") String userID,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		MFPUser musr = mfpUser;
 		if( (userID != null) && userID.trim().length() > 0 ) {
 			UserDetailsService uds = new UserDetailsService();
 			musr = uds.getMFPUser(userID);
 		}
+		return musr;
+	}
+
+	@GetMapping("/CurrentUser")
+	public MFPUser currentUser(@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
+		MFPUser musr = mfpUser;
 		return musr;
 	}
 
