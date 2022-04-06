@@ -26,17 +26,27 @@ public class LoggedInUser extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		System.out.println("Login Servlet");
-		String defUrl = "https://portaltest.mazdausa.com/m320/mfpwebui/index.html";
+		String defUrl = "https://portaltest.mazdausa.com/m320/mfpwebui";
 		String mfpUrl = Utils.getAppProperty(AppConstants.CR_URL_KEY);
 		if (mfpUrl == null || mfpUrl.trim().length() == 0)
 			mfpUrl = defUrl;
 		String userID = req.getHeader(USERID_REQUEST_HEADER);
+		String redUrl = req.getParameter("redirect");
+		String dom = req.getParameter("domain");
+		if( redUrl != null && redUrl.trim().length() > 0 )
+			mfpUrl = redUrl;
+		if( dom == null || dom.trim().length() == 0 )
+			dom = "mazdausa.com";
 		if (userID != null && userID.trim().length() > 0) {
 			resp.setContentType("text/html");
 			PrintWriter out = resp.getWriter();
 			printHTML(out, mfpUrl, userID);
 			resp.setStatus(HttpServletResponse.SC_OK);
 			Cookie userCookie = new Cookie("IV-USER", userID);
+			userCookie.setMaxAge(3000);
+			userCookie.setPath("/");
+			userCookie.setSecure(false);
+			userCookie.setDomain(dom);
 			resp.addCookie(userCookie);
 		} else {
 			resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -50,7 +60,7 @@ public class LoggedInUser extends HttpServlet {
 		out.println("<head>");
 		out.println("<title>Contact Reports</title>");
 		out.println("<script type=\"text/javascript\">");
-		out.println("document.cookie = \"USER="+ userID + "; SameSite=None; path=/;");
+		out.println("document.cookie = \"USER="+ userID + "; SameSite=None; path=/;\"");
 		out.println("window.location=\"" + url + "\";");
 		out.println("</script>");
 		out.println("</head>");
