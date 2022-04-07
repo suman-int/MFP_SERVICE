@@ -63,7 +63,7 @@ public class ContactReportInfo {
 	private LocalDate updatedDt;
 
 
-	@OneToMany(targetEntity = ContactReportDealerPersonnel.class, cascade = CascadeType.ALL)
+	@OneToMany(targetEntity = ContactReportDealerPersonnel.class, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId", nullable = false)
 	@NotNull
 	private List<ContactReportDealerPersonnel> dealerPersonnels;

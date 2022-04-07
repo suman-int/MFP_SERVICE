@@ -41,7 +41,8 @@ public class ReportController {
     public ContactReportResponse submitReportData(@Valid @RequestBody ContactReportInfoDto report, @SessionAttribute(name = "mfpUser")
 	MFPUser mfpUser){
         try {
-            return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportService.submitReportData(report, mfpUser), null);
+//            return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportService.submitReportData(report, mfpUser), null);
+                       return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportService.submitReportDataV2(report, mfpUser), null);
         } catch (Exception e) {
             return GenericResponseWrapper.contactReportResponseFunction.apply(null, e.getMessage());
         }

@@ -8,6 +8,8 @@ import com.mnao.mfp.user.dao.MFPUser;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
 public interface ContactReportService {
 
     String submitReportData(ContactReportInfoDto report, MFPUser mfpUser) throws Exception;
@@ -19,4 +21,6 @@ public interface ContactReportService {
     List<DealersByIssue> getAllDealersByIssue();
 
     Map<String, List<ContactReportInfoDto>> getMyContactReport(String userId);
+
+	String submitReportDataV2(@Valid ContactReportInfoDto report, MFPUser mfpUser) throws Exception;
 }
