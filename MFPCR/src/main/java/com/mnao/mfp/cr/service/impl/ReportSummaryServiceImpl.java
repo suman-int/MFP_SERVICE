@@ -31,6 +31,7 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
     public List<Map<String, String>> getSummaryByLocation(FilterCriteria filter) {
         List<Map<String, String>> finalListData = new ArrayList<>();
         List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNull();
+        long [] totals = new long[2];
         if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
             contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
         }
@@ -65,12 +66,17 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
                             .filter(report -> report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode())
                             .count();
                     if (pendingReviewCount > 0 || reviewedCount > 0) {
+                    	totals[0] += pendingReviewCount;
+                    	totals[1] += reviewedCount;
                         responseData.put(key1, String.format("%d/%d", pendingReviewCount, reviewedCount));
                     }
                 }
             });
             if (!CollectionUtils.isEmpty(responseData)) {
                 responseData.put(getStringByType(filter.forLocation().name()), key);
+                responseData.put("TOTAL",  String.format("%d/%d", totals[0], totals[1]));
+                totals[0] = 0;
+                totals[1] = 0;
                 finalListData.add(responseData);
             }
 
@@ -83,7 +89,8 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
     public List<Map<String, String>> getSummaryOfMonthByLocation(FilterCriteria filter) {
         List<Map<String, String>> finalListData = new ArrayList<>();
         List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNullAndContactDtNotNull();
-        if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
+        long [] totals = new long[2];
+       if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
             contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
         }
         if (isNotNullOrEmpty(filter.getStartDate()) && isNotNullOrEmpty(filter.getEndDate())) {
@@ -127,6 +134,8 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
                         .filter(report -> report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode())
                         .count();
                 responseData.put(key, String.format("%d/%d", pendingReqvieCount, reviewedCount));
+            	totals[0] += pendingReqvieCount;
+            	totals[1] += reviewedCount;
             });
             MONTHS_LIST.forEach(value -> {
                 if (!responseData.containsKey(value)) {
@@ -134,6 +143,9 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
                 }
             });
             responseData.put(getStringByType(filter.forLocation().name()), key1);
+            responseData.put("TOTAL",  String.format("%d/%d", totals[0], totals[1]));
+            totals[0] = 0;
+            totals[1] = 0;
             finalListData.add(responseData);
         });
 

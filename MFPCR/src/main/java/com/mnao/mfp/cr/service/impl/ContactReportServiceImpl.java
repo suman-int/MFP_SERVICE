@@ -101,53 +101,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 
 			reportInfo.setDealers(report.getDealers() != null ? report.getDealers() : reportInfo.getDealers());
 			// Addition and Deletion of Dealer Personnel
-			if (!CollectionUtils.isEmpty(report.getDealerPersonnels()) && !CollectionUtils.isEmpty(reportInfo.getDealerPersonnels())) {
-				// Deletions
-				List<Integer> removedList = new ArrayList<>();
-				List<ContactReportDealerPersonnel> newPers = report.getDealerPersonnels();
-				List<ContactReportDealerPersonnel> currentPers = reportInfo.getDealerPersonnels();
-				for(int i = 0 ; i < currentPers.size(); i++) {
-					ContactReportDealerPersonnel existingDp = currentPers.get(i);
-					boolean found = false;
-					for(int j = 0 ; j < newPers.size(); j++ ) {
-						ContactReportDealerPersonnel newDp = newPers.get(j);
-						if( newDp.getPersonnelIdCd().equalsIgnoreCase(existingDp.getPersonnelIdCd())) {
-							found = true;
-							break;
-						}
-					}
-					if( ! found ) {
-						removedList.add(i);
-					}
-				}
-				// Remove the persons from Current, if any
-				for(int i = removedList.size() - 1; i >= 0; i--) {
-					currentPers.remove(removedList.get(i).intValue());
-				}
-				// Additions
-				List<ContactReportDealerPersonnel> newList = new ArrayList<>();
-				for(int i = 0 ; i < newPers.size(); i++) {
-					ContactReportDealerPersonnel newDp = newPers.get(i);
-					boolean found = false;
-					for(int j = 0 ; j < currentPers.size(); j++ ) {
-						ContactReportDealerPersonnel existingDp = currentPers.get(j);
-						if( newDp.getPersonnelIdCd().equalsIgnoreCase(existingDp.getPersonnelIdCd())) {
-							found = true;
-							break;
-						}
-					}
-					if( ! found ) {
-						newList.add(newDp);
-					}
-				}
-				if( newList.size() > 0) {
-					currentPers.addAll(newList);
-				}
-			} else 
-			//
-			if (!CollectionUtils.isEmpty(report.getDealerPersonnels())) {
-				reportInfo.setDealerPersonnels(report.getDealerPersonnels());
-			}
+			addRemoveDealerPersonnel(report, reportInfo);
 			duplicateAttachmentChecker(report.getAttachment());
 			// Need to check for Additions and Deletions here as well
 			if (!CollectionUtils.isEmpty(report.getAttachment())) {
@@ -162,10 +116,60 @@ public class ContactReportServiceImpl implements ContactReportService {
 			submission = "Saved Success";
 		} catch (Exception e) {
 			e.printStackTrace();
-			submission = "Failed - Metrics | DealerPersonnel is missing";
+			submission = "Failed to save Contact Report. Please check data.";
 			throw new Exception(submission);
 		}
 		return submission;
+	}
+
+	private void addRemoveDealerPersonnel(ContactReportInfoDto report, ContactReportInfo reportInfo) {
+		if (!CollectionUtils.isEmpty(report.getDealerPersonnels()) && !CollectionUtils.isEmpty(reportInfo.getDealerPersonnels())) {
+			// Deletions
+			List<Integer> removedList = new ArrayList<>();
+			List<ContactReportDealerPersonnel> newPers = report.getDealerPersonnels();
+			List<ContactReportDealerPersonnel> currentPers = reportInfo.getDealerPersonnels();
+			for(int i = 0 ; i < currentPers.size(); i++) {
+				ContactReportDealerPersonnel existingDp = currentPers.get(i);
+				boolean found = false;
+				for(int j = 0 ; j < newPers.size(); j++ ) {
+					ContactReportDealerPersonnel newDp = newPers.get(j);
+					if( newDp.getPersonnelIdCd().equalsIgnoreCase(existingDp.getPersonnelIdCd())) {
+						found = true;
+						break;
+					}
+				}
+				if( ! found ) {
+					removedList.add(i);
+				}
+			}
+			// Remove the persons from Current, if any
+			for(int i = removedList.size() - 1; i >= 0; i--) {
+				currentPers.remove(removedList.get(i).intValue());
+			}
+			// Additions
+			List<ContactReportDealerPersonnel> newList = new ArrayList<>();
+			for(int i = 0 ; i < newPers.size(); i++) {
+				ContactReportDealerPersonnel newDp = newPers.get(i);
+				boolean found = false;
+				for(int j = 0 ; j < currentPers.size(); j++ ) {
+					ContactReportDealerPersonnel existingDp = currentPers.get(j);
+					if( newDp.getPersonnelIdCd().equalsIgnoreCase(existingDp.getPersonnelIdCd())) {
+						found = true;
+						break;
+					}
+				}
+				if( ! found ) {
+					newList.add(newDp);
+				}
+			}
+			if( newList.size() > 0) {
+				currentPers.addAll(newList);
+			}
+		} else 
+		//
+		if (!CollectionUtils.isEmpty(report.getDealerPersonnels())) {
+			reportInfo.setDealerPersonnels(report.getDealerPersonnels());
+		}
 	}
 
 	/*
@@ -242,6 +246,9 @@ public class ContactReportServiceImpl implements ContactReportService {
 			duplicateAttachmentChecker(report.getAttachment());
 			if (!CollectionUtils.isEmpty(report.getAttachment())) {
 				reportInfo.setAttachment(report.getAttachment());
+			}
+			else {
+				reportInfo.setAttachment(null);
 			}
 
 			ContactReportInfo info = contactInfoRepository.save(reportInfo);
