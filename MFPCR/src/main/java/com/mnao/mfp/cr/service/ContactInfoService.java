@@ -7,4 +7,6 @@ import com.mnao.mfp.cr.dto.ReportByDealerShipResponse;
 public interface ContactInfoService {
 
     CommonResponse<ReportByDealerShipResponse> byDealership(FilterCriteria filterCriteria);
+
+	ReportByDealerShipResponse byDealershipByIssues(FilterCriteria filterCriteria);
 }

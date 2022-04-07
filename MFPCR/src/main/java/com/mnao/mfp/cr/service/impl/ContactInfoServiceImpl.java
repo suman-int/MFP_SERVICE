@@ -9,9 +9,11 @@ import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
 import com.mnao.mfp.cr.service.ContactInfoService;
 import com.mnao.mfp.cr.util.ContactReportEnum;
+import com.mnao.mfp.cr.util.DataOperationFilter;
 import com.mnao.mfp.cr.util.LocationEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,9 @@ public class ContactInfoServiceImpl implements ContactInfoService {
 
     @Autowired
     ContactInfoRepository contactInfoRepository;
+    
+    @Autowired
+    private DataOperationFilter dataOperationFilter;
 
     private final BiPredicate<ContactReportInfo, FilterCriteria> regionFilter = (c, f) -> {
         if (Objects.nonNull(f.getRgnCd())) {
@@ -102,5 +107,26 @@ public class ContactInfoServiceImpl implements ContactInfoService {
             return AbstractService.httpPostError(exp);
         }
     }
+
+
+	@Override
+	public ReportByDealerShipResponse byDealershipByIssues(FilterCriteria filterCriteria) {
+		ReportByDealerShipResponse byDealerShipResponse = new ReportByDealerShipResponse();
+        List<ReportByDealershipDto> data = contactInfoRepository.findCurrentIssuesByDlrCd(filterCriteria.getDlrCd());
+        if (!CollectionUtils.isEmpty(filterCriteria.getIssuesFilter())) {
+            data = data.stream().filter(dealer -> Objects.nonNull(dealer.getCurrentIssues())).filter(value -> filterCriteria.getIssuesFilter().stream().anyMatch(filterQuery -> value.getCurrentIssues().contains(filterQuery))).collect(Collectors.toList());
+        }
+        Map<Integer, List<ReportByDealershipDto>> groupByStatus = data.stream()
+                .collect(Collectors.groupingBy(ReportByDealershipDto::getContactStatus));
+        byDealerShipResponse.setDraft(groupByStatus.getOrDefault(ContactReportEnum.DRAFT.getStatusCode(),
+                new ArrayList<>()));
+        byDealerShipResponse.setDiscussionRequested(groupByStatus.getOrDefault(
+                ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode(), new ArrayList<>()));
+        byDealerShipResponse.setReviewed(groupByStatus.getOrDefault(ContactReportEnum.REVIEWED.getStatusCode(),
+                new ArrayList<>()));
+        byDealerShipResponse.setSubmitted(groupByStatus.getOrDefault(ContactReportEnum.SUBMITTED.getStatusCode(),
+                new ArrayList<>()));
+        return byDealerShipResponse;
+	}
 
 }
