@@ -63,7 +63,7 @@ public class DataOperationFilter {
     public Stream<ContactReportInfo> filterContactReportByDealer(List<ContactReportInfo> contactReports,
                                                                    FilterCriteria filter) {
         return filterContactReportByDistrict(contactReports, filter)
-                .filter(cr -> filter.getDlrCd().equalsIgnoreCase(cr.getDealers().getDlrCd()));
+                .filter(cr -> filter.getDlrCd().equalsIgnoreCase(cr.getDealers().getDlrCd().trim()));
     }
 
     public List<ContactReportInfo> filterContactReportsByDateRange(FilterCriteria filter,
