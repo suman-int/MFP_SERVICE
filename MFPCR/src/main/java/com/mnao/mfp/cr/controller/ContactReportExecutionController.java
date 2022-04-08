@@ -31,7 +31,7 @@ public class ContactReportExecutionController {
     ) {
         try {
             FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByLocationAndIssueAndTiming(regionId, zoneId, districtId, dealerId, null, startOf, endOf);
-            List<ContactReportExecutionCoverageDto> response = contactReportExecutionService.reportExecutionCoverageByReportTime(filterCriteria);
+            List<ContactReportExecutionCoverageDto> response = contactReportExecutionService.reportExecutionCoverageByReportTime(filterCriteria, mfpUser);
             return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
             return AbstractService.httpPostError(e);
@@ -46,11 +46,11 @@ public class ContactReportExecutionController {
             @RequestParam(required = false) String dealerId,
             @RequestParam() String startOf,
             @RequestParam(required = false) String endOf,
-            @SessionAttribute(name = "mfpUser") MFPUser mfpUser
+			@SessionAttribute(name = "mfpUser") MFPUser mfpUser
     ) {
         try {
             FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByLocationAndIssueAndTiming(regionId, zoneId, districtId, dealerId, null, startOf, endOf);
-            List<ContactReportExecutionCoverageDto> response = contactReportExecutionService.reportExecutionCoverageByReportTime(filterCriteria);
+            List<ContactReportExecutionCoverageDto> response = contactReportExecutionService.reportExecutionCoverageByReportTime(filterCriteria, mfpUser);
             return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
             return AbstractService.httpPostError(e);

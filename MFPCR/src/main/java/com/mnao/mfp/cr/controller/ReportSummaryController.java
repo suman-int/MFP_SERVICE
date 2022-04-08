@@ -28,7 +28,7 @@ public class ReportSummaryController {
     ) {
         try {
             FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByIssueAndTiming(issues, startOf, endOf);
-            List<Map<String, String>> response = summaryService.getSummaryByLocation(filterCriteria);
+            List<Map<String, String>> response = summaryService.getSummaryByLocation(filterCriteria, mfpUser);
             return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
             return AbstractService.httpPostError(e);
@@ -45,7 +45,7 @@ public class ReportSummaryController {
     ) {
         try {
             FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByLocationAndIssueAndTiming(regionId, null, null, null, issues, startOf, endOf);
-            List<Map<String, String>> response = summaryService.getSummaryByLocation(filterCriteria);
+            List<Map<String, String>> response = summaryService.getSummaryByLocation(filterCriteria, mfpUser);
             return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
             return AbstractService.httpPostError(e);
@@ -63,7 +63,7 @@ public class ReportSummaryController {
     ) {
         try {
             FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByLocationAndIssueAndTiming(regionId, zoneId, null, null, issues, startOf, endOf);
-            List<Map<String, String>> response = summaryService.getSummaryByLocation(filterCriteria);
+            List<Map<String, String>> response = summaryService.getSummaryByLocation(filterCriteria, mfpUser);
             return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
             return AbstractService.httpPostError(e);
@@ -82,7 +82,7 @@ public class ReportSummaryController {
     ) {
         try {
             FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByLocationAndIssueAndTiming(regionId, zoneId, districtId, null, issues, startOf, endOf);
-            List<Map<String, String>> response = summaryService.getSummaryByLocation(filterCriteria);
+            List<Map<String, String>> response = summaryService.getSummaryByLocation(filterCriteria, mfpUser);
             return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
             return AbstractService.httpPostError(e);
@@ -98,7 +98,7 @@ public class ReportSummaryController {
     ) {
         try {
             FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByIssueAndTiming(issues, startOf, endOf);
-            List<Map<String, String>> response = summaryService.getSummaryOfMonthByLocation(filterCriteria);
+            List<Map<String, String>> response = summaryService.getSummaryOfMonthByLocation(filterCriteria, mfpUser);
             return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,7 +116,7 @@ public class ReportSummaryController {
     ) {
         try {
             FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByLocationAndIssueAndTiming(regionId, null, null, null, issues, startOf, endOf);
-            List<Map<String, String>> response = summaryService.getSummaryOfMonthByLocation(filterCriteria);
+            List<Map<String, String>> response = summaryService.getSummaryOfMonthByLocation(filterCriteria, mfpUser);
             return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
             return AbstractService.httpPostError(e);
@@ -134,7 +134,7 @@ public class ReportSummaryController {
     ) {
         try {
             FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByLocationAndIssueAndTiming(regionId, zoneId, null, null, issues, startOf, endOf);
-            List<Map<String, String>> response = summaryService.getSummaryOfMonthByLocation(filterCriteria);
+            List<Map<String, String>> response = summaryService.getSummaryOfMonthByLocation(filterCriteria, mfpUser);
             return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
             return AbstractService.httpPostError(e);
@@ -153,7 +153,7 @@ public class ReportSummaryController {
     ) {
         try {
             FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByLocationAndIssueAndTiming(regionId, zoneId, districtId, null, issues, startOf, endOf);
-            List<Map<String, String>> response = summaryService.getSummaryOfMonthByLocation(filterCriteria);
+            List<Map<String, String>> response = summaryService.getSummaryOfMonthByLocation(filterCriteria, mfpUser);
             return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
             return AbstractService.httpPostError(e);

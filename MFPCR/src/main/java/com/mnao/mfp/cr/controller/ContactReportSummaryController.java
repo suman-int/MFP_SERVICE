@@ -13,12 +13,15 @@ import com.mnao.mfp.cr.service.ContactReportSummaryService;
 import com.mnao.mfp.cr.service.GenericResponseWrapper;
 import com.mnao.mfp.cr.util.FilterCriteriaBuilder;
 import com.mnao.mfp.cr.util.IssueType;
+import com.mnao.mfp.user.dao.MFPUser;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttribute;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,10 +48,11 @@ public class ContactReportSummaryController {
     @Deprecated()
     public ContactReportResponse summaryByIssue(@PathVariable("type") String type,
                                                 @PathVariable("value") String value,
-                                                @PathVariable("category") String category) {
+                                                @PathVariable("category") String category,
+                                                @SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
         return GenericResponseWrapper.contactReportResponseFunction
                 .apply(contactReportSummaryService
-                        .getSummaryByLocation(type, value, category, (contactReportInfoList, issue, status, predicate) ->
+                        .getSummaryByLocation(type, value, category, mfpUser, (contactReportInfoList, issue, status, predicate) ->
                                 contactReportInfoList.stream()
                                         .filter(contactReportInfo -> predicate.test(contactReportInfo, status))
                                         .filter(contactReportInfo -> {
@@ -116,11 +120,12 @@ public class ContactReportSummaryController {
     		 @RequestParam(required = false) String regionId,
              @RequestParam(required = false) String zoneId,
              @RequestParam(required = false) String districtId,
-             @RequestParam(required = false) String dealerId
+             @RequestParam(required = false) String dealerId,
+             @SessionAttribute(name = "mfpUser") MFPUser mfpUser
     		) {
     	 try {
     		 FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByLocationAndIssueAndTiming(regionId, zoneId, districtId, dealerId, null, null, null);
-             List<SummaryByContactStatusDto> response = contactReportSummaryService.filterSummaryByCurrentStatusUsingIssues(filterCriteria);
+             List<SummaryByContactStatusDto> response = contactReportSummaryService.filterSummaryByCurrentStatusUsingIssues(filterCriteria, mfpUser);
              return AbstractService.httpPostSuccess(response, "Success");
          } catch (Exception e) {
              return AbstractService.httpPostError(e);

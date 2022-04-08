@@ -10,6 +10,8 @@ import com.mnao.mfp.cr.repository.ContactInfoRepository;
 import com.mnao.mfp.cr.service.ContactReportExecutionService;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.cr.util.DataOperationFilter;
+import com.mnao.mfp.user.dao.MFPUser;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,11 +32,11 @@ public class ContactReportExecutionServiceImpl implements ContactReportExecution
     private DataOperationFilter dataOperationFilter;
 
     @Override
-    public List<ContactReportExecutionCoverageDto> reportExecutionCoverageByReportTime(FilterCriteria  filterCriteria) {
+    public List<ContactReportExecutionCoverageDto> reportExecutionCoverageByReportTime(FilterCriteria  filterCriteria, MFPUser mfpUser) {
         List<ContactReportExecutionCoverageDto> contactReportExecCoverageList = new ArrayList<>(0);
         List<ContactReportInfo> contactReportInfoList = contactInfoRepository.findByContactDtBetweenAndContactStatusGreaterThan(
                 filterCriteria.getStartDate(), filterCriteria.getEndDate(), ContactReportEnum.DRAFT.getStatusCode());
-        contactReportInfoList = dataOperationFilter.filterContactReportsByLocation(filterCriteria, contactReportInfoList);
+        contactReportInfoList = dataOperationFilter.filterContactReportsByLocation(filterCriteria, contactReportInfoList, mfpUser);
         Map<Dealers, Map<String, List<ContactReportInfo>>> reportMap = contactReportInfoList.stream().collect(Collectors.groupingBy(ContactReportInfo::getDealers,
                 Collectors.groupingBy(ContactReportInfo::getContactAuthor)));
 

@@ -1,12 +1,15 @@
 package com.mnao.mfp.cr.service.impl;
 
 import com.mnao.mfp.common.datafilters.FilterCriteria;
+import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
 import com.mnao.mfp.cr.service.ReportSummaryService;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.cr.util.DataOperationFilter;
 import com.mnao.mfp.cr.util.LocationEnum;
+import com.mnao.mfp.user.dao.MFPUser;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -28,18 +31,19 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
     private DataOperationFilter dataOperationFilter;
 
     @Override
-    public List<Map<String, String>> getSummaryByLocation(FilterCriteria filter) {
+    public List<Map<String, String>> getSummaryByLocation(FilterCriteria filter, MFPUser mfpUser) {
         List<Map<String, String>> finalListData = new ArrayList<>();
         List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNull();
         long [] totals = new long[2];
         if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
             contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
         }
-        if (isNotNullOrEmpty(filter.getStartDate()) && isNotNullOrEmpty(filter.getEndDate())) {
+        if (new NullCheck<>(filter).with(FilterCriteria::getStartDate).isNotNullOrEmpty() 
+        		&& (new NullCheck<>(filter).with(FilterCriteria::getEndDate).isNotNullOrEmpty())) {
             contactReports = dataOperationFilter.filterContactReportsByDateRange(filter, contactReports);
         }
         Map<String, Map<String, List<ContactReportInfo>>> reports;
-        reports = dataOperationFilter.filterContactReportsByLocationAndGroupingByDealer(filter, contactReports);
+        reports = dataOperationFilter.filterContactReportsByLocationAndGroupingByDealer(filter, contactReports, mfpUser);
 
         reports.forEach((key, value) -> {
             HashMap<String, List<ContactReportInfo>> finalData = new HashMap<>();
@@ -86,7 +90,7 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
     }
 
     @Override
-    public List<Map<String, String>> getSummaryOfMonthByLocation(FilterCriteria filter) {
+    public List<Map<String, String>> getSummaryOfMonthByLocation(FilterCriteria filter, MFPUser mfpUser) {
         List<Map<String, String>> finalListData = new ArrayList<>();
         List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNullAndContactDtNotNull();
         long [] totals = new long[2];
@@ -99,22 +103,22 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
         contactReports.forEach(value -> System.out.println(value.getContactReportId() + ">" + value.getContactDt()));
         Map<String, Map<Object, List<ContactReportInfo>>> reports;
         if (filter.forLocation() == LocationEnum.DISTRICT) {
-            reports = dataOperationFilter.filterContactReportByDistrict(contactReports, filter)
+            reports = dataOperationFilter.filterContactReportByDistrict(contactReports, filter, mfpUser)
                     .collect(Collectors.groupingBy(group -> group.getDealers().getDlrCd(),
                             Collectors.groupingBy(gr -> gr.getContactDt().format(DateTimeFormatter.ofPattern("MMM")))));
         } else if (filter.forLocation() == LocationEnum.ZONE) {
-            reports = dataOperationFilter.filterContactReportByZone(contactReports, filter)
+            reports = dataOperationFilter.filterContactReportByZone(contactReports, filter, mfpUser)
                     .collect(Collectors.groupingBy(group -> group.getDealers().getDistrictCd(),
                             Collectors.groupingBy(gr -> gr.getContactDt().format(DateTimeFormatter.ofPattern("MMM")))));
         } else if (filter.forLocation() == LocationEnum.DEALER) {
             reports = contactReports.stream().collect(Collectors.groupingBy(group -> group.getDealers().getDlrCd(),
                     Collectors.groupingBy(gr -> gr.getContactDt().format(DateTimeFormatter.ofPattern("MMM")))));
         } else if (filter.forLocation() == LocationEnum.REGION) {
-            reports = dataOperationFilter.filterContactReportByRegion(contactReports, filter.getRgnCd())
+            reports = dataOperationFilter.filterContactReportByRegion(contactReports, filter.getRgnCd(), mfpUser)
                     .collect(Collectors.groupingBy(group -> group.getDealers().getZoneCd(),
                             Collectors.groupingBy(gr -> gr.getContactDt().format(DateTimeFormatter.ofPattern("MMM")))));
         } else {
-            reports = contactReports.stream().collect(Collectors.groupingBy(group -> group.getDealers().getRgnCd(),
+            reports = dataOperationFilter.getFilteredRegionByUser(mfpUser, contactReports).stream().collect(Collectors.groupingBy(group -> group.getDealers().getRgnCd(),
                     Collectors.groupingBy(gr -> gr.getContactDt().format(DateTimeFormatter.ofPattern("MMM")))));
         }
 

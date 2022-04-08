@@ -11,6 +11,8 @@ import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
 import com.mnao.mfp.cr.util.*;
+import com.mnao.mfp.user.dao.MFPUser;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -149,7 +151,7 @@ public class ContactReportSummaryService {
 		return summaryList;
 	}
 
-	public List<Map<String, String>> getSummaryByLocation(String type, String value, String category,
+	public List<Map<String, String>> getSummaryByLocation(String type, String value, String category, MFPUser mfpUser,
 			TriFunction<List<ContactReportInfo>, String, Integer, BiPredicate<ContactReportInfo, Integer>> issueCount) {
 		List<Map<String, String>> finalListData = new ArrayList<>();
 		List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNull();
@@ -164,7 +166,7 @@ public class ContactReportSummaryService {
 			reports = contactReports.stream().collect(Collectors.groupingBy(group -> group.getDealers().getDlrCd(),
 					Collectors.groupingBy(ContactReportInfo::getCurrentIssues)));
 		} else if (type.equalsIgnoreCase(LocationEnum.REGION.name())) {
-			reports = dataOperationFilter.filterContactReportByRegion(contactReports, value)
+			reports = dataOperationFilter.filterContactReportByRegion(contactReports, value, mfpUser)
 					.collect(Collectors.groupingBy(group -> group.getDealers().getZoneCd(),
 							Collectors.groupingBy(ContactReportInfo::getCurrentIssues)));
 		} else {
@@ -430,13 +432,13 @@ public class ContactReportSummaryService {
 		return DateTimeFormatter.ofPattern("MMM").format(contactDt);
 	}
 
-	public List<SummaryByContactStatusDto> filterSummaryByCurrentStatusUsingIssues(FilterCriteria filter) {
+	public List<SummaryByContactStatusDto> filterSummaryByCurrentStatusUsingIssues(FilterCriteria filter, MFPUser mfpUser) {
 		List<SummaryByContactStatusDto> finalListData = new ArrayList<>();
 		List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNull();
 //		if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
 //			contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
 //		}
-		contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports);
+		contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports, mfpUser);
 		Map<String, List<ContactReportInfo>> reports;
 		Map<String, List<ContactReportInfo>> finalData = new HashMap<>();
 		reports = contactReports.stream().collect(Collectors.groupingBy(ContactReportInfo::getCurrentIssues));
