@@ -53,7 +53,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 		}
 		if (isNotNullOrEmpty(filter.getRgnCd()) || isNotNullOrEmpty(filter.getZoneCd())
 				|| isNotNullOrEmpty(filter.getDistrictCd()) || isNotNullOrEmpty(filter.getDlrCd())) {
-			contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports);
+			contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports, mfpUser);
 		}
 		PDFService service = new PDFService();
 		Resource pdfRes = service.createBulkPDFResource(mfpUser, contactReports);
