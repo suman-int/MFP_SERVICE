@@ -2,6 +2,7 @@ package com.mnao.mfp.cr.service;
 
 import com.mnao.mfp.cr.dto.ContactReportDto;
 import com.mnao.mfp.cr.dto.ContactReportInfoDto;
+import com.mnao.mfp.cr.dto.ContactReportTopicDto;
 import com.mnao.mfp.cr.model.DealersByIssue;
 import com.mnao.mfp.user.dao.MFPUser;
 
@@ -23,4 +24,6 @@ public interface ContactReportService {
     Map<String, List<ContactReportInfoDto>> getMyContactReport(String userId);
 
 	String submitReportDataV2(@Valid ContactReportInfoDto report, MFPUser mfpUser) throws Exception;
+
+	List<ContactReportTopicDto> fetchSalesServiceOthersBasedOnTypes(List<String> contactTypeList);
 }

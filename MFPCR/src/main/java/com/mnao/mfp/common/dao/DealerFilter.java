@@ -2,6 +2,9 @@ package com.mnao.mfp.common.dao;
 
 import java.util.ArrayList;
 
+import org.springframework.util.CollectionUtils;
+
+import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.user.dao.Domain;
 import com.mnao.mfp.user.dao.MFPUser;
 
@@ -38,6 +41,13 @@ public class DealerFilter {
 
 	private void setupUserFilters() {
 		Domain dom = mfpUser.getDomain();
+		if (CollectionUtils.isEmpty(dom.getRegions()) && new NullCheck<Domain>(dom).with(Domain::getRegion).isNull() &&
+				CollectionUtils.isEmpty(dom.getZones()) && new NullCheck<Domain>(dom).with(Domain::getZone).isNull() &&
+				CollectionUtils.isEmpty(dom.getDistricts()) && new NullCheck<Domain>(dom).with(Domain::getDistrict).isNull()) {
+			this.rgnCd = "XX";
+			this.rgnMulti = false;
+			return;
+		}
 		if ((dom.getRegions() != null) && (dom.getRegions().size() > 0)) {
 			rgnMulti = true;
 			if ((rgnCd != null) && rgnCd.trim().length() > 0) {

@@ -26,6 +26,10 @@ public class NullCheck<T> {
 		return this.root != null;
 	}
 	
+	public boolean isNull() {
+		return this.root == null;
+	}
+	
 	public boolean isNotNullOrEmpty() {
 		return (this.root != null && !"".equals(this.root));
 	}

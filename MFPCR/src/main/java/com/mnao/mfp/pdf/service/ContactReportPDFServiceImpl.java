@@ -6,6 +6,7 @@ import com.mnao.mfp.cr.repository.ContactInfoRepository;
 import com.mnao.mfp.cr.service.ContactReportSummaryService;
 import com.mnao.mfp.cr.service.impl.ContactInfoServiceImpl;
 import com.mnao.mfp.cr.util.DataOperationFilter;
+import com.mnao.mfp.pdf.util.PdfGenerateUtil;
 import com.mnao.mfp.user.dao.MFPUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,13 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 
 	@Autowired
 	private DataOperationFilter dataOperationFilter;
+	
+	@Autowired
+	private PdfGenerateUtil pdfGenerateUtil;
 
+	@Autowired
+	private PdfNeoService neoService;
+	
 	@Override
 	public ResponseEntity<Resource> createBulkPdfByFilterCriteria(FilterCriteria filter, MFPUser mfpUser,
 			HttpServletRequest request) {
@@ -55,6 +62,11 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 				|| isNotNullOrEmpty(filter.getDistrictCd()) || isNotNullOrEmpty(filter.getDlrCd())) {
 			contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports, mfpUser);
 		}
+		List<String> fullHtmlWithData = pdfGenerateUtil.replaceStringWithData(contactReports);
+		fullHtmlWithData.forEach(val -> {
+			String transformedXml = neoService.htmlToXhtml(val);
+//			neoService.xhtmlToPdf(transformedXml, val);
+		});
 		PDFService service = new PDFService();
 		Resource pdfRes = service.createBulkPDFResource(mfpUser, contactReports);
 		if (pdfRes != null) {

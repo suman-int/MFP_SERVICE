@@ -9,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.mnao.mfp.common.util.AppConstants;
 //import com.mnao.mfp.cr.Mapper.ContactInfoMapper;
 import com.mnao.mfp.cr.dto.ContactReportDto;
 import com.mnao.mfp.cr.dto.ContactReportInfoDto;
+import com.mnao.mfp.cr.dto.ContactReportTopicDto;
 import com.mnao.mfp.cr.entity.ContactReportAttachment;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
@@ -21,6 +23,7 @@ import com.mnao.mfp.cr.repository.ContactReportDealerPersonnelRepository;
 import javax.transaction.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -312,5 +315,23 @@ public class ContactReportServiceImpl implements ContactReportService {
 	public void deleteReportById(long contactReportId) {
 		final int contactStatus = 0; // contactStatus 0 makes sure that the report is still a draft
 		contactInfoRepository.deleteByContactReportIdAndContactStatus(contactReportId, contactStatus);
+	}
+
+	@Override
+	public List<ContactReportTopicDto> fetchSalesServiceOthersBasedOnTypes(List<String> contactTypeList) {
+		List<ContactReportTopicDto> topicList = new ArrayList<>();
+		contactTypeList.forEach(val -> {
+			if ("sales".equalsIgnoreCase(val)) {
+				topicList.add(ContactReportTopicDto.builder().groupName("Sales").topics(AppConstants.SALES_TOPIC_LIST).build());
+			}
+			if ("service".equalsIgnoreCase(val)) {
+				topicList.add(ContactReportTopicDto.builder().groupName("After Sales").topics(AppConstants.SERVICE_TOPIC_LIST).build());
+			}
+			if ("other".equalsIgnoreCase(val)) {
+				topicList.add(ContactReportTopicDto.builder().groupName("Network").topics(AppConstants.OTHER_TOPIC_LIST).build());
+			}
+		});
+		return topicList;
+		
 	}
 }

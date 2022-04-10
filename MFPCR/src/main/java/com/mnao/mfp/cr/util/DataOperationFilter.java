@@ -102,7 +102,7 @@ public class DataOperationFilter {
         } else if (filter.forLocation() == LocationEnum.REGION) {
             return filterContactReportByRegion(contactReports, filter.getRgnCd(), mfpUser).collect(Collectors.toList());
         }
-        return contactReports;
+        return getFilteredRegionByUser(mfpUser, contactReports);
     }
     
     public List<ContactReportInfo> getFilteredRegionByUser(MFPUser user, List<ContactReportInfo> contactReports) {

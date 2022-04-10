@@ -2,11 +2,13 @@ package com.mnao.mfp.cr.controller;
 
 import com.mnao.mfp.common.dto.CommonResponse;
 import com.mnao.mfp.common.service.AbstractService;
+import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.cr.service.ContactReportService;
 import com.mnao.mfp.cr.service.impl.FileHandlingServiceImpl;
 import com.mnao.mfp.cr.service.GenericResponseWrapper;
 import com.mnao.mfp.cr.dto.ContactInfoAttachmentDto;
 import com.mnao.mfp.cr.dto.ContactReportInfoDto;
+import com.mnao.mfp.cr.dto.ContactReportTopicDto;
 import com.mnao.mfp.cr.model.ContactReportResponse;
 
 import com.mnao.mfp.user.dao.MFPUser;
@@ -23,7 +25,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import java.io.IOException;
-
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -149,6 +152,22 @@ public class ReportController {
 
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	@GetMapping(value="/contact-type")
+	public CommonResponse<List<ContactReportTopicDto>> fetchSalesServiceOthers(@RequestParam(name = "type", required = false) String contactType) {
+		try {
+			List<String> contactTypeList = new ArrayList<>(0);
+			if (!new NullCheck<String>(contactType).isNotNullOrEmpty()) {
+				contactTypeList.addAll(Arrays.asList("sales", "service", "others"));
+			} else {
+				contactTypeList.addAll(Arrays.asList(contactType.split(",")));
+			}
+			List<ContactReportTopicDto> result = contactReportService.fetchSalesServiceOthersBasedOnTypes(contactTypeList);
+			 return AbstractService.httpPostSuccess(result, "Success");
+		} catch(Exception exp) {
+			return AbstractService.httpPostError(exp);
 		}
 	}
 
