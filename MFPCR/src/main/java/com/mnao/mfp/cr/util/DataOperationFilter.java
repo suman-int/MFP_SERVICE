@@ -3,6 +3,7 @@ package com.mnao.mfp.cr.util;
 import com.mnao.mfp.common.datafilters.FilterCriteria;
 import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
+import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.user.dao.Domain;
 import com.mnao.mfp.user.dao.MFPUser;
 
@@ -29,7 +30,10 @@ public class DataOperationFilter {
         Map<String, Map<String, List<ContactReportInfo>>> reports;
         if (filter.forLocation() == LocationEnum.DISTRICT) {
             reports = filterContactReportByDistrict(contactReports, filter, mfpUser)
-                    .collect(Collectors.groupingBy(group -> group.getDealers().getDlrCd(),
+                    .collect(Collectors.groupingBy(group -> {
+                    	Dealers dealer = group.getDealers();
+                    	return String.format("%s-%s", dealer.getDlrCd().trim(), dealer.getDbaNm());
+                    },
                             Collectors.groupingBy(ContactReportInfo::getCurrentIssues)));
         } else if (filter.forLocation() == LocationEnum.ZONE) {
             reports = filterContactReportByZone(contactReports, filter, mfpUser)

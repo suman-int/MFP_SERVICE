@@ -46,7 +46,7 @@ public class AppConstants {
 	public static final String LOCALDATE_FORMAT = "yyyy-MM-dd";
 	public static final List<String> MONTHS_LIST = Arrays.asList("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
 			"Sep", "Oct", "Nov", "Dec");
-	public static final List<String> SALES_TOPIC_LIST = Arrays.asList( "Annual Business Plan-0", "Co-op Sales","CPO/Remarketing",
+	public static final List<String> SALES_TOPIC_LIST = Arrays.asList( "Annual Business Plan-0", "Co-op Sales", "CPO/Remarketing",
             "CX360 Record Health",
             "CX360 Survey Health",
             "Dealer Financials",
@@ -57,7 +57,7 @@ public class AppConstants {
             "Marketing",
             "MBEP Training",
             "MCVP",
-            "MCVP Vechicle Expiring",
+            "MCVP Vehicle Expiring",
             "Other",
             "Owner Loyalty",
             "RDR information",
@@ -66,18 +66,18 @@ public class AppConstants {
             "Sales Customer Experience (MBEP 2.1 Index)",
             "SPI",
             "Training");
-	public static final List<String> SERVICE_TOPIC_LIST = Arrays.asList( "Accessorry Business",
+	public static final List<String> SERVICE_TOPIC_LIST = Arrays.asList( "Accessory Business",
             "Annual Business Plan",
             "Co-op Service",
             "CX360 Record Health",
             "CX360 Survey Health",
             "Dealer Financials",
-            "Dealer Risk Assestment",
+            "Dealer Risk Assessment",
             "FIRFT",
             "Marketing",
             "MBEP Training",
             "MCVP",
-            "MCVP Vechicle Expiring",
+            "MCVP Vehicle Expiring",
             "Missed Recall Tiers",
             "MPC (PartsEye) Utilization",
             "Other",
@@ -89,7 +89,7 @@ public class AppConstants {
             "Service Retention/FYSL",
             "Shop Capacity",
             "Training",
-            "X-Time Sevice Scheduling");
+            "X-Time Service Scheduling");
 	public static final List<String> OTHER_TOPIC_LIST = Arrays.asList(  "Dealer Dev Deficiencies Identified",
             "Dealer Staffing",
             "Facility",
@@ -97,4 +97,5 @@ public class AppConstants {
             "Network Activity",
             "Other",
             "UMX");
+                                                                                                                                                                                                                                                                                                                                                                                                                    
 }

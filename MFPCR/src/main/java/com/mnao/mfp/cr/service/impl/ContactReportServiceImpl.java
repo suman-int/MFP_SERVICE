@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.mnao.mfp.common.util.AppConstants;
+import com.mnao.mfp.common.util.NullCheck;
 //import com.mnao.mfp.cr.Mapper.ContactInfoMapper;
 import com.mnao.mfp.cr.dto.ContactReportDto;
 import com.mnao.mfp.cr.dto.ContactReportInfoDto;
@@ -75,10 +76,9 @@ public class ContactReportServiceImpl implements ContactReportService {
 			if (isDealerUpdated && report != null && report.getContactReportId() > 0) {
 				reportInfo.setDealers(null);
 			}
-			//Update Author only if DRAFT
-			if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()) {
-				reportInfo.setContactAuthor(
-						report.getContactAuthor() != null ? report.getContactAuthor() : reportInfo.getContactAuthor());
+			//Update Author only if in DRAFT
+			if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode() || reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
+				reportInfo.setContactAuthor(new NullCheck<ContactReportInfoDto>(report).with(ContactReportInfoDto::getContactAuthor).orElse(reportInfo.getContactAuthor()));
 			}
 			reportInfo.setContactDt(report.getContactDt() != null ? report.getContactDt() : reportInfo.getContactDt());
 			reportInfo.setContactLocation(report.getContactLocation() != null ? report.getContactLocation()

@@ -68,7 +68,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 				|| isNotNullOrEmpty(filter.getDistrictCd()) || isNotNullOrEmpty(filter.getDlrCd())) {
 			contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports, mfpUser);
 		}
-		List<String> fullHtmlWithData = pdfGenerateUtil.replaceStringWithData(contactReports);
+		List<String> fullHtmlWithData = pdfGenerateUtil.replaceStringWithData(contactReports, mfpUser);
 		List<InputStream> multiplePdf = new ArrayList<>();
 		fullHtmlWithData.forEach(val -> {
 			String transformedXml = neoService.htmlToXhtml(val);

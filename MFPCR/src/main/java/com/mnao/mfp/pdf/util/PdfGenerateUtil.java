@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,7 @@ import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.common.db.KPIQuerySpecs;
 import com.mnao.mfp.common.util.AppConstants;
+import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;
@@ -144,7 +146,7 @@ public class PdfGenerateUtil {
 			+ "}\r\n"
 			+ "\r\n"
 			+ "h1 {\r\n"
-			+ "	font-size: 40px\r\n"
+			+ "	font-size: 32px\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ "h3 {\r\n"
@@ -512,15 +514,15 @@ public class PdfGenerateUtil {
 			+ "                <tbody>\r\n"
 			+ "                  <tr>\r\n"
 			+ "                    <td style=\"font-weight: 600;\">AUTHOR :</td>\r\n"
-			+ "                        <td> Nisha Budhiraja</td>\r\n"
+			+ "                        <td> %DLR_AUTHOR%</td>\r\n"
 			+ "                  </tr>\r\n"
 			+ "                  <tr>\r\n"
 			+ "                    <td style=\"font-weight: 600;\">REVIEWER :</td>\r\n"
-			+ "                    <td> M00315563</td>\r\n"
+			+ "                    <td> %DEALERSHIP_REVIEWER%</td>\r\n"
 			+ "                  </tr>\r\n"
 			+ "                  <tr>\r\n"
 			+ "                     <td style=\"font-weight: 600;\">DEALERSHIP CONTACTS :</td>\r\n"
-			+ "                     <td>SHAWN DONNELLY</td>   \r\n"
+			+ "                     <td>%DEALERSHIP_CONTACTS%</td>   \r\n"
 			+ "                  </tr>\r\n"
 			+ "                  </tbody>\r\n"
 			+ "\r\n"
@@ -544,23 +546,23 @@ public class PdfGenerateUtil {
 			+ "        <div class=\"container\">\r\n"
 			+ "       <h5 >4. Verification</h5>\r\n"
 			+ "       <div >I have read and understand the report. I have verified that the appointment and information identified above is true to the best of my information and belief.</div>\r\n"
-			+ "       <table class=\"table\">\r\n"
-			+ "        <tbody>\r\n"
-			+ "          <tr>\r\n"
-			+ "            <td style=\"font-weight: 600;\">SIGNATURE OF AGENCY HEAD OR DESIGNEE</td>\r\n"
-			+ "            <td style=\"font-weight: 600;\">PRINT NAME</td>\r\n"
-			+ "            <td style=\"font-weight: 600;\">TITLE</td>\r\n"
-			+ "            <td style=\"font-weight: 600;\">DATE</td>\r\n"
-			+ "          </tr>\r\n"
-			+ "          <tr style=\"height: 50px;\">\r\n"
-			+ "              <td></td>\r\n"
-			+ "              <td></td>\r\n"
-			+ "              <td></td> \r\n"
-			+ "              <td></td>\r\n"
-			+ "          </tr>\r\n"
-			+ "\r\n"
-			+ "        </tbody>\r\n"
-			+ "      </table><br>\r\n"
+//			+ "       <table class=\"table\">\r\n"
+//			+ "        <tbody>\r\n"
+//			+ "          <tr>\r\n"
+//			+ "            <td style=\"font-weight: 600;\">SIGNATURE OF AGENCY HEAD OR DESIGNEE</td>\r\n"
+//			+ "            <td style=\"font-weight: 600;\">PRINT NAME</td>\r\n"
+//			+ "            <td style=\"font-weight: 600;\">TITLE</td>\r\n"
+//			+ "            <td style=\"font-weight: 600;\">DATE</td>\r\n"
+//			+ "          </tr>\r\n"
+//			+ "          <tr style=\"height: 50px;\">\r\n"
+//			+ "              <td></td>\r\n"
+//			+ "              <td></td>\r\n"
+//			+ "              <td></td> \r\n"
+//			+ "              <td></td>\r\n"
+//			+ "          </tr>\r\n"
+//			+ "\r\n"
+//			+ "        </tbody>\r\n"
+//			+ "      </table><br>\r\n"
 			+ "      <div><span>Comment :</span>  __________________________________________________________________________________________________________________________________</div>\r\n"
 			+ "      <div style=\"text-align: right;\">Contact Form</div>\r\n"
 			+ "      <div style=\"text-align: right;\">Toll-Free Helpline: </div>\r\n"
@@ -577,25 +579,31 @@ public class PdfGenerateUtil {
 			+ "                        <td>%DISC_DATE%</td>\r\n"
 			+ "                      </tr>\r\n";
 	
-	public List<String> replaceStringWithData(List<ContactReportInfo> contactReports) {
+	public List<String> replaceStringWithData(List<ContactReportInfo> contactReports, MFPUser mfpUser) {
 		List<String> fullHtml = new ArrayList<>();
 		contactReports.forEach(cr -> {
 			Dealers dealers = cr.getDealers();
 			String updatedHtmlText = HTML.replace("%DEALER_NAME%", dealers.getDbaNm()).replace("%DEALER_CODE%", dealers.getDlrCd());
-			String updatedHtml3 = updatedHtmlText.replace("%REVIEWER%", cr.getContactReviewer()).replace("%AUTHOR_NAME%", cr.getContactAuthor()).replace("%ADDRESS%", cr.getContactLocation()).replace("%REPORT%", cr.getContactType()).replace("%CR_DATE%", cr.getContactDt().format(DateTimeFormatter.ofPattern("MM-dd-yyyy")));
+			String updatedHtml3 = updatedHtmlText.replace("%REVIEWER%", cr.getContactReviewer()).replace("%AUTHOR_NAME%", getAuthorUser(mfpUser, cr.getContactAuthor())).replace("%ADDRESS%", cr.getContactLocation()).replace("%REPORT%", cr.getContactType()).replace("%CR_DATE%", cr.getContactDt().format(DateTimeFormatter.ofPattern("MM-dd-yyyy")));
 			String updatedHtml = updatedHtml3.replace("%CONTACT_STATUS%", ContactReportEnum.valueByStatus(cr.getContactStatus()).getStatusText().toUpperCase());
+			String dealerPersonnel = cr.getDealerPersonnels().stream().map(data -> data.getPersonnelIdCd()).collect(Collectors.joining("<br>"));
+			String updateHtml4 = updatedHtml.replace("%DLR_AUTHOR%", getAuthorUser(mfpUser, cr.getContactAuthor())).replace("%DEALERSHIP_REVIEWER%", cr.getContactReviewer()).replace("%DEALERSHIP_CONTACTS%", dealerPersonnel);
 			String discussionList = cr.getDiscussions().stream().map(disc -> DISCUSSION.replace("%DISC_TYPE%", disc.getTopic()).replace("%DISC_DISCUSSIONS%", disc.getDiscussion()).replace("%DISC_DATE%", disc.getDisscussionDt().format(DateTimeFormatter.ofPattern("MM-dd-yyyy")))).collect(Collectors.joining());
-			String discussionUpdate = updatedHtml.replace("%DISCUSIION_ROW%", discussionList);
+			String discussionUpdate = updateHtml4.replace("%DISCUSIION_ROW%", discussionList);
 			fullHtml.add(discussionUpdate);
 		});
 		return fullHtml;
 	}
 
-//	private MFPUser getAuthorUser(MFPUser mfpUser, String contactAuthor) {
-//		UserDetailsService uds = new UserDetailsService();
-//		MFPUser musr = uds.getMFPUser(contactAuthor);
-//		return musr;
-//	}
+	private String getAuthorUser(MFPUser mfpUser, String contactAuthor) {
+		UserDetailsService uds = new UserDetailsService();
+		MFPUser musr = uds.getMFPUser(contactAuthor);
+		if (new NullCheck<MFPUser>(musr).with(MFPUser::getPersonalTitle).isNotNullOrEmpty()) {
+			return String.format("%s %s, %s", musr.getFirstName(), musr.getLastName(), musr.getPersonalTitle());
+		} else {
+			return String.format("%s %s", musr.getFirstName(), musr.getLastName());
+		}
+	}
 //
 //	private ReviewerEmployeeInfo getReviewerEmployeeInfos(MFPUser mfpUser, String contactReviewer, DealerInfo dInfo) {
 //		ReviewerEmployeeInfo revEmp = null;

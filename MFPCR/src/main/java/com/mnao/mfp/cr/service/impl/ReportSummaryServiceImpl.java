@@ -3,6 +3,7 @@ package com.mnao.mfp.cr.service.impl;
 import com.mnao.mfp.common.datafilters.FilterCriteria;
 import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
+import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
 import com.mnao.mfp.cr.service.ReportSummaryService;
 import com.mnao.mfp.cr.util.ContactReportEnum;
@@ -104,7 +105,10 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
         Map<String, Map<Object, List<ContactReportInfo>>> reports;
         if (filter.forLocation() == LocationEnum.DISTRICT) {
             reports = dataOperationFilter.filterContactReportByDistrict(contactReports, filter, mfpUser)
-                    .collect(Collectors.groupingBy(group -> group.getDealers().getDlrCd(),
+                    .collect(Collectors.groupingBy(group -> {
+                    	Dealers dealer = group.getDealers();
+                    	return String.format("%s-%s", dealer.getDlrCd().trim(), dealer.getDbaNm());
+                    },
                             Collectors.groupingBy(gr -> gr.getContactDt().format(DateTimeFormatter.ofPattern("MMM")))));
         } else if (filter.forLocation() == LocationEnum.ZONE) {
             reports = dataOperationFilter.filterContactReportByZone(contactReports, filter, mfpUser)
