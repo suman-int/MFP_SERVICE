@@ -1,5 +1,6 @@
 package com.mnao.mfp.pdf.service;
 
+import com.lowagie.text.DocumentException;
 import com.mnao.mfp.common.datafilters.FilterCriteria;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
@@ -24,10 +25,15 @@ import javax.servlet.http.HttpServletRequest;
 
 import static com.mnao.mfp.common.util.Utils.isNotNullOrEmpty;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,7 +56,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 	
 	@Override
 	public ResponseEntity<Resource> createBulkPdfByFilterCriteria(FilterCriteria filter, MFPUser mfpUser,
-			HttpServletRequest request) {
+			HttpServletRequest request) throws DocumentException, FileNotFoundException, IOException {
 		List<ContactReportInfo> contactReports = contactInfoRepository.findAll();
 		if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
 			contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
@@ -63,12 +69,23 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 			contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports, mfpUser);
 		}
 		List<String> fullHtmlWithData = pdfGenerateUtil.replaceStringWithData(contactReports);
+		List<InputStream> multiplePdf = new ArrayList<>();
 		fullHtmlWithData.forEach(val -> {
 			String transformedXml = neoService.htmlToXhtml(val);
-//			neoService.xhtmlToPdf(transformedXml, val);
+			Path outputPath = neoService.getTmpFilePath(mfpUser, "contact_report_", "_BULK", ".pdf");
+			neoService.xhtmlToPdf(transformedXml, outputPath);
+			try {
+				multiplePdf.add(new FileInputStream(outputPath.toFile()));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		});
-		PDFService service = new PDFService();
-		Resource pdfRes = service.createBulkPDFResource(mfpUser, contactReports);
+		Path outputPath = neoService.getTmpFilePath(mfpUser, "contact_report_", "_FINAL_BULK_", ".pdf");
+		neoService.doMerge(multiplePdf, new FileOutputStream( outputPath.toFile()));
+//		PDFService service = new PDFService();
+//		Resource pdfRes = service.createBulkPDFResource(mfpUser, contactReports);
+		Resource pdfRes = new UrlResource(outputPath.toUri());
 		if (pdfRes != null) {
 			String contentType = null;
 			try {

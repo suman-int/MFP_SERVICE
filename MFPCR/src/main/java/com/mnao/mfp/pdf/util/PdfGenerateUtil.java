@@ -1,12 +1,27 @@
 package com.mnao.mfp.pdf.util;
 
+import java.text.ParseException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import com.mnao.mfp.common.dao.DealerFilter;
+import com.mnao.mfp.common.dao.DealerInfo;
+import com.mnao.mfp.common.db.KPIQuerySpecs;
+import com.mnao.mfp.common.util.AppConstants;
+import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;
+import com.mnao.mfp.cr.util.ContactReportEnum;
+import com.mnao.mfp.list.service.MMAListService;
+import com.mnao.mfp.pdf.dao.DealerEmployeeInfo;
+import com.mnao.mfp.pdf.dao.ReviewerEmployeeInfo;
+import com.mnao.mfp.user.dao.MFPUser;
+import com.mnao.mfp.user.service.UserDetailsService;
 
 @Component
 public class PdfGenerateUtil {
@@ -24,11 +39,15 @@ public class PdfGenerateUtil {
 			+ "        border: 1px solid black;\r\n"
 			+ "        font-size: 15px;\r\n"
 			+ "        text-align: left;\r\n"
-			+ "        margin-left: auto;\r\n"
-			+ "        margin-right: auto;\r\n"
-			+ "        width: 550px;\r\n"
+//			+ "        margin-left: auto;\r\n"
+//			+ "        margin-right: auto;\r\n"
+			+ "        width: 750px;\r\n"
 			+ "      }\r\n"
 			+ "\r\n"
+			+ "@page {\r\n"
+			+ "    size: A4;"
+			+ "	   margin: 0;"
+			+ "}"
 			+ "\r\n"
 			+ ":root {\r\n"
 			+ "	--blue: #007bff;\r\n"
@@ -77,7 +96,7 @@ public class PdfGenerateUtil {
 			+ "body {\r\n"
 			+ "	margin: 0;\r\n"
 			+ "	font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", \"Liberation Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";\r\n"
-			+ "	font-size: 1rem;\r\n"
+			+ "	font-size: 16px;\r\n"
 			+ "	font-weight: 400;\r\n"
 			+ "	line-height: 1.5;\r\n"
 			+ "	color: #212529;\r\n"
@@ -93,7 +112,7 @@ public class PdfGenerateUtil {
 			+ "h3,\r\n"
 			+ "h5 {\r\n"
 			+ "	margin-top: 0;\r\n"
-			+ "	margin-bottom: .5rem\r\n"
+			+ "	margin-bottom: 8px\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ "table {\r\n"
@@ -119,25 +138,25 @@ public class PdfGenerateUtil {
 			+ "h1,\r\n"
 			+ "h3,\r\n"
 			+ "h5 {\r\n"
-			+ "	margin-bottom: .5rem;\r\n"
+			+ "	margin-bottom: 8px;\r\n"
 			+ "	font-weight: 500;\r\n"
 			+ "	line-height: 1.2\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ "h1 {\r\n"
-			+ "	font-size: 2.5rem\r\n"
+			+ "	font-size: 40px\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ "h3 {\r\n"
-			+ "	font-size: 1.75rem\r\n"
+			+ "	font-size: 28px\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ "h5 {\r\n"
-			+ "	font-size: 1.25rem\r\n"
+			+ "	font-size: 20px\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".container {\r\n"
-			+ "	width: 100%;\r\n"
+			+ "	width: 100%!important;\r\n"
 			+ "	padding-right: 15px;\r\n"
 			+ "	padding-left: 15px;\r\n"
 			+ "	margin-right: auto;\r\n"
@@ -169,13 +188,13 @@ public class PdfGenerateUtil {
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".table {\r\n"
-			+ "	width: 100%;\r\n"
-			+ "	margin-bottom: 1rem;\r\n"
+//			+ "	width: 100% !important;\r\n"
+			+ "	margin-bottom: 16px;\r\n"
 			+ "	color: #212529\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".table td {\r\n"
-			+ "	padding: .75rem;\r\n"
+			+ "	padding: 12px;\r\n"
 			+ "	vertical-align: top;\r\n"
 			+ "	border-top: 1px solid #dee2e6\r\n"
 			+ "}\r\n"
@@ -203,7 +222,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-primary:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-primary:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(38, 143, 255, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(38, 143, 255, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-secondary:not(:disabled):not(.disabled).active,\r\n"
@@ -215,7 +234,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-secondary:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-secondary:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(130, 138, 145, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(130, 138, 145, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-success:not(:disabled):not(.disabled).active,\r\n"
@@ -227,7 +246,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-success:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-success:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(72, 180, 97, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(72, 180, 97, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-info:not(:disabled):not(.disabled).active,\r\n"
@@ -239,7 +258,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-info:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-info:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(58, 176, 195, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(58, 176, 195, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-warning:not(:disabled):not(.disabled).active,\r\n"
@@ -251,7 +270,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-warning:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-warning:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(222, 170, 12, .5)\r\n"
+			+ "	box-shadow: 0 0 0 .23.2px rgba(222, 170, 12, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-danger:not(:disabled):not(.disabled).active,\r\n"
@@ -263,7 +282,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-danger:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-danger:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(225, 83, 97, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(225, 83, 97, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-light:not(:disabled):not(.disabled).active,\r\n"
@@ -275,7 +294,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-light:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-light:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(216, 217, 219, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(216, 217, 219, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-dark:not(:disabled):not(.disabled).active,\r\n"
@@ -287,7 +306,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-dark:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-dark:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(82, 88, 93, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(82, 88, 93, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-outline-primary:not(:disabled):not(.disabled).active,\r\n"
@@ -299,7 +318,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-outline-primary:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-outline-primary:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(0, 123, 255, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-outline-secondary:not(:disabled):not(.disabled).active,\r\n"
@@ -311,7 +330,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-outline-secondary:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-outline-secondary:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(108, 117, 125, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(108, 117, 125, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-outline-success:not(:disabled):not(.disabled).active,\r\n"
@@ -323,7 +342,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-outline-success:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-outline-success:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(40, 167, 69, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(40, 167, 69, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-outline-info:not(:disabled):not(.disabled).active,\r\n"
@@ -335,7 +354,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-outline-info:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-outline-info:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(23, 162, 184, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(23, 162, 184, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-outline-warning:not(:disabled):not(.disabled).active,\r\n"
@@ -347,7 +366,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-outline-warning:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-outline-warning:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(255, 193, 7, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(255, 193, 7, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-outline-danger:not(:disabled):not(.disabled).active,\r\n"
@@ -359,7 +378,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-outline-danger:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-outline-danger:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(220, 53, 69, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(220, 53, 69, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-outline-light:not(:disabled):not(.disabled).active,\r\n"
@@ -371,7 +390,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-outline-light:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-outline-light:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(248, 249, 250, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(248, 249, 250, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".btn-outline-dark:not(:disabled):not(.disabled).active,\r\n"
@@ -383,7 +402,7 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ ".btn-outline-dark:not(:disabled):not(.disabled).active:focus,\r\n"
 			+ ".btn-outline-dark:not(:disabled):not(.disabled):active:focus {\r\n"
-			+ "	box-shadow: 0 0 0 .2rem rgba(52, 58, 64, .5)\r\n"
+			+ "	box-shadow: 0 0 0 3.2px rgba(52, 58, 64, .5)\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ ".custom-control-input:focus:not(:checked)~.custom-control-label::before {\r\n"
@@ -457,30 +476,30 @@ public class PdfGenerateUtil {
 			+ "                <tr>\r\n"
 			+ "                  <td colspan=\"3\"><div style=\"font-weight: 600;\">DEALERSHIP NAME :</div>\r\n"
 			+ "                      %DEALER_NAME% - %DEALER_CODE%</td>\r\n"
-			+ "                  <td rowspan=\"3\" style=\"text-align: center; padding-top: 7%;\"><h1>STATUS : 4</h1></td>\r\n"
+			+ "                  <td rowspan=\"3\" style=\"text-align: center; padding-top: 7%;\"><h1>STATUS : %CONTACT_STATUS%</h1></td>\r\n"
 			+ "                </tr>\r\n"
 			+ "                <tr>\r\n"
 			+ "                    <td colspan=\"3\"><div style=\"font-weight: 600;\">REVIEWER :</div>\r\n"
-			+ "                        **************\r\n"
+			+ "                        %REVIEWER%\r\n"
 			+ "                    </td>\r\n"
 			+ "                </tr>\r\n"
 			+ "                <tr>\r\n"
 			+ "                    <td colspan=\"3\"><div style=\"font-weight: 600;\">AUTHOR : (Name,Title)</div>\r\n"
-			+ "                        Nisha Budhiraja</td>\r\n"
+			+ "                       %AUTHOR_NAME%</td>\r\n"
 			+ "                </tr>\r\n"
 			+ "                <tr>\r\n"
 			+ "                  <td>\r\n"
-			+ "                    <div style=\"font-weight: 600;\"> ADDRESS :</div>\r\n"
-			+ "                      BROOKFIELD, WI 53045\r\n"
+			+ "                    <div style=\"font-weight: 600;\"> CONTACT LOCATION :</div>\r\n"
+			+ "                      %ADDRESS%\r\n"
 			+ "                  </td>\r\n"
 			+ "                  <td>\r\n"
-			+ "                    <div style=\"font-weight: 600;\">  PHONE :</div>\r\n"
-			+ "                      **********\r\n"
+			+ "                    <div style=\"font-weight: 600;\">  CONTACT REPORT :</div>\r\n"
+			+ "                      %REPORT%\r\n"
 			+ "                  </td>\r\n"
-			+ "                  <td>Page 1 of 16</td>\r\n"
+			+ "                  <td>Page 1 of -</td>\r\n"
 			+ "                  <td>\r\n"
 			+ "                    <div style=\"font-weight: 600;\"> CONTACT DATE :</div>\r\n"
-			+ "                    03-31-2022<br>\r\n"
+			+ "                    %CR_DATE%<br>\r\n"
 			+ "                    (Month, Day, year)\r\n"
 			+ "                </td>\r\n"
 			+ "                </tr>\r\n"
@@ -516,11 +535,7 @@ public class PdfGenerateUtil {
 			+ "                        <td style=\"font-weight: 600;\">STATUS :</td>\r\n"
 			+ "                        <td style=\"font-weight: 600;\">DATE :</td>\r\n"
 			+ "                      </tr>\r\n"
-			+ "                      <tr>\r\n"
-			+ "                        <td>Co-op Sales</td>\r\n"
-			+ "                        <td>Testing 1</td>\r\n"
-			+ "                        <td>10/04/22</td>\r\n"
-			+ "                      </tr>\r\n"
+			+ " 					%DISCUSIION_ROW%"
 			+ "\r\n"
 			+ "                    </tbody>\r\n"
 			+ "                  </table>\r\n"
@@ -528,7 +543,7 @@ public class PdfGenerateUtil {
 			+ "<!-- section5 -->\r\n"
 			+ "        <div class=\"container\">\r\n"
 			+ "       <h5 >4. Verification</h5>\r\n"
-			+ "       <div >I have read and understand FPPC Regulation 18702.5. I have verified that the appointment and information identified above is true to the best of my information and belief.</div>\r\n"
+			+ "       <div >I have read and understand the report. I have verified that the appointment and information identified above is true to the best of my information and belief.</div>\r\n"
 			+ "       <table class=\"table\">\r\n"
 			+ "        <tbody>\r\n"
 			+ "          <tr>\r\n"
@@ -546,9 +561,9 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ "        </tbody>\r\n"
 			+ "      </table><br>\r\n"
-			+ "      <div><span>Comment :</span>&nbsp; &nbsp;__________________________________________________________________________________________________________________________________</div>\r\n"
-			+ "      <div style=\"text-align: right;\">FPPC Form 806 (1/18)</div>\r\n"
-			+ "      <div style=\"text-align: right;\">FPPC Toll-Free Helpline: 866/ASK-FPPC (866/275-3772)</div>\r\n"
+			+ "      <div><span>Comment :</span>  __________________________________________________________________________________________________________________________________</div>\r\n"
+			+ "      <div style=\"text-align: right;\">Contact Form</div>\r\n"
+			+ "      <div style=\"text-align: right;\">Toll-Free Helpline: </div>\r\n"
 			+ "    </div>\r\n"
 			+ "    </div>\r\n"
 			+ "\r\n"
@@ -556,14 +571,96 @@ public class PdfGenerateUtil {
 			+ "\r\n"
 			+ "</html>";
 	
+	private final String DISCUSSION = "                      <tr>\r\n"
+			+ "                        <td>%DISC_TYPE%</td>\r\n"
+			+ "                        <td>%DISC_DISCUSSIONS%</td>\r\n"
+			+ "                        <td>%DISC_DATE%</td>\r\n"
+			+ "                      </tr>\r\n";
+	
 	public List<String> replaceStringWithData(List<ContactReportInfo> contactReports) {
 		List<String> fullHtml = new ArrayList<>();
 		contactReports.forEach(cr -> {
 			Dealers dealers = cr.getDealers();
-			String updatedHtml = HTML.replace("%DEALER_NAME%", dealers.getDbaNm()).replace("%DEALER_CODE%", dealers.getDlrCd());
-			fullHtml.add(updatedHtml);
+			String updatedHtmlText = HTML.replace("%DEALER_NAME%", dealers.getDbaNm()).replace("%DEALER_CODE%", dealers.getDlrCd());
+			String updatedHtml3 = updatedHtmlText.replace("%REVIEWER%", cr.getContactReviewer()).replace("%AUTHOR_NAME%", cr.getContactAuthor()).replace("%ADDRESS%", cr.getContactLocation()).replace("%REPORT%", cr.getContactType()).replace("%CR_DATE%", cr.getContactDt().format(DateTimeFormatter.ofPattern("MM-dd-yyyy")));
+			String updatedHtml = updatedHtml3.replace("%CONTACT_STATUS%", ContactReportEnum.valueByStatus(cr.getContactStatus()).getStatusText().toUpperCase());
+			String discussionList = cr.getDiscussions().stream().map(disc -> DISCUSSION.replace("%DISC_TYPE%", disc.getTopic()).replace("%DISC_DISCUSSIONS%", disc.getDiscussion()).replace("%DISC_DATE%", disc.getDisscussionDt().format(DateTimeFormatter.ofPattern("MM-dd-yyyy")))).collect(Collectors.joining());
+			String discussionUpdate = updatedHtml.replace("%DISCUSIION_ROW%", discussionList);
+			fullHtml.add(discussionUpdate);
 		});
 		return fullHtml;
 	}
+
+//	private MFPUser getAuthorUser(MFPUser mfpUser, String contactAuthor) {
+//		UserDetailsService uds = new UserDetailsService();
+//		MFPUser musr = uds.getMFPUser(contactAuthor);
+//		return musr;
+//	}
+//
+//	private ReviewerEmployeeInfo getReviewerEmployeeInfos(MFPUser mfpUser, String contactReviewer, DealerInfo dInfo) {
+//		ReviewerEmployeeInfo revEmp = null;
+//		if (contactReviewer != null) {
+//			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEES);
+//			MMAListService<ReviewerEmployeeInfo> service = new MMAListService<ReviewerEmployeeInfo>();
+//			List<ReviewerEmployeeInfo> retRows = null;
+//			DealerFilter df = new DealerFilter(mfpUser, null, mfpUser.getRgnCd(), null, null, null);
+//			try {
+//				retRows = service.getListData(sqlName, ReviewerEmployeeInfo.class, df, dInfo.getRgnCd(), dInfo.getZoneCd());
+//			} catch (InstantiationException | IllegalAccessException | ParseException e) {
+//				log.error("ERROR retrieving list of Employees:", e);
+//			}
+//			if ((retRows != null) && retRows.size() > 0) {
+//				revEmp = getReviewerEmployeeInfo(retRows, contactReviewer);
+//			}
+//		}
+//		return revEmp;
+//	}
+//
+//	private ReviewerEmployeeInfo getReviewerEmployeeInfo(List<ReviewerEmployeeInfo> retRows, String contactReviewer) {
+//		for (int i = 0; i < retRows.size(); i++) {
+//			ReviewerEmployeeInfo rei = retRows.get(i);
+//			if (rei.getPrsnIdCd().equals(contactReviewer)) {
+//				return rei;
+//			}
+//		}
+//		return null;
+//	}
+//
+//	private List<DealerEmployeeInfo> getDealerEmployeeInfos(MFPUser mfpUser, String dlrCd,
+//			List<ContactReportDealerPersonnel> dPers) {
+//		List<DealerEmployeeInfo> dEmpInfos = new ArrayList<DealerEmployeeInfo>();
+//		if (dPers != null) {
+//			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALER_EMPLOYEES);
+//			MMAListService<DealerEmployeeInfo> service = new MMAListService<DealerEmployeeInfo>();
+//			List<DealerEmployeeInfo> retRows = null;
+//			DealerFilter df = new DealerFilter(mfpUser, dlrCd, null, null, null, null);
+//			try {
+//				retRows = service.getListData(sqlName, DealerEmployeeInfo.class, df, dlrCd);
+//			} catch (InstantiationException | IllegalAccessException | ParseException e) {
+//				log.error("ERROR retrieving list of Employees:", e);
+//			}
+//			if ((retRows != null) && retRows.size() > 0) {
+//				for (ContactReportDealerPersonnel dp : dPers) {
+//					DealerEmployeeInfo dei = getDealerEmployeeInfo(retRows, dp);
+//					if (dei != null) {
+//						dEmpInfos.add(dei);
+//					}
+//				}
+//			}
+//		}
+//		return dEmpInfos;
+//	}
+//
+//	private DealerEmployeeInfo getDealerEmployeeInfo(List<DealerEmployeeInfo> retRows,
+//			ContactReportDealerPersonnel dp) {
+//		for (int i = 0; i < retRows.size(); i++) {
+//			DealerEmployeeInfo dei = retRows.get(i);
+//			if (dei.getPrsnIdCd().equals(dp.getPersonnelIdCd())) {
+//				return dei;
+//			}
+//		}
+//		return null;
+//	}
+	
 
 }
