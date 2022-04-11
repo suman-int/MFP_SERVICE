@@ -35,15 +35,24 @@ public class AppConstants {
 	public static final String SQL_LIST_ZONES = "LIST_ZONES.sql";
 	public static final String SQL_LIST_DEALER_EMPLOYEES = "LIST_DEALER_EMPLOYEES.sql";
 	public static final String SQL_LIST_REVIEWER_EMPLOYEES = "LIST_REVIEWER_EMPLOYEES.sql";
+	public static final String SQL_LIST_REVIEWER_EMPLOYEE = "LIST_REVIEWER_EMPLOYEE.sql";
 	public static final String SQL_LIST_CORPORATE_EMPLOYEES = "LIST_CORPORATE_EMPLOYEES.sql";
 	//
 	public static final String CR_URL_KEY = "MFP_CR_URL";
+	public static final String SMTP_HOST = "cr.email.smtp.host";
+	public static final String DEFAULT_DELIM = "cr.email.default.delim";
+	public static final String REVIEW_MAIL_FROM = "cr.review.request.mail.from";
+	public static final String REVIEW_MAIL_CC = "cr.review.request.mail.cc";
+	public static final String REVIEW_MAIL_BCC = "cr.review.request.mail.bcc";
+	public static final String REVIEW_MAIL_SUBJECT = "cr.review.request.mail.subject";
+
 	//
 	public static final int StatusSubmit = 1;
 	public static final int StatusDeleted = 2;
 	public static final int StatusDraft = 0;
 	public static final String file_storage_format = "%s_%s_%s";
 	public static final String LOCALDATE_FORMAT = "yyyy-MM-dd";
+	public static final String DISPLAYDATE_FORMAT = "MM-dd-yyyy";
 	public static final List<String> MONTHS_LIST = Arrays.asList("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
 			"Sep", "Oct", "Nov", "Dec");
 	public static final List<String> SALES_TOPIC_LIST = Arrays.asList( "Annual Business Plan-0", "Co-op Sales", "CPO/Remarketing",

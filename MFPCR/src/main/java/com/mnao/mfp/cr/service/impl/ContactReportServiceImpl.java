@@ -4,13 +4,22 @@ import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.model.DealersByIssue;
 import com.mnao.mfp.cr.service.ContactReportService;
 import com.mnao.mfp.cr.util.ContactReportEnum;
+import com.mnao.mfp.email.EMazdamailsender;
+import com.mnao.mfp.list.service.MMAListService;
+import com.mnao.mfp.pdf.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.user.dao.MFPUser;
+import com.mnao.mfp.user.service.UserDetailsService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.mnao.mfp.common.controller.MfpKPIControllerBase;
+import com.mnao.mfp.common.dao.DealerFilter;
+import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.NullCheck;
+import com.mnao.mfp.common.util.Utils;
 //import com.mnao.mfp.cr.Mapper.ContactInfoMapper;
 import com.mnao.mfp.cr.dto.ContactReportDto;
 import com.mnao.mfp.cr.dto.ContactReportInfoDto;
@@ -21,9 +30,13 @@ import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
 import com.mnao.mfp.cr.repository.ContactReportDealerPersonnelRepository;
 
+import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 
+import java.text.ParseException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +45,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-public class ContactReportServiceImpl implements ContactReportService {
+public class ContactReportServiceImpl extends MfpKPIControllerBase implements ContactReportService {
 
 	@Autowired
 	private ContactInfoRepository contactInfoRepository;
@@ -56,7 +69,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 	/**
 	 * 
 	 */
-	public String submitReportDataV2(ContactReportInfoDto report, MFPUser mfpUser) throws Exception {
+	public String submitReportDataV2(ContactReportInfoDto report, MFPUser mfpUser, String currURL) throws Exception {
 		String submission = "Unable to save contact report";
 		try {
 			ContactReportInfo reportInfo = new ContactReportInfo();
@@ -76,9 +89,11 @@ public class ContactReportServiceImpl implements ContactReportService {
 			if (isDealerUpdated && report != null && report.getContactReportId() > 0) {
 				reportInfo.setDealers(null);
 			}
-			//Update Author only if in DRAFT
-			if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode() || reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
-				reportInfo.setContactAuthor(new NullCheck<ContactReportInfoDto>(report).with(ContactReportInfoDto::getContactAuthor).orElse(reportInfo.getContactAuthor()));
+			// Update Author only if in DRAFT
+			if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
+					|| reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
+				reportInfo.setContactAuthor(new NullCheck<ContactReportInfoDto>(report)
+						.with(ContactReportInfoDto::getContactAuthor).orElse(reportInfo.getContactAuthor()));
 			}
 			reportInfo.setContactDt(report.getContactDt() != null ? report.getContactDt() : reportInfo.getContactDt());
 			reportInfo.setContactLocation(report.getContactLocation() != null ? report.getContactLocation()
@@ -91,9 +106,9 @@ public class ContactReportServiceImpl implements ContactReportService {
 			reportInfo.setContactType(
 					report.getContactType() != null ? report.getContactType() : reportInfo.getContactType());
 			String reps = report.getCorporateReps();
-			reportInfo.setCorporateReps(
-					reps != null ? (reps.length() > 250 ? reps.substring(0, 250) : reps) : reportInfo.getCorporateReps());
-			// Sandip: Does discussion changes and deletes need to be handled? 
+			reportInfo.setCorporateReps(reps != null ? (reps.length() > 250 ? reps.substring(0, 250) : reps)
+					: reportInfo.getCorporateReps());
+			// Sandip: Does discussion changes and deletes need to be handled?
 			if (!CollectionUtils.isEmpty(report.getDiscussions())) {
 				reportInfo.setDiscussions(report.getDiscussions());
 				reportInfo.setCurrentIssues(
@@ -117,6 +132,8 @@ public class ContactReportServiceImpl implements ContactReportService {
 			}
 
 			submission = "Saved Success";
+			if (info.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode())
+				sendEmailNotification(info, mfpUser, currURL);
 		} catch (Exception e) {
 			e.printStackTrace();
 			submission = "Failed to save Contact Report. Please check data.";
@@ -126,49 +143,50 @@ public class ContactReportServiceImpl implements ContactReportService {
 	}
 
 	private void addRemoveDealerPersonnel(ContactReportInfoDto report, ContactReportInfo reportInfo) {
-		if (!CollectionUtils.isEmpty(report.getDealerPersonnels()) && !CollectionUtils.isEmpty(reportInfo.getDealerPersonnels())) {
+		if (!CollectionUtils.isEmpty(report.getDealerPersonnels())
+				&& !CollectionUtils.isEmpty(reportInfo.getDealerPersonnels())) {
 			// Deletions
 			List<Integer> removedList = new ArrayList<>();
 			List<ContactReportDealerPersonnel> newPers = report.getDealerPersonnels();
 			List<ContactReportDealerPersonnel> currentPers = reportInfo.getDealerPersonnels();
-			for(int i = 0 ; i < currentPers.size(); i++) {
+			for (int i = 0; i < currentPers.size(); i++) {
 				ContactReportDealerPersonnel existingDp = currentPers.get(i);
 				boolean found = false;
-				for(int j = 0 ; j < newPers.size(); j++ ) {
+				for (int j = 0; j < newPers.size(); j++) {
 					ContactReportDealerPersonnel newDp = newPers.get(j);
-					if( newDp.getPersonnelIdCd().equalsIgnoreCase(existingDp.getPersonnelIdCd())) {
+					if (newDp.getPersonnelIdCd().equalsIgnoreCase(existingDp.getPersonnelIdCd())) {
 						found = true;
 						break;
 					}
 				}
-				if( ! found ) {
+				if (!found) {
 					removedList.add(i);
 				}
 			}
 			// Remove the persons from Current, if any
-			for(int i = removedList.size() - 1; i >= 0; i--) {
+			for (int i = removedList.size() - 1; i >= 0; i--) {
 				currentPers.remove(removedList.get(i).intValue());
 			}
 			// Additions
 			List<ContactReportDealerPersonnel> newList = new ArrayList<>();
-			for(int i = 0 ; i < newPers.size(); i++) {
+			for (int i = 0; i < newPers.size(); i++) {
 				ContactReportDealerPersonnel newDp = newPers.get(i);
 				boolean found = false;
-				for(int j = 0 ; j < currentPers.size(); j++ ) {
+				for (int j = 0; j < currentPers.size(); j++) {
 					ContactReportDealerPersonnel existingDp = currentPers.get(j);
-					if( newDp.getPersonnelIdCd().equalsIgnoreCase(existingDp.getPersonnelIdCd())) {
+					if (newDp.getPersonnelIdCd().equalsIgnoreCase(existingDp.getPersonnelIdCd())) {
 						found = true;
 						break;
 					}
 				}
-				if( ! found ) {
+				if (!found) {
 					newList.add(newDp);
 				}
 			}
-			if( newList.size() > 0) {
+			if (newList.size() > 0) {
 				currentPers.addAll(newList);
 			}
-		} else 
+		} else
 		//
 		if (!CollectionUtils.isEmpty(report.getDealerPersonnels())) {
 			reportInfo.setDealerPersonnels(report.getDealerPersonnels());
@@ -249,8 +267,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 			duplicateAttachmentChecker(report.getAttachment());
 			if (!CollectionUtils.isEmpty(report.getAttachment())) {
 				reportInfo.setAttachment(report.getAttachment());
-			}
-			else {
+			} else {
 				reportInfo.setAttachment(null);
 			}
 
@@ -322,16 +339,119 @@ public class ContactReportServiceImpl implements ContactReportService {
 		List<ContactReportTopicDto> topicList = new ArrayList<>();
 		contactTypeList.forEach(val -> {
 			if ("sales".equalsIgnoreCase(val)) {
-				topicList.add(ContactReportTopicDto.builder().groupName("Sales").topics(AppConstants.SALES_TOPIC_LIST).build());
+				topicList.add(ContactReportTopicDto.builder().groupName("Sales").topics(AppConstants.SALES_TOPIC_LIST)
+						.build());
 			}
 			if ("service".equalsIgnoreCase(val)) {
-				topicList.add(ContactReportTopicDto.builder().groupName("After Sales").topics(AppConstants.SERVICE_TOPIC_LIST).build());
+				topicList.add(ContactReportTopicDto.builder().groupName("After Sales")
+						.topics(AppConstants.SERVICE_TOPIC_LIST).build());
 			}
 			if ("other".equalsIgnoreCase(val)) {
-				topicList.add(ContactReportTopicDto.builder().groupName("Network").topics(AppConstants.OTHER_TOPIC_LIST).build());
+				topicList.add(ContactReportTopicDto.builder().groupName("Network").topics(AppConstants.OTHER_TOPIC_LIST)
+						.build());
 			}
 		});
 		return topicList;
-		
+
 	}
+
+	private void sendEmailNotification(ContactReportInfo report, MFPUser mfpUser, String currURL)
+			throws MessagingException {
+		EMazdamailsender objEMazdamailsender = new EMazdamailsender();
+		objEMazdamailsender.set_mimeType("text/html");
+		List<String> toAddresses = new ArrayList<String>();
+		List<String> ccAddresses = new ArrayList<String>();
+		List<String> bccAddresses = new ArrayList<String>();
+		//
+		DealerInfo dInfo = getDealerInfo(mfpUser, report.getDlrCd());
+		String authorID = report.getContactAuthor();
+		UserDetailsService uds = new UserDetailsService();
+		MFPUser authorUser = uds.getMFPUser(authorID);
+		ReviewerEmployeeInfo revEmp = getReviewerEmployeeInfo(mfpUser, report.getContactReviewer(), dInfo);
+		//
+		String emailFrom = Utils.getAppProperty(AppConstants.REVIEW_MAIL_FROM);
+		String subject = getEmailSubject(report, mfpUser, authorUser, revEmp, dInfo);
+		String body = getEmailBody(report, mfpUser, authorUser, revEmp, dInfo, currURL);
+		//
+		// toAddresses.add(revEmp.getEmailAddr());
+		toAddresses.add("nbudhira@mazdausa.com");
+		toAddresses.add("gpinjark@mazdausa.com");
+		toAddresses.add("rchakrab@mazdausa.com");
+		toAddresses.add("smukher1@mazdausa.com");
+		String ccStr = Utils.getAppProperty(AppConstants.REVIEW_MAIL_CC);
+		if (ccStr != null && ccStr.trim().length() > 0) {
+			String[] ccs = ccStr.split("[,; ]");
+			ccAddresses = Arrays.asList(ccs);
+		}
+		String bccStr = Utils.getAppProperty(AppConstants.REVIEW_MAIL_BCC);
+		if (bccStr != null && bccStr.trim().length() > 0) {
+			String[] bccs = bccStr.split("[,; ]");
+			bccAddresses = Arrays.asList(bccs);
+		}
+		//
+		String[] to = toAddresses.toArray(new String[0]);
+		String[] cc = ccAddresses.toArray(new String[0]);
+		String[] bcc = bccAddresses.toArray(new String[0]);
+		objEMazdamailsender.SendMazdaMail(emailFrom, to, cc, bcc, subject, body);
+	}
+
+	private String getEmailSubject(ContactReportInfo report, MFPUser mfpUser, MFPUser authorUser,
+			ReviewerEmployeeInfo revEmp, DealerInfo dInfo) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(authorUser.getFirstName());
+		sb.append(" ");
+		sb.append(authorUser.getLastName());
+		sb.append(" ");
+		sb.append("has submitted a Contact Report for");
+		sb.append(" ");
+		sb.append(dInfo.getDbaNm());
+		sb.append(" - ");
+		sb.append(dInfo.getDlrCd());
+		return sb.toString();
+	}
+
+	private String getEmailBody(ContactReportInfo report, MFPUser mfpUser, MFPUser authorUser,
+			ReviewerEmployeeInfo revEmp, DealerInfo dInfo, String currURL) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Dear ");
+		sb.append(revEmp.getFirstNm().trim());
+		sb.append(" ");
+		sb.append(revEmp.getLastNm());
+		sb.append("<br><br>");
+		sb.append(authorUser.getFirstName());
+		sb.append(" ");
+		sb.append(authorUser.getLastName());
+		sb.append(" ");
+		sb.append("has submitted a Contact Report for your review.");
+		sb.append("<br><br>");
+		String refURL = currURL + "contact-report/view/" + report.getContactReportId();
+		sb.append("<a href=\"" + refURL + "\">");
+		sb.append(dInfo.getDbaNm());
+		sb.append(" - ");
+		sb.append(dInfo.getDlrCd());
+		sb.append(" - ");
+		sb.append(report.getContactDt().format(DateTimeFormatter.ofPattern(AppConstants.DISPLAYDATE_FORMAT)));
+		sb.append("</a><br>");
+		sb.append("<br><br>Thank You<br>");
+		return sb.toString();
+	}
+
+	private ReviewerEmployeeInfo getReviewerEmployeeInfo(MFPUser mfpUser, String contactReviewer, DealerInfo dInfo) {
+		ReviewerEmployeeInfo revEmp = null;
+		if (contactReviewer != null) {
+			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEE);
+			MMAListService<ReviewerEmployeeInfo> service = new MMAListService<ReviewerEmployeeInfo>();
+			List<ReviewerEmployeeInfo> retRows = null;
+			DealerFilter df = new DealerFilter(mfpUser, null, mfpUser.getRgnCd(), null, null, null);
+			try {
+				retRows = service.getListData(sqlName, ReviewerEmployeeInfo.class, df, dInfo.getRgnCd(),
+						dInfo.getZoneCd(), contactReviewer);
+				revEmp = retRows.get(0);
+			} catch (InstantiationException | IllegalAccessException | ParseException e) {
+				System.err.println("ERROR retrieving list of Employees:" + e);
+			}
+		}
+		return revEmp;
+	}
+
 }
