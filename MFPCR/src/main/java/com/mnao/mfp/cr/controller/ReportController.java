@@ -42,11 +42,13 @@ public class ReportController {
 
 	@PostMapping(value = "submitReport")
 	public ContactReportResponse submitReportData(@Valid @RequestBody ContactReportInfoDto report,
-			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
+			@SessionAttribute(name = "mfpUser") MFPUser mfpUser, HttpServletRequest request) {
 		try {
 //            return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportService.submitReportData(report, mfpUser), null);
+			String currHost = request.getRequestURL().toString();
+			currHost = currHost.substring(0, currHost.indexOf("ContactReport"));
 			return GenericResponseWrapper.contactReportResponseFunction
-					.apply(contactReportService.submitReportDataV2(report, mfpUser), null);
+					.apply(contactReportService.submitReportDataV2(report, mfpUser, currHost), null);
 		} catch (Exception e) {
 			return GenericResponseWrapper.contactReportResponseFunction.apply(null, e.getMessage());
 		}
