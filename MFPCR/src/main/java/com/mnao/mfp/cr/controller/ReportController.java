@@ -2,6 +2,7 @@ package com.mnao.mfp.cr.controller;
 
 import com.mnao.mfp.common.dto.CommonResponse;
 import com.mnao.mfp.common.service.AbstractService;
+import com.mnao.mfp.common.util.HttpUtils;
 import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.cr.service.ContactReportService;
 import com.mnao.mfp.cr.service.impl.FileHandlingServiceImpl;
@@ -45,8 +46,8 @@ public class ReportController {
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser, HttpServletRequest request) {
 		try {
 //            return GenericResponseWrapper.contactReportResponseFunction.apply(contactReportService.submitReportData(report, mfpUser), null);
-			String currHost = request.getRequestURL().toString();
-			currHost = currHost.substring(0, currHost.indexOf("ContactReport"));
+			String currHost = HttpUtils.getRequestIP(request);
+//			currHost = currHost.substring(0, currHost.indexOf("ContactReport"));
 			return GenericResponseWrapper.contactReportResponseFunction
 					.apply(contactReportService.submitReportDataV2(report, mfpUser, currHost), null);
 		} catch (Exception e) {

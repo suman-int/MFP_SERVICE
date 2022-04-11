@@ -15,4 +15,7 @@ public class ContactReportExecutionCoverageAuthorDto {
     private boolean isSales;
     private boolean isService;
     private boolean isOthers;
+    private String contactDate;
+    private String issues;
+    private String status;
 }

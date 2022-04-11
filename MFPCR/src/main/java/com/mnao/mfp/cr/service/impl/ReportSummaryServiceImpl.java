@@ -145,16 +145,18 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
             	totals[0] += pendingReqvieCount;
             	totals[1] += reviewedCount;
             });
-            MONTHS_LIST.forEach(value -> {
-                if (!responseData.containsKey(value)) {
-                    responseData.put(value, "0/0");
-                }
-            });
-            responseData.put(getStringByType(filter.forLocation().name()), key1);
-            responseData.put("TOTAL",  String.format("%d/%d", totals[0], totals[1]));
-            totals[0] = 0;
-            totals[1] = 0;
-            finalListData.add(responseData);
+           if (!CollectionUtils.isEmpty(responseData)) {
+        	   MONTHS_LIST.forEach(value -> {
+                   if (!responseData.containsKey(value)) {
+                       responseData.put(value, "0/0");
+                   }
+               });
+               responseData.put(getStringByType(filter.forLocation().name()), key1);
+               responseData.put("TOTAL",  String.format("%d/%d", totals[0], totals[1]));
+               totals[0] = 0;
+               totals[1] = 0;
+               finalListData.add(responseData);
+           }
         });
 
         return finalListData;

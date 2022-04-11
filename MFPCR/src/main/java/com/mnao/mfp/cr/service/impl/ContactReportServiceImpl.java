@@ -86,44 +86,48 @@ public class ContactReportServiceImpl extends MfpKPIControllerBase implements Co
 							.equalsIgnoreCase(report.getDealers().getDlrCd().trim());
 				}
 			}
-			if (isDealerUpdated && report != null && report.getContactReportId() > 0) {
-				reportInfo.setDealers(null);
-			}
-			// Update Author only if in DRAFT
-			if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
-					|| reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
-				reportInfo.setContactAuthor(new NullCheck<ContactReportInfoDto>(report)
-						.with(ContactReportInfoDto::getContactAuthor).orElse(reportInfo.getContactAuthor()));
-			}
-			reportInfo.setContactDt(report.getContactDt() != null ? report.getContactDt() : reportInfo.getContactDt());
-			reportInfo.setContactLocation(report.getContactLocation() != null ? report.getContactLocation()
-					: reportInfo.getContactLocation());
-			reportInfo.setContactReviewer(report.getContactReviewer() != null ? report.getContactReviewer()
-					: reportInfo.getContactReviewer());
+			if (new NullCheck<ContactReportInfoDto>(report).with(ContactReportInfoDto::getContactStatus).get() == ContactReportEnum.CANCELLED.getStatusCode()) {
+				reportInfo.setContactStatus(report.getContactStatus());
+			} else {
+				if (isDealerUpdated && report != null && report.getContactReportId() > 0) {
+					reportInfo.setDealers(null);
+				}
+				// Update Author only if in DRAFT
+				if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
+						|| reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
+					reportInfo.setContactAuthor(new NullCheck<ContactReportInfoDto>(report)
+							.with(ContactReportInfoDto::getContactAuthor).orElse(reportInfo.getContactAuthor()));
+				}
+				reportInfo.setContactDt(report.getContactDt() != null ? report.getContactDt() : reportInfo.getContactDt());
+				reportInfo.setContactLocation(report.getContactLocation() != null ? report.getContactLocation()
+						: reportInfo.getContactLocation());
+				reportInfo.setContactReviewer(report.getContactReviewer() != null ? report.getContactReviewer()
+						: reportInfo.getContactReviewer());
 
-			reportInfo.setContactStatus(
-					report.getContactStatus() != null ? report.getContactStatus() : reportInfo.getContactStatus());
-			reportInfo.setContactType(
-					report.getContactType() != null ? report.getContactType() : reportInfo.getContactType());
-			String reps = report.getCorporateReps();
-			reportInfo.setCorporateReps(reps != null ? (reps.length() > 250 ? reps.substring(0, 250) : reps)
-					: reportInfo.getCorporateReps());
-			// Sandip: Does discussion changes and deletes need to be handled?
-			if (!CollectionUtils.isEmpty(report.getDiscussions())) {
-				reportInfo.setDiscussions(report.getDiscussions());
-				reportInfo.setCurrentIssues(
-						report.getDiscussions().stream().filter(val -> Objects.nonNull(val.getTopic()))
-								.map(ContactReportDiscussion::getTopic).collect(Collectors.joining("|")));
-			}
-			reportInfo.setDlrCd(report.getDlrCd() != null ? report.getDlrCd() : reportInfo.getDlrCd());
+				reportInfo.setContactStatus(
+						report.getContactStatus() != null ? report.getContactStatus() : reportInfo.getContactStatus());
+				reportInfo.setContactType(
+						report.getContactType() != null ? report.getContactType() : reportInfo.getContactType());
+				String reps = report.getCorporateReps();
+				reportInfo.setCorporateReps(reps != null ? (reps.length() > 250 ? reps.substring(0, 250) : reps)
+						: reportInfo.getCorporateReps());
+				// Sandip: Does discussion changes and deletes need to be handled?
+				if (!CollectionUtils.isEmpty(report.getDiscussions())) {
+					reportInfo.setDiscussions(report.getDiscussions());
+					reportInfo.setCurrentIssues(
+							report.getDiscussions().stream().filter(val -> Objects.nonNull(val.getTopic()))
+									.map(ContactReportDiscussion::getTopic).collect(Collectors.joining("|")));
+				}
+				reportInfo.setDlrCd(report.getDlrCd() != null ? report.getDlrCd() : reportInfo.getDlrCd());
 
-			reportInfo.setDealers(report.getDealers() != null ? report.getDealers() : reportInfo.getDealers());
-			// Addition and Deletion of Dealer Personnel
-			addRemoveDealerPersonnel(report, reportInfo);
-			duplicateAttachmentChecker(report.getAttachment());
-			// Need to check for Additions and Deletions here as well
-			if (!CollectionUtils.isEmpty(report.getAttachment())) {
-				reportInfo.setAttachment(report.getAttachment());
+				reportInfo.setDealers(report.getDealers() != null ? report.getDealers() : reportInfo.getDealers());
+				// Addition and Deletion of Dealer Personnel
+				addRemoveDealerPersonnel(report, reportInfo);
+				duplicateAttachmentChecker(report.getAttachment());
+				// Need to check for Additions and Deletions here as well
+				if (!CollectionUtils.isEmpty(report.getAttachment())) {
+					reportInfo.setAttachment(report.getAttachment());
+				}
 			}
 
 			ContactReportInfo info = contactInfoRepository.save(reportInfo);

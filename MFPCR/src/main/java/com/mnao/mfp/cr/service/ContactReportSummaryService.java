@@ -435,9 +435,6 @@ public class ContactReportSummaryService {
 	public List<SummaryByContactStatusDto> filterSummaryByCurrentStatusUsingIssues(FilterCriteria filter, MFPUser mfpUser) {
 		List<SummaryByContactStatusDto> finalListData = new ArrayList<>();
 		List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNull();
-//		if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
-//			contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
-//		}
 		contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports, mfpUser);
 		Map<String, List<ContactReportInfo>> reports;
 		Map<String, List<ContactReportInfo>> finalData = new HashMap<>();
@@ -456,15 +453,12 @@ public class ContactReportSummaryService {
 		});
 
 		finalData.forEach((key, value) -> {
+			Map<Integer, List<ContactReportInfo>> mapValue = value.stream().collect(Collectors.groupingBy(cr -> cr.getContactStatus()));
 //			if (filter.getIssuesFilter().contains(key)) {
-				long submittedCount = value.stream()
-						.filter(report -> report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()).count();
-				long reviewedCount = value.stream()
-						.filter(report -> report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()).count();
-				long draftCount = value.stream()
-						.filter(report -> report.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()).count();
-				long discussionReqCount = value.stream()
-						.filter(report -> report.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()).count();
+				long submittedCount = mapValue.containsKey(ContactReportEnum.SUBMITTED.getStatusCode()) ? mapValue.get(ContactReportEnum.SUBMITTED.getStatusCode()).size() : 0L;
+				long reviewedCount = mapValue.containsKey(ContactReportEnum.REVIEWED.getStatusCode()) ? mapValue.get(ContactReportEnum.REVIEWED.getStatusCode()).size() : 0L;
+				long draftCount = mapValue.containsKey(ContactReportEnum.DRAFT.getStatusCode()) ? mapValue.get(ContactReportEnum.DRAFT.getStatusCode()).size() : 0L;
+				long discussionReqCount = mapValue.containsKey(ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) ? mapValue.get(ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()).size() : 0L;
 				finalListData.add(SummaryByContactStatusDto.builder()
 						.issue(key)
 						.draftCount(draftCount)
@@ -481,8 +475,8 @@ public class ContactReportSummaryService {
 	
 	public List<SummaryByDealerListDto> summaryByCurrentStatusOfDealershipList(String issue) {
 		List<ContactReportInfo> contactReportInfoList = contactInfoRepository.findByCurrentIssuesContaining(issue);
-		List<Dealers> dealerList = contactReportInfoList.stream().map(ContactReportInfo::getDealers)
-				.collect(Collectors.toList());
+		Set<Dealers> dealerList = contactReportInfoList.stream().map(ContactReportInfo::getDealers)
+				.collect(Collectors.toSet());
 
 		return dealerList.stream()
 				.map(dlr -> SummaryByDealerListDto.builder().cityName(dlr.getCityNm()).dealerCode(dlr.getDlrCd())
