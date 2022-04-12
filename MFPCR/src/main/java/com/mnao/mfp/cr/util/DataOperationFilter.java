@@ -4,6 +4,7 @@ import com.mnao.mfp.common.datafilters.FilterCriteria;
 import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;
+import com.mnao.mfp.cr.model.RegionDetailsEnum;
 import com.mnao.mfp.user.dao.Domain;
 import com.mnao.mfp.user.dao.MFPUser;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -117,10 +119,14 @@ public class DataOperationFilter {
 	}
 
 	private Optional<List<String>> filterBasedOnCurrentUser(MFPUser user) {
-		if (new NullCheck<MFPUser>(user).with(MFPUser::getDomain).with(Domain::getRegions).isNotNull()) {
-			return Optional.of(user.getDomain().getRegions());
-		} else if (new NullCheck<MFPUser>(user).with(MFPUser::getDomain).with(Domain::getRegion).isNotNull()) {
-			return Optional.of(Collections.singletonList(user.getDomain().getRegion().getCode()));
+		if (new NullCheck<MFPUser>(user).with(MFPUser::getCorporatePerson).get() || new NullCheck<MFPUser>(user).with(MFPUser::getCorpPerson).get()) {
+			return Optional.of(RegionDetailsEnum.namevalues());
+		} else {
+			if (new NullCheck<MFPUser>(user).with(MFPUser::getDomain).with(Domain::getRegions).isNotNull()) {
+				return Optional.of(user.getDomain().getRegions());
+			} else if (new NullCheck<MFPUser>(user).with(MFPUser::getDomain).with(Domain::getRegion).isNotNull()) {
+				return Optional.of(Collections.singletonList(user.getDomain().getRegion().getCode()));
+			}
 		}
 		return Optional.of(new ArrayList<>());
 	}

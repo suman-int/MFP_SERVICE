@@ -136,8 +136,11 @@ public class ContactReportServiceImpl extends MfpKPIControllerBase implements Co
 			}
 
 			submission = "Saved Success";
-			if (info.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode())
-				sendEmailNotification(info, mfpUser, currURL);
+			if (info.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode() ||
+					info.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode() || 
+					info.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
+				sendEmailNotification(info, mfpUser);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			submission = "Failed to save Contact Report. Please check data.";
@@ -359,7 +362,7 @@ public class ContactReportServiceImpl extends MfpKPIControllerBase implements Co
 
 	}
 
-	private void sendEmailNotification(ContactReportInfo report, MFPUser mfpUser, String currURL)
+	private void sendEmailNotification(ContactReportInfo report, MFPUser mfpUser)
 			throws MessagingException {
 		EMazdamailsender objEMazdamailsender = new EMazdamailsender();
 		objEMazdamailsender.set_mimeType("text/html");
@@ -372,10 +375,34 @@ public class ContactReportServiceImpl extends MfpKPIControllerBase implements Co
 		UserDetailsService uds = new UserDetailsService();
 		MFPUser authorUser = uds.getMFPUser(authorID);
 		ReviewerEmployeeInfo revEmp = getReviewerEmployeeInfo(mfpUser, report.getContactReviewer(), dInfo);
+		String authorName = getNameStr(authorUser.getFirstName(), authorUser.getLastName());
+		String reviewerName = getNameStr(revEmp.getFirstNm(), revEmp.getLastNm());
+		String dealerName = dInfo.getDbaNm() + " - " + dInfo.getDlrCd();
+		String toAddr = null ;
+		String subjFmt = null;
+		String bodyFmt = null;
+		String toFmt = null;
+		//
+		if (report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
+			toAddr = revEmp.getEmailAddr();
+			subjFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_SUBJECT);
+			bodyFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_BODY);
+			toFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_TO);
+		} else if (report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+			toAddr = authorUser.getEmail();
+			subjFmt = Utils.getAppProperty(AppConstants.MAIL_REVIEWED_SUBJECT);
+			bodyFmt = Utils.getAppProperty(AppConstants.MAIL_REVIEWED_BODY);
+			toFmt = Utils.getAppProperty(AppConstants.MAIL_REVIEWED_TO);
+		}else if (report.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
+			toAddr = authorUser.getEmail();
+			subjFmt = Utils.getAppProperty(AppConstants.MAIL_DISCREQ_SUBJECT);
+			bodyFmt = Utils.getAppProperty(AppConstants.MAIL_DISCREQ_BODY);
+			toFmt = Utils.getAppProperty(AppConstants.MAIL_DISCREQ_TO);
+		}
 		//
 		String emailFrom = Utils.getAppProperty(AppConstants.REVIEW_MAIL_FROM);
-		String subject = getEmailSubject(report, mfpUser, authorUser, revEmp, dInfo);
-		String body = getEmailBody(report, mfpUser, authorUser, revEmp, dInfo, currURL);
+		String subject = getEmailSubject(report, subjFmt, authorName, reviewerName, dealerName);
+		String body = getEmailBody(report, toFmt, bodyFmt, authorName, reviewerName, dealerName);
 		//
 		// toAddresses.add(revEmp.getEmailAddr());
 		toAddresses.add("nbudhira@mazdausa.com");
@@ -399,40 +426,26 @@ public class ContactReportServiceImpl extends MfpKPIControllerBase implements Co
 		objEMazdamailsender.SendMazdaMail(emailFrom, to, cc, bcc, subject, body);
 	}
 
-	private String getEmailSubject(ContactReportInfo report, MFPUser mfpUser, MFPUser authorUser,
-			ReviewerEmployeeInfo revEmp, DealerInfo dInfo) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(authorUser.getFirstName());
-		sb.append(" ");
-		sb.append(authorUser.getLastName());
-		sb.append(" ");
-		sb.append("has submitted a Contact Report for");
-		sb.append(" ");
-		sb.append(dInfo.getDbaNm());
-		sb.append(" - ");
-		sb.append(dInfo.getDlrCd());
-		return sb.toString();
+	private String getEmailSubject(ContactReportInfo report, String subjFmt, String authorName,
+			String reviewerName, String dealerName) {
+		return getPlaceholdersReplaced(subjFmt, authorName, reviewerName, dealerName);
 	}
 
-	private String getEmailBody(ContactReportInfo report, MFPUser mfpUser, MFPUser authorUser,
-			ReviewerEmployeeInfo revEmp, DealerInfo dInfo, String currURL) {
+	private String getEmailBody(ContactReportInfo report, String toFmt, String bodyFmt, String authorName,
+			String reviewerName, String dealerName) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Dear ");
-		sb.append(revEmp.getFirstNm().trim());
-		sb.append(" ");
-		sb.append(revEmp.getLastNm());
+		String toStr = getPlaceholdersReplaced(toFmt, authorName, reviewerName, dealerName);
+		String bodyStr = getPlaceholdersReplaced(bodyFmt, authorName, reviewerName, dealerName);
+		sb.append(toStr);
 		sb.append("<br><br>");
-		sb.append(authorUser.getFirstName());
-		sb.append(" ");
-		sb.append(authorUser.getLastName());
-		sb.append(" ");
-		sb.append("has submitted a Contact Report for your review.");
+		sb.append(bodyStr);
 		sb.append("<br><br>");
-		String refURL = currURL + "contact-report/view/" + report.getContactReportId();
-		sb.append("<a href=\"" + refURL + "\">");
-		sb.append(dInfo.getDbaNm());
-		sb.append(" - ");
-		sb.append(dInfo.getDlrCd());
+		String refUrl = Utils.getAppProperty(AppConstants.VIEW_CONTACT_REPORT_URL);
+		if( ! refUrl.endsWith( "/%d"))
+			refUrl += "/%d";
+		refUrl = String.format(refUrl, report.getContactReportId());
+		sb.append("<a href=\"" + refUrl + "\">");
+		sb.append(dealerName);
 		sb.append(" - ");
 		sb.append(report.getContactDt().format(DateTimeFormatter.ofPattern(AppConstants.DISPLAYDATE_FORMAT)));
 		sb.append("</a><br>");
@@ -456,6 +469,18 @@ public class ContactReportServiceImpl extends MfpKPIControllerBase implements Co
 			}
 		}
 		return revEmp;
+	}
+	
+	private String getPlaceholdersReplaced(String fmt, String authorName, String reviewerName, String dealerName) {
+		String txt = fmt.replaceAll("\\{author\\}", authorName);
+		txt = txt.replaceAll("\\{dealer\\}", dealerName);
+		txt = txt.replaceAll("\\{reviewer\\}", reviewerName);
+		return txt;
+	}
+
+
+	private String getNameStr(String fName, String lName) {
+		return fName.trim() + " " + lName.trim() ;
 	}
 
 }

@@ -40,6 +40,9 @@ public class DealerFilter {
 	}
 
 	private void setupUserFilters() {
+		if( mfpUser.getCorporatePerson() || mfpUser.getCorpPerson()) {
+			return;
+		}
 		Domain dom = mfpUser.getDomain();
 		if (CollectionUtils.isEmpty(dom.getRegions()) && new NullCheck<Domain>(dom).with(Domain::getRegion).isNull() &&
 				CollectionUtils.isEmpty(dom.getZones()) && new NullCheck<Domain>(dom).with(Domain::getZone).isNull() &&
