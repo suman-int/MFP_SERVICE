@@ -50,6 +50,13 @@ public class Utils {
 		return val;
 	}
 
+	public static String getAppProperty(String propKey, String defValue) {
+		String val = getAppProperty(propKey);
+		if( val == null || val.trim().length() == 0)
+			val = defValue;
+		return val;
+	}
+
 	private static Properties getAppProperties() {
 		if (appProps.size() == 0) {
 			try (InputStream is = Utils.class.getResourceAsStream(AppConstants.MFP_PROPS_FILE)) {

@@ -20,7 +20,7 @@ public class ListPersonnel extends MetricData {
 	 */
 
 	private String prsnIdCd, statusCd, prsnTypeCd, firstNm, midlNm, lastNm;
-	private String jobCd, loctnCd, userId, emailAddr, rgnCd, zoneCd, districtCd, jobTitleFx;
+	private String jobCd, loctnCd, userId, emailAddr, rgnCd, zoneCd, districtCd, typeCd, jobTitleFx;
 
 	public String getPrsnIdCd() {
 		return prsnIdCd;
@@ -126,6 +126,15 @@ public class ListPersonnel extends MetricData {
 		this.districtCd = districtCd;
 	}
 
+
+	public String getTypeCd() {
+		return typeCd;
+	}
+
+	public void setTypeCd(String typeCd) {
+		this.typeCd = typeCd;
+	}
+
 	public String getJobTitleFx() {
 		return jobTitleFx;
 	}
@@ -136,10 +145,11 @@ public class ListPersonnel extends MetricData {
 
 	@Override
 	public String toString() {
-		return "ListApprover [prsnIdCd=" + prsnIdCd + ", statusCd=" + statusCd + ", prsnTypeCd=" + prsnTypeCd
+		return "ListPersonnel [prsnIdCd=" + prsnIdCd + ", statusCd=" + statusCd + ", prsnTypeCd=" + prsnTypeCd
 				+ ", firstNm=" + firstNm + ", midlNm=" + midlNm + ", lastNm=" + lastNm + ", jobCd=" + jobCd
 				+ ", loctnCd=" + loctnCd + ", userId=" + userId + ", emailAddr=" + emailAddr + ", rgnCd=" + rgnCd
-				+ ", zoneCd=" + zoneCd + ", districtCd=" + districtCd + ", jobTitleFx=" + jobTitleFx + "]";
+				+ ", zoneCd=" + zoneCd + ", districtCd=" + districtCd + ", typeCd=" + typeCd + ", jobTitleFx="
+				+ jobTitleFx + "]";
 	}
 
 	@Override
@@ -157,7 +167,8 @@ public class ListPersonnel extends MetricData {
 		super.setFieldValue("rgnCd", rs, 11);
 		super.setFieldValue("zoneCd", rs, 12);
 		super.setFieldValue("districtCd", rs, 13);
-		super.setFieldValue("jobTitleFx", rs, 14);
+		super.setFieldValue("typeCd", rs, 14);
+		super.setFieldValue("jobTitleFx", rs, 15);
 	}
 
 }
