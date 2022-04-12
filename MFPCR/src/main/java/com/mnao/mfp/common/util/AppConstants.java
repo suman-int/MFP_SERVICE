@@ -45,7 +45,16 @@ public class AppConstants {
 	public static final String REVIEW_MAIL_CC = "cr.review.request.mail.cc";
 	public static final String REVIEW_MAIL_BCC = "cr.review.request.mail.bcc";
 	public static final String REVIEW_MAIL_SUBJECT = "cr.review.request.mail.subject";
-
+	public static final String VIEW_CONTACT_REPORT_URL = "cr.view.report.url";
+	public static final String MAIL_SUBMITTED_TO = "cr.mail.submitted.to";
+	public static final String MAIL_SUBMITTED_SUBJECT = "cr.mail.submitted.subject";
+	public static final String MAIL_SUBMITTED_BODY = "cr.mail.submitted.body";
+	public static final String MAIL_REVIEWED_TO = "cr.mail.reviewed.to";
+	public static final String MAIL_REVIEWED_SUBJECT = "cr.mail.reviewed.subject";
+	public static final String MAIL_REVIEWED_BODY = "cr.mail.reviewed.body";
+	public static final String MAIL_DISCREQ_TO = "cr.mail.discreq.to";
+	public static final String MAIL_DISCREQ_SUBJECT = "cr.mail.discreq.subject";
+	public static final String MAIL_DISCREQ_BODY = "cr.mail.discreq.body";
 	//
 	public static final int StatusSubmit = 1;
 	public static final int StatusDeleted = 2;
