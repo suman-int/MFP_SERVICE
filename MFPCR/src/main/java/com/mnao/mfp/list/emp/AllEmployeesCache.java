@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import com.mnao.mfp.common.controller.MfpKPIControllerBase;
 import com.mnao.mfp.common.dao.DealerFilter;
@@ -20,7 +21,8 @@ import com.mnao.mfp.list.service.MMAListService;
 import com.mnao.mfp.user.dao.Domain;
 import com.mnao.mfp.user.dao.MFPUser;
 
-@Component()
+//@Component()
+@Service
 public class AllEmployeesCache extends MfpKPIControllerBase {
 	//
 	private static final Logger log = LoggerFactory.getLogger(ListController.class);
@@ -28,7 +30,7 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 
 	private HashMap<String, ListPersonnel> allEmployees = new HashMap<>();
 
-	public HashMap<String, ListPersonnel> getAllEmployees() {
+	public synchronized HashMap<String, ListPersonnel> getAllEmployees() {
 		if (allEmployees.size() == 0) {
 			loadAllEmployees();
 		}
