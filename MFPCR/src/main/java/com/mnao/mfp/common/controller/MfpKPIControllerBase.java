@@ -13,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -26,7 +28,7 @@ import com.mnao.mfp.common.util.DateUtils;
 import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.list.service.ListService;
 import com.mnao.mfp.user.dao.MFPUser;
-
+@Component
 public abstract class MfpKPIControllerBase {
 	//
 	private static final Logger log = LoggerFactory.getLogger(MfpKPIControllerBase.class);

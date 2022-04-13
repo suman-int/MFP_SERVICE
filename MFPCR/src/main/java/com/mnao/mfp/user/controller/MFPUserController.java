@@ -2,6 +2,7 @@ package com.mnao.mfp.user.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
+import com.mnao.mfp.list.emp.AllEmployeesCache;
 import com.mnao.mfp.user.dao.MFPUser;
 import com.mnao.mfp.user.service.UserDetailsService;
 
@@ -19,6 +21,8 @@ import com.mnao.mfp.user.service.UserDetailsService;
 public class MFPUserController {
 	//
 	private static final Logger log = LoggerFactory.getLogger(MFPUserController.class);
+	@Autowired
+	AllEmployeesCache allEmployeesCache;
 
 	//
 	@PostMapping("/UserDetails")
@@ -34,6 +38,9 @@ public class MFPUserController {
 
 	@GetMapping("/CurrentUser")
 	public MFPUser currentUser(@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
+		if(  allEmployeesCache != null) {
+			allEmployeesCache.updateDomain(mfpUser);
+		}
 		MFPUser musr = mfpUser;
 		return musr;
 	}

@@ -78,6 +78,10 @@ public class MFPUser {
 	private String vdsDlrCd;
 	private String personType;
 	private String orgPersonType;
+	//
+	private transient boolean useDBDomain = false;
+	private transient boolean dbDomainUpdated = false;
+	//
 	public Boolean getCorpPerson() {
 		return corpPerson;
 	}
@@ -527,6 +531,18 @@ public class MFPUser {
 	}
 	public void setOrgPersonType(String orgPersonType) {
 		this.orgPersonType = orgPersonType;
+	}
+	public boolean isUseDBDomain() {
+		return useDBDomain;
+	}
+	public void setUseDBDomain(boolean useDBDomain) {
+		this.useDBDomain = useDBDomain;
+	}
+	public boolean isDbDomainUpdated() {
+		return dbDomainUpdated;
+	}
+	public void setDbDomainUpdated(boolean dbDomainUpdated) {
+		this.dbDomainUpdated = dbDomainUpdated;
 	}
 	@Override
 	public String toString() {

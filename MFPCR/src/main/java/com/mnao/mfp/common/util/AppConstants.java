@@ -6,6 +6,7 @@ import java.util.List;
 public class AppConstants {
 	public static final String MFP_PROPS_FILE = System.getProperty("mfp.prop.file", "/mfp.properties");
 //	public static final String MFP_PROPS_FILE = System.getProperty("mfp.prop.file","C:/SmWrk/MFP/MicroServices/Sales/MFPSalesKPI-MS/src/main/resources/mfp.properties");
+	public static final String EMP_USE_DB_RGN_ZONE_DSTR = "emp.use.db.rgn.zone.dstr";
 	public static final String TABLE_QUERY_CONFIG = "TableQueryConfig.json";
 	public static final String KPI_QUERY_CONFIG = "KPIQueryConfig.json";
 	public static final String INIT_SCRIPTS_FOLDER = "init";
@@ -37,6 +38,7 @@ public class AppConstants {
 	public static final String SQL_LIST_REVIEWER_EMPLOYEES = "LIST_REVIEWER_EMPLOYEES.sql";
 	public static final String SQL_LIST_REVIEWER_EMPLOYEE = "LIST_REVIEWER_EMPLOYEE.sql";
 	public static final String SQL_LIST_CORPORATE_EMPLOYEES = "LIST_CORPORATE_EMPLOYEES.sql";
+	public static final String SQL_LIST_ALL_EMPLOYEES = "LIST_ALL_EMPLOYEES.sql";
 	//
 	public static final String CR_URL_KEY = "MFP_CR_URL";
 	public static final String SMTP_HOST = "cr.email.smtp.host";

@@ -5,8 +5,10 @@ import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.cr.model.RegionDetailsEnum;
+import com.mnao.mfp.user.dao.District;
 import com.mnao.mfp.user.dao.Domain;
 import com.mnao.mfp.user.dao.MFPUser;
+import com.mnao.mfp.user.dao.Zone;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -38,8 +40,9 @@ public class DataOperationFilter {
 					.collect(Collectors.groupingBy(group -> group.getDealers().getDistrictCd(),
 							Collectors.groupingBy(ContactReportInfo::getCurrentIssues)));
 		} else if (filter.forLocation() == LocationEnum.DEALER) {
-			reports = filterContactReportByDealer(contactReports, filter, mfpUser).collect(Collectors.groupingBy(group -> group.getDealers().getDlrCd(),
-					Collectors.groupingBy(ContactReportInfo::getCurrentIssues)));
+			reports = filterContactReportByDealer(contactReports, filter, mfpUser)
+					.collect(Collectors.groupingBy(group -> group.getDealers().getDlrCd(),
+							Collectors.groupingBy(ContactReportInfo::getCurrentIssues)));
 		} else if (filter.forLocation() == LocationEnum.REGION) {
 			reports = filterContactReportByRegion(contactReports, filter.getRgnCd(), mfpUser)
 					.collect(Collectors.groupingBy(group -> group.getDealers().getZoneCd(),
@@ -110,16 +113,41 @@ public class DataOperationFilter {
 		if (userRegions.isPresent()) {
 			List<String> regionList = userRegions.get();
 			if (!CollectionUtils.isEmpty(regionList)) {
-				return contactReports.stream().filter(cr -> regionList.contains(cr.getDealers().getRgnCd()))
-						.collect(Collectors.toList());
+				List<ContactReportInfo> filteredByRegions = contactReports.stream()
+						.filter(cr -> regionList.contains(cr.getDealers().getRgnCd())).collect(Collectors.toList());
+
+				if (new NullCheck<MFPUser>(user).with(MFPUser::getDomain).with(Domain::getZones).isNotNull()) {
+					List<String> zonesList = user.getDomain().getZones();
+					filteredByRegions = filteredByRegions.stream()
+							.filter(cr -> zonesList.contains(cr.getDealers().getZoneCd())).collect(Collectors.toList());
+				} else if (new NullCheck<MFPUser>(user).with(MFPUser::getDomain).with(Domain::getZone)
+						.with(Zone::getCode).isNotNull()) {
+					filteredByRegions = filteredByRegions.stream().filter(
+							cr -> user.getDomain().getZone().getCode().equalsIgnoreCase(cr.getDealers().getZoneCd()))
+							.collect(Collectors.toList());
+				}
+				if (new NullCheck<MFPUser>(user).with(MFPUser::getDomain).with(Domain::getDistricts).isNotNull()) {
+					List<String> districtList = user.getDomain().getDistricts();
+					filteredByRegions = filteredByRegions.stream()
+							.filter(cr -> districtList.contains(cr.getDealers().getDistrictCd()))
+							.collect(Collectors.toList());
+				} else if (new NullCheck<MFPUser>(user).with(MFPUser::getDomain).with(Domain::getDistrict)
+						.with(District::getCode).isNotNull()) {
+					filteredByRegions = filteredByRegions.stream().filter(cr -> user.getDomain().getDistrict().getCode()
+							.equalsIgnoreCase(cr.getDealers().getDistrictCd())).collect(Collectors.toList());
+				}
+				return filteredByRegions;
 			} else
 				return Collections.emptyList();
 		}
 		return Collections.emptyList();
 	}
 
+	// Region , region + district, Region + zone users only 5 min dao aschiok
+
 	private Optional<List<String>> filterBasedOnCurrentUser(MFPUser user) {
-		if (new NullCheck<MFPUser>(user).with(MFPUser::getCorporatePerson).get() || new NullCheck<MFPUser>(user).with(MFPUser::getCorpPerson).get()) {
+		if (new NullCheck<MFPUser>(user).with(MFPUser::getCorporatePerson).get()
+				|| new NullCheck<MFPUser>(user).with(MFPUser::getCorpPerson).get()) {
 			return Optional.of(RegionDetailsEnum.namevalues());
 		} else {
 			if (new NullCheck<MFPUser>(user).with(MFPUser::getDomain).with(Domain::getRegions).isNotNull()) {
