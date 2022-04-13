@@ -116,7 +116,7 @@ public class DataOperationFilter {
 				List<ContactReportInfo> filteredByRegions = contactReports.stream()
 						.filter(cr -> regionList.contains(cr.getDealers().getRgnCd())).collect(Collectors.toList());
 
-				if (new NullCheck<MFPUser>(user).with(MFPUser::getDomain).with(Domain::getZones).isNotNull()) {
+				if (!CollectionUtils.isEmpty(user.getDomain().getZones())) {
 					List<String> zonesList = user.getDomain().getZones();
 					filteredByRegions = filteredByRegions.stream()
 							.filter(cr -> zonesList.contains(cr.getDealers().getZoneCd())).collect(Collectors.toList());
@@ -126,7 +126,7 @@ public class DataOperationFilter {
 							cr -> user.getDomain().getZone().getCode().equalsIgnoreCase(cr.getDealers().getZoneCd()))
 							.collect(Collectors.toList());
 				}
-				if (new NullCheck<MFPUser>(user).with(MFPUser::getDomain).with(Domain::getDistricts).isNotNull()) {
+				if (!CollectionUtils.isEmpty(user.getDomain().getDistricts())) {
 					List<String> districtList = user.getDomain().getDistricts();
 					filteredByRegions = filteredByRegions.stream()
 							.filter(cr -> districtList.contains(cr.getDealers().getDistrictCd()))
