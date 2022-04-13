@@ -133,10 +133,10 @@ public class ContactReportSummaryController {
     }
 
     @GetMapping(value = "/v2/summary-current-status/dealership-list/{issue}")
-    public CommonResponse<List<SummaryByDealerListDto>> summaryByCurrentStatusOfDealershipList(@PathVariable("issue") String issue) {
+    public CommonResponse<List<SummaryByDealerListDto>> summaryByCurrentStatusOfDealershipList(@PathVariable("issue") String issue, @SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
         issue = issue.replaceAll("~", "/");
         try {
-        	List<SummaryByDealerListDto> response = contactReportSummaryService.summaryByCurrentStatusOfDealershipList(issue);
+        	List<SummaryByDealerListDto> response = contactReportSummaryService.summaryByCurrentStatusOfDealershipList(issue, mfpUser);
         	 return AbstractService.httpPostSuccess(response, "Success");
         	
         } catch (Exception e) {

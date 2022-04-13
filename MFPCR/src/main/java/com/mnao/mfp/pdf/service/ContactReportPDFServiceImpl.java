@@ -64,10 +64,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 		if (isNotNullOrEmpty(filter.getStartDate()) && isNotNullOrEmpty(filter.getEndDate())) {
 			contactReports = dataOperationFilter.filterContactReportsByDateRange(filter, contactReports);
 		}
-		if (isNotNullOrEmpty(filter.getRgnCd()) || isNotNullOrEmpty(filter.getZoneCd())
-				|| isNotNullOrEmpty(filter.getDistrictCd()) || isNotNullOrEmpty(filter.getDlrCd())) {
-			contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports, mfpUser);
-		}
+		contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports, mfpUser);
 		List<String> fullHtmlWithData = pdfGenerateUtil.replaceStringWithData(contactReports, mfpUser);
 		List<InputStream> multiplePdf = new ArrayList<>();
 		fullHtmlWithData.forEach(val -> {

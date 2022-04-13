@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -498,7 +499,7 @@ public class PdfGenerateUtil {
 			+ "                    <div style=\"font-weight: 600;\">  CONTACT REPORT :</div>\r\n"
 			+ "                      %REPORT%\r\n"
 			+ "                  </td>\r\n"
-			+ "                  <td>Page 1 of -</td>\r\n"
+			+ "                  <td>Page %CURRENT_PAGE% of %TOTAL_PAGE%</td>\r\n"
 			+ "                  <td>\r\n"
 			+ "                    <div style=\"font-weight: 600;\"> CONTACT DATE :</div>\r\n"
 			+ "                    %CR_DATE%<br>\r\n"
@@ -581,9 +582,10 @@ public class PdfGenerateUtil {
 	
 	public List<String> replaceStringWithData(List<ContactReportInfo> contactReports, MFPUser mfpUser) {
 		List<String> fullHtml = new ArrayList<>();
+		AtomicInteger currentPageNumber = new AtomicInteger(0);
 		contactReports.forEach(cr -> {
 			Dealers dealers = cr.getDealers();
-			String updatedHtmlText = HTML.replace("%DEALER_NAME%", dealers.getDbaNm()).replace("%DEALER_CODE%", dealers.getDlrCd());
+			String updatedHtmlText = HTML.replace("%DEALER_NAME%", dealers.getDbaNm()).replace("%DEALER_CODE%", dealers.getDlrCd()).replace("%CURRENT_PAGE%", String.valueOf(currentPageNumber.incrementAndGet())).replace("%TOTAL_PAGE%", String.valueOf(contactReports.size()));
 			String updatedHtml3 = updatedHtmlText.replace("%REVIEWER%", cr.getContactReviewer()).replace("%AUTHOR_NAME%", getAuthorUser(mfpUser, cr.getContactAuthor())).replace("%ADDRESS%", cr.getContactLocation()).replace("%REPORT%", cr.getContactType()).replace("%CR_DATE%", cr.getContactDt().format(DateTimeFormatter.ofPattern("MM-dd-yyyy")));
 			String updatedHtml = updatedHtml3.replace("%CONTACT_STATUS%", ContactReportEnum.valueByStatus(cr.getContactStatus()).getStatusText().toUpperCase());
 			String dealerPersonnel = cr.getDealerPersonnels().stream().map(data -> data.getPersonnelIdCd()).collect(Collectors.joining("<br>"));

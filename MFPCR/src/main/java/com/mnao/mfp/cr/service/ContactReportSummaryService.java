@@ -473,8 +473,9 @@ public class ContactReportSummaryService {
 	}
 	
 	
-	public List<SummaryByDealerListDto> summaryByCurrentStatusOfDealershipList(String issue) {
+	public List<SummaryByDealerListDto> summaryByCurrentStatusOfDealershipList(String issue, MFPUser mfpUser) {
 		List<ContactReportInfo> contactReportInfoList = contactInfoRepository.findByCurrentIssuesContaining(issue);
+		contactReportInfoList = dataOperationFilter.filterContactReportsByLocation(FilterCriteria.builder().build(), contactReportInfoList, mfpUser);
 		Set<Dealers> dealerList = contactReportInfoList.stream().map(ContactReportInfo::getDealers)
 				.collect(Collectors.toSet());
 
