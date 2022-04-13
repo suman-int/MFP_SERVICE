@@ -16,9 +16,13 @@ import com.mnao.mfp.cr.repository.ContactReportAttachmentRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -98,27 +102,34 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 	private String getStorageFilePath(ContactReportAttachment attachment, String dealerCode) {
 //        String fpath=AppConstants.permanent_file_storage_location;
 		String fpath = Utils.getAppProperty("permanent.file.storage.location");
-		if (!fpath.endsWith("\\"))
-			fpath += "\\";
+		if (!fpath.endsWith("/"))
+			fpath += "/";
+		try {
+			URI uri = new URI(fpath);
+			fpath = uri.getPath();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		checkCreatePath(fpath);
 		fpath += String.format(AppConstants.file_storage_format, attachment.getAttachmentId(), dealerCode,
 				attachment.getAttachmentName());
-		return fpath;
-	}
-
-	private String getTemporaryFilePath(MultipartFile file) {
-//        String fpath= AppConstants.temp_file_storage_location;
-		String fpath = Utils.getAppProperty("temp.file.storage.location");
-		if (!fpath.endsWith("\\"))
-			fpath += "\\";
-		fpath += TEMP_LOC_PREFIX + getTemporaryFileName(file);
 		return fpath;
 	}
 
 	private String getTemporaryFilePath(String fileName) {
 //        String fpath= AppConstants.temp_file_storage_location;
 		String fpath = Utils.getAppProperty("temp.file.storage.location");
-		if (!fpath.endsWith("\\"))
-			fpath += "\\";
+		if (!fpath.endsWith("/"))
+			fpath += "/";
+		try {
+			URI uri = new URI(fpath);
+			fpath = uri.getPath();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		checkCreatePath(fpath);
 		fpath += fileName;
 		return fpath;
 	}
@@ -253,5 +264,19 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 			System.out.printf("No such file :\n");
 		}
 		return null;
+	}
+	
+	private void checkCreatePath(String locPath) {
+		File folder = new File(locPath);
+		if( folder.exists() && folder.isDirectory() ) {
+			return;
+		} else { 
+			try {
+				Files.createDirectories(folder.toPath());
+			} catch (IOException e) {
+				System.err.println("FAILED TO CREATE FOLDER" + locPath);
+				e.printStackTrace();
+			}
+		}
 	}
 }

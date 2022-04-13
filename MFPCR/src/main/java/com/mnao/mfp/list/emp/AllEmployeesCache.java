@@ -40,36 +40,41 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 	}
 
 	public void updateDomain(MFPUser mfpUser) {
-		ListPersonnel lp = getByPrsnIdCd(mfpUser.getEmployeeNumber());
-		if (lp != null) {
-			if (lp.getLoctnCd().equals("MA92")) {
-				mfpUser.setCorporatePerson(true);
-				mfpUser.setCorpPerson(true);
-			} else {
-				Domain dom = mfpUser.getDomain();
-				if (dom == null)
-					dom = new Domain();
-				String rgn = lp.getRgnCd();
-				String zon = lp.getZoneCd();
-				String dst = lp.getDistrictCd();
-				//
-				dom.setRegions(new ArrayList<String>());
-				if (rgn != null && rgn.trim().length() > 0) {
-					dom.getRegions().add(rgn);
+		if (!mfpUser.isDbDomainUpdated()) {
+			ListPersonnel lp = getByPrsnIdCd(mfpUser.getEmployeeNumber());
+			if (lp != null) {
+				if (lp.getLoctnCd().equals("MA92")) {
+					mfpUser.setCorporatePerson(true);
+					mfpUser.setCorpPerson(true);
+				} else {
+					Domain dom = mfpUser.getDomain();
+					if (dom == null)
+						dom = new Domain();
+					String rgn = lp.getRgnCd();
+					String zon = lp.getZoneCd();
+					String dst = lp.getDistrictCd();
+					//
+					dom.setRegions(new ArrayList<String>());
+					if (rgn != null && rgn.trim().length() > 0) {
+						if( rgn.equalsIgnoreCase("SE"))
+							rgn = "GU";
+						dom.getRegions().add(rgn);
+					}
+					//
+					dom.setZones(new ArrayList<String>());
+					if (zon != null && zon.trim().length() > 0) {
+						dom.getZones().add(zon);
+					}
+					//
+					dom.setDistricts(new ArrayList<String>());
+					if (dst != null && dst.trim().length() > 0) {
+						dom.getDistricts().add(dst);
+					}
+					//
+					mfpUser.setDomain(dom);
 				}
-				//
-				dom.setZones(new ArrayList<String>());
-				if (zon != null && zon.trim().length() > 0) {
-					dom.getZones().add(zon);
-				}
-				//
-				dom.setDistricts(new ArrayList<String>());
-				if (dst != null && dst.trim().length() > 0) {
-					dom.getDistricts().add(dst);
-				}
-				//
-				mfpUser.setDomain(dom);
 			}
+			mfpUser.setDbDomainUpdated(true);
 		}
 	}
 
