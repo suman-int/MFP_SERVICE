@@ -147,7 +147,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 			if (info.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()
 					|| info.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()
 					|| info.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
-				emailService.sendEmailNotification(info, mfpUser);
+				emailService.sendEmailNotification(reportInfo, origCRStatus, mfpUser);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
