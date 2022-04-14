@@ -76,11 +76,13 @@ public class ContactReportServiceImpl implements ContactReportService {
 	 */
 	public String submitReportDataV2(ContactReportInfoDto report, MFPUser mfpUser, String currURL) throws Exception {
 		String submission = "Unable to save contact report";
+		int origCRStatus = -1;
 		try {
 			ContactReportInfo reportInfo = new ContactReportInfo();
 			boolean isDealerUpdated = false;
 			if (report != null && report.getContactReportId() > 0) {
 				reportInfo = contactInfoRepository.getById(report.getContactReportId());
+				origCRStatus = reportInfo.getContactStatus();
 				if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
 						&& report.getContactStatus() == ContactReportEnum.CANCELLED.getStatusCode()) {
 					contactInfoRepository.delete(reportInfo);

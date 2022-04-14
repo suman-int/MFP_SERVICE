@@ -51,6 +51,9 @@ public class AppConstants {
 	public static final String MAIL_SUBMITTED_TO = "cr.mail.submitted.to";
 	public static final String MAIL_SUBMITTED_SUBJECT = "cr.mail.submitted.subject";
 	public static final String MAIL_SUBMITTED_BODY = "cr.mail.submitted.body";
+	public static final String MAIL_SUBMITTED_DISC_TO = "cr.mail.submitted.disc.to";
+	public static final String MAIL_SUBMITTED_DISC_SUBJECT = "cr.mail.submitted.disc.subject";
+	public static final String MAIL_SUBMITTED_DISC_BODY = "cr.mail.submitted.disc.body";
 	public static final String MAIL_REVIEWED_TO = "cr.mail.reviewed.to";
 	public static final String MAIL_REVIEWED_SUBJECT = "cr.mail.reviewed.subject";
 	public static final String MAIL_REVIEWED_BODY = "cr.mail.reviewed.body";
