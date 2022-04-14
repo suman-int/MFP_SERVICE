@@ -38,6 +38,7 @@ import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -56,7 +57,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 
 	@Autowired
 	private ContactReportDealerPersonnelRepository contactReportDealerPersonnelRepository;
-	
+
 	@Autowired
 	private EmailService emailService;
 
@@ -90,19 +91,20 @@ public class ContactReportServiceImpl implements ContactReportService {
 							.equalsIgnoreCase(report.getDealers().getDlrCd().trim());
 				}
 			}
-			if (new NullCheck<ContactReportInfoDto>(report).with(ContactReportInfoDto::getContactStatus).get() == ContactReportEnum.CANCELLED.getStatusCode()) {
+			if (new NullCheck<ContactReportInfoDto>(report).with(ContactReportInfoDto::getContactStatus)
+					.get() == ContactReportEnum.CANCELLED.getStatusCode()) {
 				reportInfo.setContactStatus(report.getContactStatus());
 			} else {
 				if (isDealerUpdated && report != null && report.getContactReportId() > 0) {
 					reportInfo.setDealers(null);
 				}
 				// Update Author only if in DRAFT
-				if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
-						|| reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
-					reportInfo.setContactAuthor(new NullCheck<ContactReportInfoDto>(report)
-							.with(ContactReportInfoDto::getContactAuthor).orElse(reportInfo.getContactAuthor()));
+				if (report.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
+						|| report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
+					reportInfo.setContactAuthor(new NullCheck<MFPUser>(mfpUser).with(MFPUser::getUserid).orElse(reportInfo.getContactAuthor()));
 				}
-				reportInfo.setContactDt(report.getContactDt() != null ? report.getContactDt() : reportInfo.getContactDt());
+				reportInfo.setContactDt(
+						report.getContactDt() != null ? report.getContactDt() : reportInfo.getContactDt());
 				reportInfo.setContactLocation(report.getContactLocation() != null ? report.getContactLocation()
 						: reportInfo.getContactLocation());
 				reportInfo.setContactReviewer(report.getContactReviewer() != null ? report.getContactReviewer()
@@ -140,9 +142,9 @@ public class ContactReportServiceImpl implements ContactReportService {
 			}
 
 			submission = "Saved Success";
-			if (info.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode() ||
-					info.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode() || 
-					info.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
+			if (info.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()
+					|| info.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()
+					|| info.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
 				emailService.sendEmailNotification(info, mfpUser);
 			}
 		} catch (Exception e) {
@@ -316,7 +318,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 
 	public ContactReportDto findByContactReportId(long ContactreporId) {
 		ContactReportDto contactReportDto = new ContactReportDto();
-		contactReportDto.setContactReport(contactInfoRepository.findByContactReportId(ContactreporId));
+		contactReportDto.setContactReport(contactInfoRepository.findByContactReportIdAndIsActive(ContactreporId, "Y"));
 		return contactReportDto;
 	}
 
@@ -325,10 +327,20 @@ public class ContactReportServiceImpl implements ContactReportService {
 
 	}
 
-	public Map<String, List<ContactReportInfoDto>> getMyContactReport(String userId) {
-		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthor(userId);
+	public Map<String, List<ContactReportInfoDto>> getMyContactReport(String userId, boolean showUsersDraft) {
+		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthorAndIsActive(userId, "Y");
+		Map<String, List<ContactReportInfoDto>> contactReportDtoMaps = new HashMap<>();
+		final List<ContactReportInfo> ownDrafts = new ArrayList<>(0);
+		if (showUsersDraft) {
+			contactReportInfos.stream()
+					.filter(_val -> showUsersDraft
+							? (_val.getCreatedBy().trim().equalsIgnoreCase(userId)
+									&& _val.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode())
+							: true)
+					.forEach(val -> ownDrafts.add(val));
+		}
 
-		return contactReportInfos.stream()
+		Map<String, List<ContactReportInfoDto>> contactReportDtos = contactReportInfos.stream()
 				.map(reportInfo -> ContactReportInfoDto.builder().contactReportId(reportInfo.getContactReportId())
 						.contactDt(reportInfo.getContactDt()).dealers(reportInfo.getDealers())
 						.contactStatus(reportInfo.getContactStatus())
@@ -337,6 +349,26 @@ public class ContactReportServiceImpl implements ContactReportService {
 						.build())
 				.collect(Collectors.groupingBy(
 						element -> ContactReportEnum.valueByStatus(element.getContactStatus()).getDisplayText()));
+		contactReportDtos.forEach((key, value) -> {
+
+			if (showUsersDraft && key.equalsIgnoreCase(ContactReportEnum.DRAFT.getDisplayText())) {
+				List<ContactReportInfoDto> drafts = ownDrafts.stream()
+						.map(reportInfo -> ContactReportInfoDto.builder()
+								.contactReportId(reportInfo.getContactReportId()).contactDt(reportInfo.getContactDt())
+								.dealers(reportInfo.getDealers()).contactStatus(reportInfo.getContactStatus())
+								.updatedDt(reportInfo.getUpdatedDt() != null ? reportInfo.getUpdatedDt()
+										: reportInfo.getCreatedDt())
+								.build())
+						.collect(Collectors.toList());
+				contactReportDtoMaps.put(key, drafts);
+
+			} else {
+				contactReportDtoMaps.put(key, value);
+			}
+
+		});
+		return contactReportDtoMaps;
+
 	}
 
 	@Transactional
@@ -365,6 +397,5 @@ public class ContactReportServiceImpl implements ContactReportService {
 		return topicList;
 
 	}
-
 
 }

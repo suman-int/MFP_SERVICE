@@ -20,15 +20,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "mfp_contact_report_info")
-public class ContactReportInfo {
+public class ContactReportInfo extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long contactReportId;
-	
+
 	@NotNull
 	private String dlrCd;
-	
+
 	@JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
 	@NotNull
 	private LocalDate contactDt;
@@ -40,31 +40,34 @@ public class ContactReportInfo {
 	private String contactType;
 
 	private String currentIssues;
-	
+
 	@NotNull
 	private String contactAuthor;
-	
+
 	@NotNull
 	private String contactReviewer;
 
 	@NotNull
 	private int contactStatus;
-	
+
 	private String corporateReps;
 
-	private String updatedBy;
+	@JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
+	private LocalDate submittedDt;
 
-	private String createdBy;
+	private String reviewedBy;
 
 	@JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
-	private LocalDate createdDt;
+	private LocalDate reviewedDt;
+
+	private String lastDiscussionReqBy;
 
 	@JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
-	private LocalDate updatedDt;
-
+	@Column(name = "LAST_DISCUSSION_REQ4_DT")
+	private LocalDate lastDiscussionReqDt;
 
 	@OneToMany(targetEntity = ContactReportDealerPersonnel.class, cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId", nullable = false)
+	@JoinColumn(name = "contactReportIdFk", referencedColumnName = "contactReportId", nullable = false)
 	@NotNull
 	private List<ContactReportDealerPersonnel> dealerPersonnels;
 
@@ -72,17 +75,17 @@ public class ContactReportInfo {
 //	@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId", nullable = false)
 //	@NotNull
 //	private List<ContactReportMetrics> metrics;
-	
+
 	@OneToMany(targetEntity = ContactReportDiscussion.class, cascade = CascadeType.ALL)
-	@JoinColumn(name="contactReportIdFk", referencedColumnName="contactReportId")
+	@JoinColumn(name = "contactReportIdFk", referencedColumnName = "contactReportId")
 	private List<ContactReportDiscussion> discussions;
-	
+
 	@OneToMany(targetEntity = ContactReportAttachment.class, cascade = CascadeType.ALL)
-	@JoinColumn(name = "contactReportIdFk", referencedColumnName="contactReportId")
+	@JoinColumn(name = "contactReportIdFk", referencedColumnName = "contactReportId")
 	private List<ContactReportAttachment> attachment;
 
 	@ManyToOne(targetEntity = Dealers.class, cascade = CascadeType.ALL)
-	@JoinColumn(name="dlrCd", updatable = false, insertable = false)
+	@JoinColumn(name = "dlrCd", updatable = false, insertable = false)
 	@NotNull
 	private Dealers dealers;
 	//
@@ -106,16 +109,17 @@ public class ContactReportInfo {
 //			}
 //		}
 //	}
-	
+
 	@PrePersist()
 	public void preSave() {
-		this.createdBy = this.contactAuthor;
-		this.createdDt = LocalDate.now();
+		this.setCreatedBy(this.contactAuthor);
+		this.setCreatedDt(LocalDate.now());
+		this.setIsActive("Y");
 	}
-	
+
 	@PreUpdate()
 	public void preUpdate() {
-		this.updatedBy = this.contactAuthor;
-		this.updatedDt = LocalDate.now();
+		this.setUpdatedBy(contactAuthor);
+		this.setUpdatedDt(LocalDate.now());
 	}
- }
+}

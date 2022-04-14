@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -22,43 +24,57 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "mfp_contact_report_attachment")
-public class ContactReportAttachment {
+public class ContactReportAttachment extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long attachmentId;
-	
+
 	@NotNull
 	private String attachmentName;
-	
+
 	@NotNull
 	private String attachmentPath;
 
 	@NotNull
 	private String attachmentType;
-	
+
 	@JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
 	@NotNull
 	private String uploadedBy;
-	
+
 	@JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
 	@NotNull
 	private LocalDate uploadDt;
-	
+
 	private String deletedBy;
-	
+
 	private LocalDate deleteDt;
-	
+
 	@NotNull
 	private int status;
 
-	@ManyToOne(targetEntity = ContactReportInfo.class,fetch = FetchType.EAGER)
-	@JoinColumn(name = "contactReportIdFk", referencedColumnName="contactReportId")
+	@ManyToOne(targetEntity = ContactReportInfo.class, fetch = FetchType.EAGER)
+	@JoinColumn(name = "contactReportIdFk", referencedColumnName = "contactReportId")
 	@JsonIgnore
 	private ContactReportInfo contactReport;
-	
+
+	@PrePersist()
+	public void preSave() {
+		this.setCreatedBy("ADMIN");
+		this.setCreatedDt(LocalDate.now());
+		this.setIsActive("Y");
+	}
+
+	@PreUpdate()
+	public void preUpdate() {
+		this.setUpdatedBy("ADMIN");
+		this.setUpdatedDt(LocalDate.now());
+	}
+
 }
