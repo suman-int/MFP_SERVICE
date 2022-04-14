@@ -26,7 +26,8 @@ import com.mnao.mfp.user.service.UserDetailsService;
 @Service
 public class EmailService extends MfpKPIControllerBase {
 
-	public void sendEmailNotification(ContactReportInfo report, MFPUser mfpUser) throws MessagingException {
+	public void sendEmailNotification(ContactReportInfo report, int origCRStatus, MFPUser mfpUser)
+			throws MessagingException {
 		EMazdamailsender objEMazdamailsender = new EMazdamailsender();
 		objEMazdamailsender.set_mimeType("text/html");
 		List<String> toAddresses = new ArrayList<String>();
@@ -48,9 +49,15 @@ public class EmailService extends MfpKPIControllerBase {
 		//
 		if (report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
 			toAddr = revEmp.getEmailAddr();
-			subjFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_SUBJECT);
-			bodyFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_BODY);
-			toFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_TO);
+			if (origCRStatus == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
+				subjFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_DISC_SUBJECT);
+				bodyFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_DISC_BODY);
+				toFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_DISC_TO);
+			} else {
+				subjFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_SUBJECT);
+				bodyFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_BODY);
+				toFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_TO);
+			}
 		} else if (report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
 			toAddr = authorUser.getEmail();
 			subjFmt = Utils.getAppProperty(AppConstants.MAIL_REVIEWED_SUBJECT);

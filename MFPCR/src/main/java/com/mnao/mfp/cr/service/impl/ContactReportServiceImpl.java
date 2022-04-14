@@ -75,11 +75,13 @@ public class ContactReportServiceImpl implements ContactReportService {
 	 */
 	public String submitReportDataV2(ContactReportInfoDto report, MFPUser mfpUser, String currURL) throws Exception {
 		String submission = "Unable to save contact report";
+		int origCRStatus = -1;
 		try {
 			ContactReportInfo reportInfo = new ContactReportInfo();
 			boolean isDealerUpdated = false;
 			if (report != null && report.getContactReportId() > 0) {
 				reportInfo = contactInfoRepository.getById(report.getContactReportId());
+				origCRStatus = reportInfo.getContactStatus();
 				if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
 						&& report.getContactStatus() == ContactReportEnum.CANCELLED.getStatusCode()) {
 					contactInfoRepository.delete(reportInfo);
@@ -97,8 +99,8 @@ public class ContactReportServiceImpl implements ContactReportService {
 					reportInfo.setDealers(null);
 				}
 				// Update Author only if in DRAFT
-				if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
-						|| reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
+				if (report.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
+						|| report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
 					reportInfo.setContactAuthor(new NullCheck<ContactReportInfoDto>(report)
 							.with(ContactReportInfoDto::getContactAuthor).orElse(reportInfo.getContactAuthor()));
 				}
@@ -143,7 +145,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 			if (info.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode() ||
 					info.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode() || 
 					info.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
-				emailService.sendEmailNotification(info, mfpUser);
+				emailService.sendEmailNotification(info, origCRStatus, mfpUser);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
