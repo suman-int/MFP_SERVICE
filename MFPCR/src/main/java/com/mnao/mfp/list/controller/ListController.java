@@ -67,7 +67,7 @@ public class ListController extends MfpKPIControllerBase {
 			if (like.length() > 30)
 				like = like.substring(0, 30);
 			like = like.trim();
-			String likePat = "%" + like + "%";
+			String likePat = "%" + like.toUpperCase() + "%";
 			try {
 				retRows = service.getListData(sqlName, DealerInfo.class, df, likePat, likePat);
 			} catch (InstantiationException | IllegalAccessException | ParseException e) {
