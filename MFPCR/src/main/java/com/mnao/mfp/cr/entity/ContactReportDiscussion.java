@@ -15,31 +15,44 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "mfp_contact_report_discussion")
-public class ContactReportDiscussion {
-	
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ContactReportDiscussion extends BaseEntity {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long discussionId;
 
-    @NotNull
+	@NotNull
 	private String topic;
 
-    @NotNull
+	@NotNull
 	private String discussion;
-	
-    @JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
+
+	@JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
 	@NotNull
 	private LocalDate disscussionDt;
 
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name="contactReportId")
+	@JoinColumn(name = "contactReportId")
 	@JsonIgnore
 	private ContactReportInfo contactReportInfo;
-	
+
+	@PrePersist()
+	public void preSave() {
+		this.setCreatedBy("ADMIN");
+		this.setCreatedDt(LocalDate.now());
+		this.setIsActive("Y");
+	}
+
+	@PreUpdate()
+	public void preUpdate() {
+		this.setUpdatedBy("ADMIN");
+		this.setUpdatedDt(LocalDate.now());
+	}
+
 }

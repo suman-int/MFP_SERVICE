@@ -81,10 +81,11 @@ public class ReportController {
 
 	@GetMapping(value = "getReportsByUserID/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public CommonResponse<Map<String, List<ContactReportInfoDto>>> getMyContactReport(
-			@PathVariable("userId") String userId) {
+			@PathVariable("userId") String userId,
+			@RequestParam(required = false) boolean showUsersDraft) {
 
 		try {
-			Map<String, List<ContactReportInfoDto>> response = contactReportService.getMyContactReport(userId);
+			Map<String, List<ContactReportInfoDto>> response = contactReportService.getMyContactReport(userId, showUsersDraft);
 			return AbstractService.httpPostSuccess(response, "Success Response");
 
 		} catch (Exception e) {

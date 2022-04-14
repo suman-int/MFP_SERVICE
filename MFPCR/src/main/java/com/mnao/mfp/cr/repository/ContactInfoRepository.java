@@ -21,7 +21,7 @@ public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, 
 //	@Query(value = "update cr from ContactReportInfo cr set cr.contactDt='2021-12-13' where cr.contactReportId=:contactReportId and cr.contactStatus=0")
 //	public String updateContactReportById(@Param("report") ContactReportInfo report,@Param("contactReportId") long contactReportId);
 
-	public ContactReportInfo findByContactReportId(@Param("contactReportId") long contactReportId);
+	public ContactReportInfo findByContactReportIdAndIsActive(@Param("contactReportId") long contactReportId, String isActive);
 
 	@Query(value = "SELECT new com.mnao.mfp.cr.dto.ReportByDealershipDto"
 			+ "(d.rgnCd, d.zoneCd, d.districtCd, cr.dlrCd, d.dbaNm, cr.contactReportId, cr.contactDt, cr.contactAuthor,cr.contactStatus,cr.currentIssues) "
@@ -41,7 +41,7 @@ public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, 
 
 	public List<ContactReportInfo> findByDlrCdInAndContactStatusNot(List<String> dlrCd, int status);
 
-	List<ContactReportInfo> findByContactAuthor(String authorId);
+	List<ContactReportInfo> findByContactAuthorAndIsActive(String authorId, String isActive);
 
 	List<ContactReportInfo> findByContactDtBetween(LocalDate startDate, LocalDate endDate);
 	

@@ -21,7 +21,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Transactional
 @Table(name = "mfp_contact_report_metrics")
-public class ContactReportMetrics {
+public class ContactReportMetrics extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,5 +36,18 @@ public class ContactReportMetrics {
     @NotNull
     @JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
 	private LocalDate metricsDt;
+    
+    @PrePersist()
+	public void preSave() {
+		this.setCreatedBy("ADMIN");
+		this.setCreatedDt(LocalDate.now());
+		this.setIsActive("Y");
+	}
+
+	@PreUpdate()
+	public void preUpdate() {
+		this.setUpdatedBy("ADMIN");
+		this.setUpdatedDt(LocalDate.now());
+	}
 
 }
