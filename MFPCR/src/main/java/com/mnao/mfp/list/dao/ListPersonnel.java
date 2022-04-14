@@ -22,6 +22,8 @@ public class ListPersonnel extends MetricData {
 	private String prsnIdCd, statusCd, prsnTypeCd, firstNm, midlNm, lastNm;
 	private String jobCd, loctnCd, userId, emailAddr, rgnCd, zoneCd, districtCd, typeCd, jobTitleFx;
 
+	private boolean zonalManager, districtSalesManager, districtServiceManager, corporatePerson;
+	
 	public String getPrsnIdCd() {
 		return prsnIdCd;
 	}
@@ -143,13 +145,46 @@ public class ListPersonnel extends MetricData {
 		this.jobTitleFx = jobTitleFx;
 	}
 
+	public boolean isZonalManager() {
+		return zonalManager;
+	}
+
+	public void setZonalManager(boolean zonalManager) {
+		this.zonalManager = zonalManager;
+	}
+
+	public boolean isDistrictSalesManager() {
+		return districtSalesManager;
+	}
+
+	public void setDistrictSalesManager(boolean districtSalesManager) {
+		this.districtSalesManager = districtSalesManager;
+	}
+
+	public boolean isDistrictServiceManager() {
+		return districtServiceManager;
+	}
+
+	public void setDistrictServiceManager(boolean districtServiceManager) {
+		this.districtServiceManager = districtServiceManager;
+	}
+
+	public boolean isCorporatePerson() {
+		return corporatePerson;
+	}
+
+	public void setCorporatePerson(boolean corporatePerson) {
+		this.corporatePerson = corporatePerson;
+	}
+
 	@Override
 	public String toString() {
 		return "ListPersonnel [prsnIdCd=" + prsnIdCd + ", statusCd=" + statusCd + ", prsnTypeCd=" + prsnTypeCd
 				+ ", firstNm=" + firstNm + ", midlNm=" + midlNm + ", lastNm=" + lastNm + ", jobCd=" + jobCd
 				+ ", loctnCd=" + loctnCd + ", userId=" + userId + ", emailAddr=" + emailAddr + ", rgnCd=" + rgnCd
 				+ ", zoneCd=" + zoneCd + ", districtCd=" + districtCd + ", typeCd=" + typeCd + ", jobTitleFx="
-				+ jobTitleFx + "]";
+				+ jobTitleFx + ", zonalManager=" + zonalManager + ", districtSalesManager=" + districtSalesManager
+				+ ", districtServiceManager=" + districtServiceManager + ", corporatePerson=" + corporatePerson + "]";
 	}
 
 	@Override
@@ -169,6 +204,25 @@ public class ListPersonnel extends MetricData {
 		super.setFieldValue("districtCd", rs, 13);
 		super.setFieldValue("typeCd", rs, 14);
 		super.setFieldValue("jobTitleFx", rs, 15);
+		//
+		zonalManager = false;
+		districtSalesManager = false;
+		districtServiceManager = false;
+		corporatePerson = false;
+		if( loctnCd != null && loctnCd.equalsIgnoreCase("MA92") ) {
+			corporatePerson = true;
+		}
+		else if( jobCd != null ) {
+			if( jobCd.equalsIgnoreCase("MZ11")) {
+				zonalManager = true;
+			}
+			else if( "'MB11', 'MC11', 'MD11', 'ME11', 'MO11', 'MP11'".indexOf(jobCd.toUpperCase()) >= 0) {
+				if( loctnCd.charAt(2) == 'V')
+					districtSalesManager = true;
+				else
+					districtServiceManager = true;
+			}
+		}
 	}
 
 }
