@@ -85,7 +85,9 @@ public class ContactReportServiceImpl implements ContactReportService {
 				origCRStatus = reportInfo.getContactStatus();
 				if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
 						&& report.getContactStatus() == ContactReportEnum.CANCELLED.getStatusCode()) {
-					contactInfoRepository.delete(reportInfo);
+					reportInfo.setContactStatus(report.getContactStatus());
+					reportInfo.setIsActive("N");
+					contactInfoRepository.save(reportInfo);
 					submission = "Report removed successfully";
 					return submission;
 				} else if (report.getDealers() != null) {
