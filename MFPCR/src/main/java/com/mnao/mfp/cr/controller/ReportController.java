@@ -164,7 +164,7 @@ public class ReportController {
 		try {
 			List<String> contactTypeList = new ArrayList<>(0);
 			if (!new NullCheck<String>(contactType).isNotNullOrEmpty()) {
-				contactTypeList.addAll(Arrays.asList("sales", "service", "others"));
+				contactTypeList.addAll(Arrays.asList("sales", "service", "other"));
 			} else {
 				contactTypeList.addAll(Arrays.asList(contactType.split(",")));
 			}
