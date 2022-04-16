@@ -35,6 +35,7 @@ import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,7 +106,8 @@ public class ContactReportServiceImpl implements ContactReportService {
 				// Update Author only if in DRAFT
 				if (report.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
 						|| report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
-					reportInfo.setContactAuthor(new NullCheck<MFPUser>(mfpUser).with(MFPUser::getUserid).orElse(reportInfo.getContactAuthor()));
+					reportInfo.setContactAuthor(new NullCheck<MFPUser>(mfpUser).with(MFPUser::getUserid)
+							.orElse(reportInfo.getContactAuthor()));
 				}
 				reportInfo.setContactDt(
 						report.getContactDt() != null ? report.getContactDt() : reportInfo.getContactDt());
@@ -140,6 +142,16 @@ public class ContactReportServiceImpl implements ContactReportService {
 				}
 			}
 
+			// Submit and Reviewed Date
+			if (reportInfo.getContactStatus() != origCRStatus) {
+				if (reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
+					reportInfo.setSubmittedDt(LocalDate.now());
+				} else if (reportInfo.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+					reportInfo.setReviewedDt(LocalDate.now());
+					reportInfo.setReviewedBy(mfpUser.getUserid());
+				}
+			}
+			//
 			ContactReportInfo info = contactInfoRepository.save(reportInfo);
 			if (report.getContactStatus() == 1) {
 				fileHandlingService.copyToPermanentLocation(info);
