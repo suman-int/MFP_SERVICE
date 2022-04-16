@@ -132,7 +132,7 @@ public class PDFService extends MfpKPIControllerBase {
 
 	private int printXLSRow(HSSFSheet sheet, int rCnt, MFPUser mfpUser, ContactReportInfo report) {
 		DealerInfo dInfo = getDealerInfo(mfpUser, report.getDlrCd());
-		if( dInfo == null ) {
+		if (dInfo == null) {
 			// Dealer is of region different than logged in user.
 			return rCnt;
 		}
@@ -168,9 +168,21 @@ public class PDFService extends MfpKPIControllerBase {
 			if (report.getCreatedDt() != null) {
 				DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM-dd-YYYY");
 				dtVal = "" + report.getCreatedDt().format(dtf);
-			}			col = addXLSCellValue(row, "", col);
-			col = addXLSCellValue(row, "", col);
-			col = addXLSCellValue(row, "", col);
+			} else {
+				col = addXLSCellValue(row, "NOT AVAILABLE", col);
+			}
+			if (report.getSubmittedDt() != null) {
+				DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM-dd-YYYY");
+				dtVal = "" + report.getSubmittedDt().format(dtf);
+			} else {
+				col = addXLSCellValue(row, "NOT AVAILABLE", col);
+			}
+			if (report.getCreatedDt() != null) {
+				DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM-dd-YYYY");
+				dtVal = "" + report.getCreatedDt().format(dtf);
+			} else {
+				col = addXLSCellValue(row, "NOT AVAILABLE", col);
+			}
 			ContactReportEnum cre = ContactReportEnum.valueByStatus(report.getContactStatus());
 			col = addXLSCellValue(row, "" + cre.getStatusText(), col);
 		}
@@ -185,7 +197,7 @@ public class PDFService extends MfpKPIControllerBase {
 
 	private boolean createPDFDocument(PDFReport pdfReport, ContactReportInfo report, MFPUser mfpUser) {
 		DealerInfo dInfo = getDealerInfo(mfpUser, report.getDlrCd());
-		if( dInfo == null ) {
+		if (dInfo == null) {
 			// Dealer is of region different than logged in user.
 			return false;
 		}
@@ -226,7 +238,8 @@ public class PDFService extends MfpKPIControllerBase {
 			List<ReviewerEmployeeInfo> retRows = null;
 			DealerFilter df = new DealerFilter(mfpUser, null, mfpUser.getRgnCd(), null, null, null);
 			try {
-				retRows = service.getListData(sqlName, ReviewerEmployeeInfo.class, df, dInfo.getRgnCd(), dInfo.getZoneCd());
+				retRows = service.getListData(sqlName, ReviewerEmployeeInfo.class, df, dInfo.getRgnCd(),
+						dInfo.getZoneCd());
 			} catch (InstantiationException | IllegalAccessException | ParseException e) {
 				log.error("ERROR retrieving list of Employees:", e);
 			}
