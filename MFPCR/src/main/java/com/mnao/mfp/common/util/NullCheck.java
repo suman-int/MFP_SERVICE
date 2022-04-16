@@ -1,5 +1,7 @@
 package com.mnao.mfp.common.util;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -7,6 +9,7 @@ import java.util.function.Supplier;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.lang.Nullable;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 public class NullCheck<T> {
@@ -41,7 +44,11 @@ public class NullCheck<T> {
 	public T orElse(@NotNull T value) {
 		return this.root != null ? this.root : value;
 	}
-	
+
+	public T orElseList(@NotNull T value) {
+		return !CollectionUtils.isEmpty((Collection<?>) this.root) ? this.root : value;
+	}
+
 	public <C> NullCheck<C> with(Function<T, C> getter) {
 		return root != null ? new NullCheck<>(getter.apply(root)) : new NullCheck<>(null);
 	}

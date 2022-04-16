@@ -15,25 +15,22 @@ import java.util.List;
 @PropertySource("classpath:/appSql.properties")
 public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, Long> {
 
-//	@Modifying
-//	@Query(value = "update cr from ContactReportInfo cr set cr.contactDt='2021-12-13' where cr.contactReportId=:contactReportId and cr.contactStatus=0")
-//	public String updateContactReportById(@Param("report") ContactReportInfo report,@Param("contactReportId") long contactReportId);
 
     ContactReportInfo findByContactReportIdAndIsActive(@Param("contactReportId") long contactReportId, String isActive);
 
     @Query(value = "SELECT new com.mnao.mfp.cr.dto.ReportByDealershipDto"
             + "(d.rgnCd, d.zoneCd, d.districtCd, cr.dlrCd, d.dbaNm, cr.contactReportId, cr.contactDt, cr.contactAuthor,cr.contactStatus,cr.currentIssues) "
-            + "FROM Dealers d JOIN d.CRI cr WHERE cr.currentIssues IN :currentIssues AND cr.dlrCd=:dlrCd")
-	List<ReportByDealershipDto> findByDlrCd(@Param("dlrCd") String dlrCd,
-											@Param("currentIssues") List<String> currentIssues);
+            + "FROM Dealers d JOIN d.CRI cr WHERE cr.currentIssues IN :currentIssues AND cr.dlrCd=:dlrCd AND cr.isActive='Y'")
+    List<ReportByDealershipDto> findByDlrCd(@Param("dlrCd") String dlrCd,
+                                            @Param("currentIssues") List<String> currentIssues);
 
     @Query(value = "SELECT new com.mnao.mfp.cr.dto.ReportByDealershipDto"
             + "(d.rgnCd, d.zoneCd, d.districtCd, cr.dlrCd, d.dbaNm, cr.contactReportId, cr.contactDt, cr.contactAuthor,cr.contactStatus,cr.currentIssues) "
-            + "FROM Dealers d JOIN d.CRI cr WHERE cr.dlrCd=:dlrCd")
-	List<ReportByDealershipDto> findCurrentIssuesByDlrCd(@Param("dlrCd") String dlrCd);
+            + "FROM Dealers d JOIN d.CRI cr WHERE cr.dlrCd=:dlrCd AND cr.isActive='Y'")
+    List<ReportByDealershipDto> findCurrentIssuesByDlrCd(@Param("dlrCd") String dlrCd);
 
     void deleteByContactReportIdAndContactStatusAndIsActive(@Param("contactReportId") long contactReportId,
-															int contactStatus, String isActive);
+                                                            int contactStatus, String isActive);
 
     List<ContactReportInfo> findByDlrCdAndIsActive(String dlrCd, String isActive);
 
