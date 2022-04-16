@@ -38,7 +38,7 @@ public class AppConstants {
 	public static final String SQL_LIST_REVIEWER_EMPLOYEES = "LIST_REVIEWER_EMPLOYEES.sql";
 	public static final String SQL_LIST_REVIEWER_EMPLOYEE = "LIST_REVIEWER_EMPLOYEE.sql";
 	public static final String SQL_LIST_CORPORATE_EMPLOYEES = "LIST_CORPORATE_EMPLOYEES.sql";
-	public static final String SQL_LIST_ALL_EMPLOYEES = "LIST_ALL_EMPLOYEES.sql";
+	public static final String SQL_LIST_ALL_EMPLOYEES = "LIST_ALL_EMPLOYEES_V2.sql";
 	//
 	public static final String CR_URL_KEY = "MFP_CR_URL";
 	public static final String SMTP_HOST = "cr.email.smtp.host";
