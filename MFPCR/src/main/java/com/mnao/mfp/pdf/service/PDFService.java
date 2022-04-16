@@ -168,18 +168,21 @@ public class PDFService extends MfpKPIControllerBase {
 			if (report.getCreatedDt() != null) {
 				DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM-dd-YYYY");
 				dtVal = "" + report.getCreatedDt().format(dtf);
+				col = addXLSCellValue(row, dtVal, col);
 			} else {
 				col = addXLSCellValue(row, "NOT AVAILABLE", col);
 			}
 			if (report.getSubmittedDt() != null) {
 				DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM-dd-YYYY");
 				dtVal = "" + report.getSubmittedDt().format(dtf);
+				col = addXLSCellValue(row, dtVal, col);
 			} else {
 				col = addXLSCellValue(row, "NOT AVAILABLE", col);
 			}
-			if (report.getCreatedDt() != null) {
+			if (report.getReviewedDt() != null) {
 				DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM-dd-YYYY");
-				dtVal = "" + report.getCreatedDt().format(dtf);
+				dtVal = "" + report.getReviewedDt().format(dtf);
+				col = addXLSCellValue(row, dtVal, col);
 			} else {
 				col = addXLSCellValue(row, "NOT AVAILABLE", col);
 			}
