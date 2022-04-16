@@ -11,7 +11,7 @@ import org.springframework.util.StringUtils;
 
 public class NullCheck<T> {
 	
-	private T root;
+	private final T root;
 	
 	public NullCheck(@Nullable T root) {
 		this.root = root;
@@ -51,7 +51,8 @@ public class NullCheck<T> {
 		return (root != null && !StringUtils.isEmpty(root)) ? new NullCheck<>(getter.apply(root)) : new NullCheck<>(null);
 	}
 	
-	public <V> NullCheck<V> allNotNull(@Nullable final V... objects) {
+	@SafeVarargs
+	public final <V> NullCheck<V> allNotNull(@Nullable final V... objects) {
 		if (objects != null) {
 			for (final V val: objects) {
 				if (val == null) {

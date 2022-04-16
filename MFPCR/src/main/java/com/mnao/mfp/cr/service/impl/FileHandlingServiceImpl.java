@@ -1,6 +1,9 @@
 package com.mnao.mfp.cr.service.impl;
 
+import com.mnao.mfp.common.util.IsActiveEnum;
 import com.mnao.mfp.cr.service.FileHandlingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -29,14 +32,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class FileHandlingServiceImpl implements FileHandlingService {
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private static final String TEMP_LOC_PREFIX = "_TEMP_";
-	private String sessionUploadedFiles = "AttachmentUpload";
-	private Path fileStorageLocation;
+	private final String sessionUploadedFiles = "AttachmentUpload";
 
 	@Autowired
 	ContactReportAttachmentRepository attachmentRepository;
@@ -76,7 +80,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 			request.getSession().setAttribute(sessionUploadedFiles, savedFiles);
 			return dtos;
 		} catch (Exception e) {
-			return null;
+			return Collections.emptyList();
 		}
 	}
 
@@ -84,7 +88,6 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 		String filePath = "";
 		String fileName = "Something went wrong";
 		try {
-//             filePath=getTemporaryFilePath(file);
 			fileName = getTemporaryFileName(file);
 			filePath = getTemporaryFilePath(fileName);
 			Path path = Paths.get(filePath);
@@ -94,7 +97,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 
 			return fileName;
 		} catch (Exception e) {
-			System.out.print(e.getMessage());
+			logger.error(e.getMessage());
 		}
 		return fileName;
 	}
@@ -207,7 +210,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 	public String deleteAttachmentById(long attachmentId) {
 		final int Status = 0;
 		String response = "";
-		ContactReportAttachment attachment = attachmentRepository.findByAttachmentId(attachmentId);
+		ContactReportAttachment attachment = attachmentRepository.findByAttachmentIdAndIsActive(attachmentId, IsActiveEnum.YES.getValue());
 		if (attachment != null) {
 			if (attachment.getStatus() == 0 && attachment.getContactReport().getContactStatus() == 0) {
 				attachment.setStatus(AppConstants.StatusDeleted);
@@ -246,7 +249,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 	}
 
 	public Resource loadFileAsResource(long attachmentId) {
-		ContactReportAttachment attachment = attachmentRepository.findByAttachmentId(attachmentId);
+		ContactReportAttachment attachment = attachmentRepository.findByAttachmentIdAndIsActive(attachmentId, IsActiveEnum.YES.getValue());
 		Path filePath = Paths.get(attachment.getAttachmentPath());
 		return downloadResource(filePath);
 
