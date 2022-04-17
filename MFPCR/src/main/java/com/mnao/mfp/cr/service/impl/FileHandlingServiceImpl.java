@@ -43,7 +43,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
     @Override
     public List<ContactInfoAttachmentDto> doUpload(MultipartFile[] files, HttpServletRequest request) {
         try {
-            List<ContactReportAttachment> savedFiles = new NullCheck<>((List<ContactReportAttachment>) request.getSession().getAttribute(SESSION_UPLOADED_FILES)).orElseList(Collections.emptyList());
+            List<ContactReportAttachment> savedFiles = new NullCheck<>((List<ContactReportAttachment>) request.getSession().getAttribute(SESSION_UPLOADED_FILES)).orElseList(new ArrayList<>(0));
 
             List<ContactInfoAttachmentDto> dtos = new ArrayList<>();
             for (MultipartFile file : files) {

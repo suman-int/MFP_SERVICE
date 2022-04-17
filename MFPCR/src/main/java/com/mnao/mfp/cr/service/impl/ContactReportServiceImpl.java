@@ -67,7 +67,10 @@ public class ContactReportServiceImpl implements ContactReportService {
                 if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
                         && report.getContactStatus() == ContactReportEnum.CANCELLED.getStatusCode()) {
                     reportInfo.setContactStatus(report.getContactStatus());
-                    reportInfo.setIsActive("N");
+                    List<ContactReportDealerPersonnel> existingDealerPersonel = reportInfo.getDealerPersonnels();
+                    existingDealerPersonel.stream().forEach(val -> val.setIsActive(IsActiveEnum.NO.getValue()));
+                    contactReportDealerPersonnelRepository.saveAll(existingDealerPersonel);
+                    reportInfo.setIsActive(IsActiveEnum.NO.getValue());
                     contactInfoRepository.save(reportInfo);
                     submission = "Report removed successfully";
                     return submission;
@@ -131,7 +134,7 @@ public class ContactReportServiceImpl implements ContactReportService {
             }
             //
             ContactReportInfo info = contactInfoRepository.save(reportInfo);
-            if (report.getContactStatus() == 1) {
+            if (report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
                 fileHandlingService.copyToPermanentLocation(info);
             }
 
@@ -317,7 +320,9 @@ public class ContactReportServiceImpl implements ContactReportService {
 
     public ContactReportDto findByContactReportId(long contactReportId) {
         ContactReportDto contactReportDto = new ContactReportDto();
-        contactReportDto.setContactReport(contactInfoRepository.findByContactReportIdAndIsActive(contactReportId, IsActiveEnum.YES.getValue()));
+        ContactReportInfo crInfo = contactInfoRepository.findByContactReportIdAndIsActive(contactReportId, IsActiveEnum.YES.getValue());
+        crInfo.setDealerPersonnels(crInfo.getDealerPersonnels().stream().filter(dp -> IsActiveEnum.YES.getValue().equalsIgnoreCase(dp.getIsActive())).toList());
+        contactReportDto.setContactReport(crInfo);
         return contactReportDto;
     }
 

@@ -48,4 +48,6 @@ public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, 
 
     List<ContactReportInfo> findByContactDtBetweenAndContactStatusGreaterThanAndIsActive(LocalDate startDate, LocalDate endDate, Integer status, String isActive);
 
+	List<ContactReportInfo> findByIsActive(String isActive);
+
 }

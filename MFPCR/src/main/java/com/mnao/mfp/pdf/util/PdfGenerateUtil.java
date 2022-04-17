@@ -1,6 +1,7 @@
 package com.mnao.mfp.pdf.util;
 
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ import com.mnao.mfp.common.db.KPIQuerySpecs;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
+import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.cr.util.ContactReportEnum;
@@ -584,14 +586,17 @@ public class PdfGenerateUtil {
 		List<String> fullHtml = new ArrayList<>();
 		AtomicInteger currentPageNumber = new AtomicInteger(0);
 		contactReports.forEach(cr -> {
-			Dealers dealers = cr.getDealers();
+			System.out.println(currentPageNumber.get());
+			Dealers dealers = new NullCheck<>(cr).with(ContactReportInfo::getDealers).orElse(new Dealers());
 			String updatedHtmlText = HTML.replace("%DEALER_NAME%", dealers.getDbaNm()).replace("%DEALER_CODE%", dealers.getDlrCd()).replace("%CURRENT_PAGE%", String.valueOf(currentPageNumber.incrementAndGet())).replace("%TOTAL_PAGE%", String.valueOf(contactReports.size()));
-			String updatedHtml3 = updatedHtmlText.replace("%REVIEWER%", cr.getContactReviewer()).replace("%AUTHOR_NAME%", getAuthorUser(mfpUser, cr.getContactAuthor())).replace("%ADDRESS%", cr.getContactLocation()).replace("%REPORT%", cr.getContactType()).replace("%CR_DATE%", cr.getContactDt().format(DateTimeFormatter.ofPattern("MM-dd-yyyy")));
+			String updatedHtml3 = updatedHtmlText.replace("%REVIEWER%", new NullCheck<>(cr).with(ContactReportInfo::getContactReviewer).orElse("")).replace("%AUTHOR_NAME%", new NullCheck<>(getAuthorUser(mfpUser, cr.getContactAuthor())).orElse("")).replace("%ADDRESS%", new NullCheck<>(cr).with(ContactReportInfo::getContactLocation).orElse("")).replace("%REPORT%", cr.getContactType()).replace("%CR_DATE%", cr.getContactDt().format(DateTimeFormatter.ofPattern("MM-dd-yyyy")));
 			String updatedHtml = updatedHtml3.replace("%CONTACT_STATUS%", ContactReportEnum.valueByStatus(cr.getContactStatus()).getStatusText().toUpperCase());
 			String dealerPersonnel = cr.getDealerPersonnels().stream().map(data -> data.getPersonnelIdCd()).collect(Collectors.joining("<br>"));
-			String updateHtml4 = updatedHtml.replace("%DLR_AUTHOR%", getAuthorUser(mfpUser, cr.getContactAuthor())).replace("%DEALERSHIP_REVIEWER%", cr.getContactReviewer()).replace("%DEALERSHIP_CONTACTS%", dealerPersonnel);
-			String discussionList = cr.getDiscussions().stream().map(disc -> DISCUSSION.replace("%DISC_TYPE%", disc.getTopic()).replace("%DISC_DISCUSSIONS%", disc.getDiscussion()).replace("%DISC_DATE%", disc.getDisscussionDt().format(DateTimeFormatter.ofPattern("MM-dd-yyyy")))).collect(Collectors.joining());
-			String discussionUpdate = updateHtml4.replace("%DISCUSIION_ROW%", discussionList);
+			String updateHtml4 = updatedHtml.replace("%DLR_AUTHOR%", new NullCheck<>(getAuthorUser(mfpUser, cr.getContactAuthor())).orElse("")).replace("%DEALERSHIP_REVIEWER%", new NullCheck<>(cr).with(ContactReportInfo::getContactReviewer).orElse("")).replace("%DEALERSHIP_CONTACTS%", new NullCheck<>(dealerPersonnel).orElse(""));
+			String discussionList = cr.getDiscussions().stream().map(disc -> DISCUSSION.replace("%DISC_TYPE%", new NullCheck<>(disc).with(ContactReportDiscussion::getTopic).orElse(""))
+					.replace("%DISC_DISCUSSIONS%", new NullCheck<>(disc).with(ContactReportDiscussion::getDiscussion).orElse(""))
+					.replace("%DISC_DATE%", new NullCheck<>(disc).with(ContactReportDiscussion::getDisscussionDt).orElse(LocalDate.now()).format(DateTimeFormatter.ofPattern("MM-dd-yyyy")))).collect(Collectors.joining());
+			String discussionUpdate = updateHtml4.replace("%DISCUSIION_ROW%", discussionList != null ? discussionList : "");
 			fullHtml.add(discussionUpdate);
 		});
 		return fullHtml;
