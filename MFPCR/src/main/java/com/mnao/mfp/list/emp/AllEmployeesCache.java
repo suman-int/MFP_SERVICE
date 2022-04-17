@@ -51,9 +51,12 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 
 	public void updateDomain(MFPUser mfpUser) {
 		if (!mfpUser.isDbDomainUpdated()) {
+			boolean updateEmpID = false;
 			ListPersonnel lp = getByPrsnIdCd(mfpUser.getEmployeeNumber());
-			if( lp == null )
-				lp = getByWSLCd(mfpUser.getUserid());
+			if( lp == null ) {
+				lp = getByWSLCd(mfpUser.getUserid().toUpperCase());
+				updateEmpID = true;
+			}
 			if (lp != null) {
 				if (lp.getLoctnCd().equals("MA92")) {
 					mfpUser.setCorporatePerson(true);
@@ -61,6 +64,8 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 				} else {
 					mfpUser.setCorporatePerson(false);
 					mfpUser.setCorpPerson(false);
+					if( updateEmpID )
+						mfpUser.setEmployeeNumber(lp.getPrsnIdCd());
 					Domain dom = mfpUser.getDomain();
 					if (dom == null)
 						dom = new Domain();
