@@ -56,11 +56,12 @@ public class ContactReportServiceImpl implements ContactReportService {
      */
     public String submitReportDataV2(ContactReportInfoDto report, MFPUser mfpUser, String currURL) throws Exception {
         String submission = "Unable to save contact report";
+        if (report == null) throw new AssertionError();
         int origCRStatus = -1;
         try {
             ContactReportInfo reportInfo = new ContactReportInfo();
             boolean isDealerUpdated = false;
-            if (report != null && report.getContactReportId() > 0) {
+            if (report.getContactReportId() > 0) {
                 reportInfo = contactInfoRepository.getById(report.getContactReportId());
                 origCRStatus = reportInfo.getContactStatus();
                 if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
@@ -75,11 +76,10 @@ public class ContactReportServiceImpl implements ContactReportService {
                             .equalsIgnoreCase(report.getDealers().getDlrCd().trim());
                 }
             }
-            if (new NullCheck<ContactReportInfoDto>(report).with(ContactReportInfoDto::getContactStatus)
-                    .get() == ContactReportEnum.CANCELLED.getStatusCode()) {
+            if (new NullCheck<>(report).with(ContactReportInfoDto::getContactStatus).get() == ContactReportEnum.CANCELLED.getStatusCode()) {
                 reportInfo.setContactStatus(report.getContactStatus());
             } else {
-                if (isDealerUpdated && report != null && report.getContactReportId() > 0) {
+                if (isDealerUpdated && report.getContactReportId() > 0) {
                     reportInfo.setDealers(null);
                 }
                 // Update Author only if in DRAFT
@@ -100,14 +100,13 @@ public class ContactReportServiceImpl implements ContactReportService {
                 reportInfo.setContactType(
                         report.getContactType() != null ? report.getContactType() : reportInfo.getContactType());
                 String reps = report.getCorporateReps();
-                reportInfo.setCorporateReps(reps != null ? (reps.length() > 250 ? reps.substring(0, 250) : reps)
-                        : reportInfo.getCorporateReps());
+                reportInfo.setCorporateReps(reps != null ? (reps) : reportInfo.getCorporateReps());
                 // Sandip: Does discussion changes and deletes need to be handled?
                 if (!CollectionUtils.isEmpty(report.getDiscussions())) {
                     reportInfo.setDiscussions(report.getDiscussions());
                     reportInfo.setCurrentIssues(
-                            report.getDiscussions().stream().filter(val -> Objects.nonNull(val.getTopic()))
-                                    .map(ContactReportDiscussion::getTopic).collect(Collectors.joining("|")));
+                            report.getDiscussions().stream().map(ContactReportDiscussion::getTopic)
+                                    .filter(Objects::nonNull).collect(Collectors.joining("|")));
                 }
                 reportInfo.setDlrCd(report.getDlrCd() != null ? report.getDlrCd() : reportInfo.getDlrCd());
 
@@ -160,8 +159,7 @@ public class ContactReportServiceImpl implements ContactReportService {
             for (int i = 0; i < currentPers.size(); i++) {
                 ContactReportDealerPersonnel existingDp = currentPers.get(i);
                 boolean found = false;
-                for (int j = 0; j < newPers.size(); j++) {
-                    ContactReportDealerPersonnel newDp = newPers.get(j);
+                for (ContactReportDealerPersonnel newDp : newPers) {
                     if (newDp.getPersonnelIdCd().equalsIgnoreCase(existingDp.getPersonnelIdCd())) {
                         found = true;
                         break;
@@ -177,11 +175,9 @@ public class ContactReportServiceImpl implements ContactReportService {
             }
             // Additions
             List<ContactReportDealerPersonnel> newList = new ArrayList<>();
-            for (int i = 0; i < newPers.size(); i++) {
-                ContactReportDealerPersonnel newDp = newPers.get(i);
+            for (ContactReportDealerPersonnel newDp : newPers) {
                 boolean found = false;
-                for (int j = 0; j < currentPers.size(); j++) {
-                    ContactReportDealerPersonnel existingDp = currentPers.get(j);
+                for (ContactReportDealerPersonnel existingDp : currentPers) {
                     if (newDp.getPersonnelIdCd().equalsIgnoreCase(existingDp.getPersonnelIdCd())) {
                         found = true;
                         break;
@@ -191,13 +187,15 @@ public class ContactReportServiceImpl implements ContactReportService {
                     newList.add(newDp);
                 }
             }
-            if (newList.size() > 0) {
+            if (!newList.isEmpty()) {
                 currentPers.addAll(newList);
             }
         } else
             //
             if (!CollectionUtils.isEmpty(report.getDealerPersonnels())) {
-                reportInfo.setDealerPersonnels(report.getDealerPersonnels());
+                List<ContactReportDealerPersonnel> dealerPersonnelList = report.getDealerPersonnels();
+                List<ContactReportDealerPersonnel> contactReportDealerPersonnels = contactReportDealerPersonnelRepository.saveAll(dealerPersonnelList);
+                reportInfo.setDealerPersonnels(contactReportDealerPersonnels);
             }
     }
 
@@ -220,10 +218,8 @@ public class ContactReportServiceImpl implements ContactReportService {
                             .equalsIgnoreCase(report.getDealers().getDlrCd());
                 }
             }
-            if (isDealerUpdated && report != null && report.getContactReportId() > 0) {
-//				reportInfo.setDealers(null);;
-            }
 
+            if (report == null) throw new AssertionError();
             reportInfo.setContactAuthor(
                     report.getContactAuthor() != null ? report.getContactAuthor() : reportInfo.getContactAuthor());
             reportInfo.setContactDt(report.getContactDt() != null ? report.getContactDt() : reportInfo.getContactDt());
@@ -238,37 +234,39 @@ public class ContactReportServiceImpl implements ContactReportService {
                     report.getContactType() != null ? report.getContactType() : reportInfo.getContactType());
             String reps = report.getCorporateReps();
             reportInfo.setCorporateReps(
-                    reps != null ? (reps.length() > 250 ? reps.substring(0, 250) : reps) : reportInfo.getContactType());
+                    reps != null ? (reps) : reportInfo.getContactType());
             if (!CollectionUtils.isEmpty(report.getDiscussions())) {
                 reportInfo.setDiscussions(report.getDiscussions());
                 reportInfo.setCurrentIssues(
-                        report.getDiscussions().stream().filter(val -> Objects.nonNull(val.getTopic()))
-                                .map(ContactReportDiscussion::getTopic).collect(Collectors.joining("|")));
+                        report.getDiscussions().stream().map(ContactReportDiscussion::getTopic)
+                                .filter(Objects::nonNull).collect(Collectors.joining("|")));
             }
             reportInfo.setDlrCd(report.getDlrCd() != null ? report.getDlrCd() : reportInfo.getDlrCd());
 
             reportInfo.setDealers(report.getDealers() != null ? report.getDealers() : reportInfo.getDealers());
-//			if (!CollectionUtils.isEmpty(report.getDealerPersonnels()) && !CollectionUtils.isEmpty(reportInfo.getDealerPersonnels())) {
-//				List<ContactReportDealerPersonnel> removedList = new ArrayList<>();
-//				for(int i = 0 ; i < reportInfo.getDealerPersonnels().size(); i++) {
-//					ContactReportDealerPersonnel existingDp = reportInfo.getDealerPersonnels().get(i);
-//					boolean found = false;
-//					for(int j = 0 ; j < report.getDealerPersonnels().size(); j++ ) {
-//						ContactReportDealerPersonnel newDp = report.getDealerPersonnels().get(j);
-//						if( newDp.getPersonnelIdCd().equalsIgnoreCase(existingDp.getPersonnelIdCd())) {
-//							found = true;
-//							break;
-//						}
-//					}
-//					if( ! found ) {
-//						existingDp.setPersonnelId(i);
-//						removedList.add(existingDp);
-//					}
-//				}
-//				if (!CollectionUtils.isEmpty(removedList)) {
-//					contactReportDealerPersonnelRepository.saveAll(removedList);
-//				}
-//			} else 
+/*
+			if (!CollectionUtils.isEmpty(report.getDealerPersonnels()) && !CollectionUtils.isEmpty(reportInfo.getDealerPersonnels())) {
+				List<ContactReportDealerPersonnel> removedList = new ArrayList<>();
+				for(int i = 0 ; i < reportInfo.getDealerPersonnels().size(); i++) {
+					ContactReportDealerPersonnel existingDp = reportInfo.getDealerPersonnels().get(i);
+					boolean found = false;
+					for(int j = 0 ; j < report.getDealerPersonnels().size(); j++ ) {
+						ContactReportDealerPersonnel newDp = report.getDealerPersonnels().get(j);
+						if( newDp.getPersonnelIdCd().equalsIgnoreCase(existingDp.getPersonnelIdCd())) {
+							found = true;
+							break;
+						}
+					}
+					if( ! found ) {
+						existingDp.setPersonnelId(i);
+						removedList.add(existingDp);
+					}
+				}
+				if (!CollectionUtils.isEmpty(removedList)) {
+					contactReportDealerPersonnelRepository.saveAll(removedList);
+				}
+			} else
+*/
             if (!CollectionUtils.isEmpty(report.getDealerPersonnels())) {
                 reportInfo.setDealerPersonnels(report.getDealerPersonnels());
             }

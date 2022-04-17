@@ -1,7 +1,6 @@
 package com.mnao.mfp.common.util;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
