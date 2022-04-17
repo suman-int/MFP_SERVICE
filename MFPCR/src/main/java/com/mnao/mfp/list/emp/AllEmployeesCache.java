@@ -28,27 +28,39 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 	private static final Logger log = LoggerFactory.getLogger(ListController.class);
 	//
 
-	private HashMap<String, ListPersonnel> allEmployees = new HashMap<>();
+	private HashMap<String, ListPersonnel> allEmployeesById = new HashMap<>();
+	private HashMap<String, ListPersonnel> allEmployeesByWSLId = new HashMap<>();
 
 	public synchronized HashMap<String, ListPersonnel> getAllEmployees() {
-		if (allEmployees.size() == 0) {
+		if (allEmployeesById.size() == 0) {
 			loadAllEmployees();
 		}
-		return allEmployees;
+		return allEmployeesById;
 	}
 
 	public ListPersonnel getByPrsnIdCd(String prsnIdCd) {
 		return getAllEmployees().get(prsnIdCd);
 	}
 
+	public ListPersonnel getByWSLCd(String wslId) {
+		ListPersonnel lp = null;
+		if( getAllEmployees().size() > 0)
+			lp = allEmployeesByWSLId.get(wslId);
+		return lp;
+	}
+
 	public void updateDomain(MFPUser mfpUser) {
 		if (!mfpUser.isDbDomainUpdated()) {
 			ListPersonnel lp = getByPrsnIdCd(mfpUser.getEmployeeNumber());
+			if( lp == null )
+				lp = getByWSLCd(mfpUser.getUserid());
 			if (lp != null) {
 				if (lp.getLoctnCd().equals("MA92")) {
 					mfpUser.setCorporatePerson(true);
 					mfpUser.setCorpPerson(true);
 				} else {
+					mfpUser.setCorporatePerson(false);
+					mfpUser.setCorpPerson(false);
 					Domain dom = mfpUser.getDomain();
 					if (dom == null)
 						dom = new Domain();
@@ -92,10 +104,11 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 		}
 		if (retRows != null) {
 			for (ListPersonnel le : retRows) {
-				allEmployees.put(le.getPrsnIdCd(), le);
+				allEmployeesById.put(le.getPrsnIdCd(), le);
+				allEmployeesByWSLId.put(le.getUserId(), le);
 			}
 		}
-		System.out.println("" + allEmployees.size() + " Employees loaded to cache.");
+		System.out.println("" + allEmployeesById.size() + " Employees loaded to cache.");
 	}
 
 }

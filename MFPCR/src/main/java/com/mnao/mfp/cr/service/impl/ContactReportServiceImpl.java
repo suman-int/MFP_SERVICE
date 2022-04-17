@@ -202,7 +202,7 @@ public class ContactReportServiceImpl implements ContactReportService {
             		newList.get(i).setIsActive("Y");
             	}
 //                List<ContactReportDealerPersonnel> contactReportDealerPersonnels = contactReportDealerPersonnelRepository.saveAll(newList);
-//                reportInfo.setDealerPersonnels(contactReportDealerPersonnels);
+                reportInfo.setDealerPersonnels(newList);
             }
     }
 
