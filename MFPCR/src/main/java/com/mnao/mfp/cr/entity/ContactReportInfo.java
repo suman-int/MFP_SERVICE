@@ -66,7 +66,7 @@ public class ContactReportInfo extends BaseEntity {
 	@Column(name = "LAST_DISCUSSION_REQ4_DT")
 	private LocalDate lastDiscussionReqDt;
 
-	@OneToMany(targetEntity = ContactReportDealerPersonnel.class, cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(targetEntity = ContactReportDealerPersonnel.class, cascade = CascadeType.ALL)
 	@JoinColumn(name = "contactReportIdFk", referencedColumnName = "contactReportId", nullable = false)
 	@NotNull
 	private List<ContactReportDealerPersonnel> dealerPersonnels;
