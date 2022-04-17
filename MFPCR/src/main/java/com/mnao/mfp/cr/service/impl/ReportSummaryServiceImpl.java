@@ -1,6 +1,8 @@
 package com.mnao.mfp.cr.service.impl;
 
 import com.mnao.mfp.common.datafilters.FilterCriteria;
+import com.mnao.mfp.common.util.AppConstants;
+import com.mnao.mfp.common.util.IsActiveEnum;
 import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;
@@ -11,6 +13,8 @@ import com.mnao.mfp.cr.util.DataOperationFilter;
 import com.mnao.mfp.cr.util.LocationEnum;
 import com.mnao.mfp.user.dao.MFPUser;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -24,6 +28,7 @@ import static com.mnao.mfp.common.util.Utils.isNotNullOrEmpty;
 
 @Service
 public class ReportSummaryServiceImpl implements ReportSummaryService {
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ContactInfoRepository contactInfoRepository;
@@ -34,7 +39,7 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
     @Override
     public List<Map<String, String>> getSummaryByLocation(FilterCriteria filter, MFPUser mfpUser) {
         List<Map<String, String>> finalListData = new ArrayList<>();
-        List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNull();
+        List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNullAndIsActive(IsActiveEnum.YES.getValue());
         long [] totals = new long[2];
         if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
             contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
@@ -73,13 +78,13 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
                     if (pendingReviewCount > 0 || reviewedCount > 0) {
                     	totals[0] += pendingReviewCount;
                     	totals[1] += reviewedCount;
-                        responseData.put(key1, String.format("%d/%d", pendingReviewCount, reviewedCount));
+                        responseData.put(key1, String.format(AppConstants.DOUBLE_INT_PERCENT, pendingReviewCount, reviewedCount));
                     }
                 }
             });
             if (!CollectionUtils.isEmpty(responseData)) {
                 responseData.put(getStringByType(filter.forLocation().name()), key);
-                responseData.put("TOTAL",  String.format("%d/%d", totals[0], totals[1]));
+                responseData.put("TOTAL",  String.format(AppConstants.DOUBLE_INT_PERCENT, totals[0], totals[1]));
                 totals[0] = 0;
                 totals[1] = 0;
                 finalListData.add(responseData);
@@ -93,7 +98,7 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
     @Override
     public List<Map<String, String>> getSummaryOfMonthByLocation(FilterCriteria filter, MFPUser mfpUser) {
         List<Map<String, String>> finalListData = new ArrayList<>();
-        List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNullAndContactDtNotNull();
+        List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNullAndContactDtNotNullAndIsActive(IsActiveEnum.YES.getValue());
         long [] totals = new long[2];
        if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
             contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
@@ -101,13 +106,13 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
         if (isNotNullOrEmpty(filter.getStartDate()) && isNotNullOrEmpty(filter.getEndDate())) {
             contactReports = dataOperationFilter.filterContactReportsByDateRange(filter, contactReports);
         }
-        contactReports.forEach(value -> System.out.println(value.getContactReportId() + ">" + value.getContactDt()));
+        contactReports.forEach(value -> logger.info("{} > {}",value.getContactReportId(), value.getContactDt()));
         Map<String, Map<Object, List<ContactReportInfo>>> reports;
         if (filter.forLocation() == LocationEnum.DISTRICT) {
             reports = dataOperationFilter.filterContactReportByDistrict(contactReports, filter, mfpUser)
                     .collect(Collectors.groupingBy(group -> {
                     	Dealers dealer = group.getDealers();
-                    	return String.format("%s-%s", dealer.getDlrCd().trim(), dealer.getDbaNm());
+                    	return String.format(AppConstants.DOUBLE_STRING_FORMAT, dealer.getDlrCd().trim(), dealer.getDbaNm());
                     },
                             Collectors.groupingBy(gr -> gr.getContactDt().format(DateTimeFormatter.ofPattern("MMM")))));
         } else if (filter.forLocation() == LocationEnum.ZONE) {
@@ -141,7 +146,7 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
                 long reviewedCount = value.stream()
                         .filter(report -> report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode())
                         .count();
-                responseData.put(key, String.format("%d/%d", pendingReqvieCount, reviewedCount));
+                responseData.put(key, String.format(AppConstants.DOUBLE_INT_PERCENT, pendingReqvieCount, reviewedCount));
             	totals[0] += pendingReqvieCount;
             	totals[1] += reviewedCount;
             });
@@ -152,7 +157,7 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
                    }
                });
                responseData.put(getStringByType(filter.forLocation().name()), key1);
-               responseData.put("TOTAL",  String.format("%d/%d", totals[0], totals[1]));
+               responseData.put("TOTAL",  String.format(AppConstants.DOUBLE_INT_PERCENT, totals[0], totals[1]));
                totals[0] = 0;
                totals[1] = 0;
                finalListData.add(responseData);

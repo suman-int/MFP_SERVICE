@@ -10,7 +10,7 @@ import com.mnao.mfp.cr.entity.ContactReportInfo;
 
 public interface ContactReportAttachmentRepository extends JpaRepository<ContactReportAttachment, Long> {
 
-    public ContactReportAttachment findByAttachmentId(@Param("attachmentId") long attachmentId);
+    public ContactReportAttachment findByAttachmentIdAndIsActive(@Param("attachmentId") long attachmentId, String isActive);
     public ContactReportAttachment findByAttachmentPath(@Param("attachmentPath") String attachmentPath);
 //    public ContactReportAttachment findByAttachmentNameAndContactReportAndStatus(@Param("attachmentName") String attachmentName,@Param("contactReport") ContactReportInfo contactReport);
 }

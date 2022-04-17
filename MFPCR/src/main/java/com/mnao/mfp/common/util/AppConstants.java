@@ -2,6 +2,7 @@ package com.mnao.mfp.common.util;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public class AppConstants {
 	public static final String MFP_PROPS_FILE = System.getProperty("mfp.prop.file", "/mfp.properties");
@@ -120,5 +121,7 @@ public class AppConstants {
             "Network Activity",
             "Other",
             "UMX");
-                                                                                                                                                                                                                                                                                                                                                                                                                    
+
+	public static final String DOUBLE_INT_PERCENT = "%d/%d";
+    public static final String DOUBLE_STRING_FORMAT = "%s-%s";
 }
