@@ -111,13 +111,6 @@ public class ContactReportServiceImpl implements ContactReportService {
                 reportInfo.setDlrCd(report.getDlrCd() != null ? report.getDlrCd() : reportInfo.getDlrCd());
 
                 reportInfo.setDealers(report.getDealers() != null ? report.getDealers() : reportInfo.getDealers());
-                // Addition and Deletion of Dealer Personnel
-                addRemoveDealerPersonnel(report, reportInfo);
-                duplicateAttachmentChecker(report.getAttachment());
-                // Need to check for Additions and Deletions here as well
-                if (!CollectionUtils.isEmpty(report.getAttachment())) {
-                    reportInfo.setAttachment(report.getAttachment());
-                }
             }
 
             // Submit and Reviewed Date
@@ -128,6 +121,13 @@ public class ContactReportServiceImpl implements ContactReportService {
                     reportInfo.setReviewedDt(LocalDate.now());
                     reportInfo.setReviewedBy(mfpUser.getUserid());
                 }
+            }
+            // Addition and Deletion of Dealer Personnel
+            addRemoveDealerPersonnel(report, reportInfo);
+            duplicateAttachmentChecker(report.getAttachment());
+            // Need to check for Additions and Deletions here as well
+            if (!CollectionUtils.isEmpty(report.getAttachment())) {
+                reportInfo.setAttachment(report.getAttachment());
             }
             //
             ContactReportInfo info = contactInfoRepository.save(reportInfo);
@@ -171,7 +171,8 @@ public class ContactReportServiceImpl implements ContactReportService {
             }
             // Remove the persons from Current, if any
             for (int i = removedList.size() - 1; i >= 0; i--) {
-                currentPers.remove(removedList.get(i).intValue());
+                //currentPers.remove(removedList.get(i).intValue());
+            	currentPers.get(removedList.get(i).intValue()).setIsActive("N");
             }
             // Additions
             List<ContactReportDealerPersonnel> newList = new ArrayList<>();
@@ -188,14 +189,20 @@ public class ContactReportServiceImpl implements ContactReportService {
                 }
             }
             if (!newList.isEmpty()) {
+            	for(int i = 0 ; i < newList.size(); i++ ) {
+            		newList.get(i).setIsActive("Y");
+            	}
                 currentPers.addAll(newList);
             }
         } else
             //
             if (!CollectionUtils.isEmpty(report.getDealerPersonnels())) {
-                List<ContactReportDealerPersonnel> dealerPersonnelList = report.getDealerPersonnels();
-                List<ContactReportDealerPersonnel> contactReportDealerPersonnels = contactReportDealerPersonnelRepository.saveAll(dealerPersonnelList);
-                reportInfo.setDealerPersonnels(contactReportDealerPersonnels);
+                List<ContactReportDealerPersonnel> newList = report.getDealerPersonnels();
+            	for(int i = 0 ; i < newList.size(); i++ ) {
+            		newList.get(i).setIsActive("Y");
+            	}
+//                List<ContactReportDealerPersonnel> contactReportDealerPersonnels = contactReportDealerPersonnelRepository.saveAll(newList);
+//                reportInfo.setDealerPersonnels(contactReportDealerPersonnels);
             }
     }
 
