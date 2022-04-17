@@ -31,7 +31,7 @@ public class ContactReportDealerPersonnel extends BaseEntity {
 
 	@NotNull
 	private String personnelIdCd;
-
+	
 	@PrePersist()
 	public void preSave() {
 		this.setCreatedBy("ADMIN");
