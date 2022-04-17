@@ -38,6 +38,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ContactReportPDFServiceImpl implements ContactReportPDFService {
@@ -60,7 +61,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 	public ResponseEntity<Resource> createBulkPdfByFilterCriteria(FilterCriteria filter, MFPUser mfpUser,
 			HttpServletRequest request) throws DocumentException, FileNotFoundException, IOException {
 		List<ContactReportInfo> contactReports = contactInfoRepository.findByIsActive(IsActiveEnum.YES.getValue());
-		contactReports = contactReports.stream().filter(cr -> cr.getContactStatus() != ContactReportEnum.DRAFT.getStatusCode()).toList();
+		contactReports = contactReports.stream().filter(cr -> cr.getContactStatus() != ContactReportEnum.DRAFT.getStatusCode()).collect(Collectors.toList());
 		if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
 			contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
 		}

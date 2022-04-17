@@ -99,7 +99,7 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
     public List<Map<String, String>> getSummaryOfMonthByLocation(FilterCriteria filter, MFPUser mfpUser) {
         List<Map<String, String>> finalListData = new ArrayList<>();
         List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNullAndContactDtNotNullAndIsActive(IsActiveEnum.YES.getValue());
-        contactReports = contactReports.stream().filter(cr -> cr.getContactStatus() != ContactReportEnum.DRAFT.getStatusCode()).toList();
+        contactReports = contactReports.stream().filter(cr -> cr.getContactStatus() != ContactReportEnum.DRAFT.getStatusCode()).collect(Collectors.toList());
         long [] totals = new long[2];
        if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
             contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);

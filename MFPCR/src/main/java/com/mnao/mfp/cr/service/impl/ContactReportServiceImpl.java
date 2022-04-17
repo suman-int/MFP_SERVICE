@@ -321,7 +321,7 @@ public class ContactReportServiceImpl implements ContactReportService {
     public ContactReportDto findByContactReportId(long contactReportId) {
         ContactReportDto contactReportDto = new ContactReportDto();
         ContactReportInfo crInfo = contactInfoRepository.findByContactReportIdAndIsActive(contactReportId, IsActiveEnum.YES.getValue());
-        crInfo.setDealerPersonnels(crInfo.getDealerPersonnels().stream().filter(dp -> IsActiveEnum.YES.getValue().equalsIgnoreCase(dp.getIsActive())).toList());
+        crInfo.setDealerPersonnels(crInfo.getDealerPersonnels().stream().filter(dp -> IsActiveEnum.YES.getValue().equalsIgnoreCase(dp.getIsActive())).collect(Collectors.toList()));
         contactReportDto.setContactReport(crInfo);
         return contactReportDto;
     }
