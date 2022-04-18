@@ -41,7 +41,7 @@ public class Utils {
 
 	public static String getAppProperty(String propKey) {
 		String val = getAppProperties().getProperty(propKey);
-		if (val != null) {
+		if (val != null && val.trim().length() > 0) {
 			val = val.trim();
 			if (val.charAt(0) == '"' && val.charAt(val.length() - 1) == '"') {
 				val = val.substring(1, val.length() - 1);

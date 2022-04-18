@@ -132,7 +132,8 @@ public class EmailService extends MfpKPIControllerBase {
 			try {
 				retRows = service.getListData(sqlName, ReviewerEmployeeInfo.class, df, dInfo.getRgnCd(),
 						dInfo.getZoneCd(), contactReviewer);
-				revEmp = retRows.get(0);
+				if (retRows != null && retRows.size() > 0)
+					revEmp = retRows.get(0);
 			} catch (InstantiationException | IllegalAccessException | ParseException e) {
 				System.err.println("ERROR retrieving list of Employees:" + e);
 			}
