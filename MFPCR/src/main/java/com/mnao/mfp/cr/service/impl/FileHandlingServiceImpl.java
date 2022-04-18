@@ -152,16 +152,18 @@ public class FileHandlingServiceImpl implements FileHandlingService {
             return responsetext;
         for (ContactReportAttachment attachment : attachments) {
             String sourcePath = getTemporaryFilePath(attachment.getAttachmentPath());
-            String destinationPath = getStorageFilePath(attachment, contactReportId);
-            attachment.setContactReport(report);
-            if (moveFiles(sourcePath, destinationPath)) {
-                attachment.setAttachmentPath(destinationPath);
-                attachment.setStatus(AppConstants.StatusSubmit);
-                attachmentRepository.save(attachment);
-            } else {
-                flag = false;
-                flaggedAttachment = attachment;
-                break;
+            if (Paths.get(sourcePath).toFile().exists()) {
+            	String destinationPath = getStorageFilePath(attachment, contactReportId);
+                attachment.setContactReport(report);
+                if (moveFiles(sourcePath, destinationPath)) {
+                    attachment.setAttachmentPath(destinationPath);
+                    attachment.setStatus(AppConstants.StatusSubmit);
+                    attachmentRepository.save(attachment);
+                } else {
+                    flag = false;
+                    flaggedAttachment = attachment;
+                    break;
+                }
             }
 
         }

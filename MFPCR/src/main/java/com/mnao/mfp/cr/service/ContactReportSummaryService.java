@@ -309,20 +309,20 @@ public class ContactReportSummaryService {
         List<SummaryByContactStatusDto> finalListData = new ArrayList<>();
         List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNullAndIsActive(IsActiveEnum.YES.getValue());
         contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports, mfpUser);
-        Map<String, List<ContactReportInfo>> reports;
         Map<String, List<ContactReportInfo>> finalData = new HashMap<>();
-        reports = contactReports.stream().collect(Collectors.groupingBy(ContactReportInfo::getCurrentIssues));
-
-        reports.forEach((key, value) -> Arrays.asList(key.split("\\|")).forEach(issue -> {
-            if (finalData.containsKey(issue)) {
-                List<ContactReportInfo> existingData = finalData.get(issue);
-                existingData.addAll(value);
-                finalData.put(issue, existingData);
-            } else {
-                finalData.put(issue, value);
-            }
-        }));
-
+        contactReports.forEach(cr -> {
+        	 Arrays.asList(cr.getCurrentIssues().split("\\|")).forEach(issue -> {
+        		 List<ContactReportInfo> tempCr = new ArrayList<>();
+                 if (finalData.containsKey(issue)) {
+                     List<ContactReportInfo> existingData = finalData.get(issue);
+                     existingData.add(cr);
+                     finalData.put(issue, existingData);
+                 } else {
+                	 tempCr.add(cr);
+                     finalData.put(issue, tempCr);
+                 }
+             });
+        });
         finalData.forEach((key, value) -> {
             Map<Integer, List<ContactReportInfo>> mapValue = value.stream().collect(Collectors.groupingBy(ContactReportInfo::getContactStatus));
             long submittedCount = mapValue.containsKey(ContactReportEnum.SUBMITTED.getStatusCode()) ? mapValue.get(ContactReportEnum.SUBMITTED.getStatusCode()).size() : 0L;
