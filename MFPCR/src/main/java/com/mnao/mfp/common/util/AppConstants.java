@@ -5,8 +5,13 @@ import java.util.List;
 import java.util.Locale;
 
 public class AppConstants {
-	public static final String MFP_PROPS_FILE = System.getProperty("mfp.prop.file", "/mfp.properties");
-//	public static final String MFP_PROPS_FILE = System.getProperty("mfp.prop.file","C:/SmWrk/MFP/MicroServices/Sales/MFPSalesKPI-MS/src/main/resources/mfp.properties");
+	private static String mfpProfName = "/mfp.properties";
+	static {
+		String prof = System.getProperty("spring.profiles.active", "dev");
+		if (prof.length() > 0)
+			mfpProfName = "/mfp-" + prof + ".properties";
+	}
+	public static final String MFP_PROPS_FILE = System.getProperty("mfp.prop.file", mfpProfName);
 	public static final String EMP_USE_DB_RGN_ZONE_DSTR = "emp.use.db.rgn.zone.dstr";
 	public static final String TABLE_QUERY_CONFIG = "TableQueryConfig.json";
 	public static final String KPI_QUERY_CONFIG = "KPIQueryConfig.json";
@@ -70,58 +75,20 @@ public class AppConstants {
 	public static final String DISPLAYDATE_FORMAT = "MM-dd-yyyy";
 	public static final List<String> MONTHS_LIST = Arrays.asList("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
 			"Sep", "Oct", "Nov", "Dec");
-	public static final List<String> SALES_TOPIC_LIST = Arrays.asList( "Annual Business Plan-0", "Co-op Sales", "CPO/Remarketing",
-            "CX360 Record Health",
-            "CX360 Survey Health",
-            "Dealer Financials",
-            "Dealer Loyalty",
-            "Dealer Risk Assessment",
-            "Inventory & Ordering",
-            "Lead Management",
-            "Marketing",
-            "MBEP Training",
-            "MCVP",
-            "MCVP Vehicle Expiring",
-            "Other",
-            "Owner Loyalty",
-            "RDR information",
-            "Registration Market Share",
-            "Retail Sales",
-            "Sales Customer Experience (MBEP 2.1 Index)",
-            "SPI",
-            "Training");
-	public static final List<String> SERVICE_TOPIC_LIST = Arrays.asList( "Accessory Business",
-            "Annual Business Plan",
-            "Co-op Service",
-            "CX360 Record Health",
-            "CX360 Survey Health",
-            "Dealer Financials",
-            "Dealer Risk Assessment",
-            "FIRFT",
-            "Marketing",
-            "MBEP Training",
-            "MCVP",
-            "MCVP Vehicle Expiring",
-            "Missed Recall Tiers",
-            "MPC (PartsEye) Utilization",
-            "Other",
-            "Parts Purchase Loyalty",
-            "Parts Sales",
-            "Recalls",
-            "Repair Orders",
-            "Service Customer Experience (MBEP 2.1 Index)",
-            "Service Retention/FYSL",
-            "Shop Capacity",
-            "Training",
-            "X-Time Service Scheduling");
-	public static final List<String> OTHER_TOPIC_LIST = Arrays.asList(  "Dealer Dev Deficiencies Identified",
-            "Dealer Staffing",
-            "Facility",
-            "NDAC Engagement",
-            "Network Activity",
-            "Other",
-            "UMX");
+	public static final List<String> SALES_TOPIC_LIST = Arrays.asList("Annual Business Plan-0", "Co-op Sales",
+			"CPO/Remarketing", "CX360 Record Health", "CX360 Survey Health", "Dealer Financials", "Dealer Loyalty",
+			"Dealer Risk Assessment", "Inventory & Ordering", "Lead Management", "Marketing", "MBEP Training", "MCVP",
+			"MCVP Vehicle Expiring", "Other", "Owner Loyalty", "RDR information", "Registration Market Share",
+			"Retail Sales", "Sales Customer Experience (MBEP 2.1 Index)", "SPI", "Training");
+	public static final List<String> SERVICE_TOPIC_LIST = Arrays.asList("Accessory Business", "Annual Business Plan",
+			"Co-op Service", "CX360 Record Health", "CX360 Survey Health", "Dealer Financials",
+			"Dealer Risk Assessment", "FIRFT", "Marketing", "MBEP Training", "MCVP", "MCVP Vehicle Expiring",
+			"Missed Recall Tiers", "MPC (PartsEye) Utilization", "Other", "Parts Purchase Loyalty", "Parts Sales",
+			"Recalls", "Repair Orders", "Service Customer Experience (MBEP 2.1 Index)", "Service Retention/FYSL",
+			"Shop Capacity", "Training", "X-Time Service Scheduling");
+	public static final List<String> OTHER_TOPIC_LIST = Arrays.asList("Dealer Dev Deficiencies Identified",
+			"Dealer Staffing", "Facility", "NDAC Engagement", "Network Activity", "Other", "UMX");
 
 	public static final String DOUBLE_INT_PERCENT = "%d/%d";
-    public static final String DOUBLE_STRING_FORMAT = "%s-%s";
+	public static final String DOUBLE_STRING_FORMAT = "%s-%s";
 }
