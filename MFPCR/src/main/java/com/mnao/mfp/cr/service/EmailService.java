@@ -77,7 +77,13 @@ public class EmailService extends MfpKPIControllerBase {
 		String subject = getEmailSubject(report, subjFmt, authorName, reviewerName, dealerName);
 		String body = getEmailBody(report, toFmt, bodyFmt, authorName, reviewerName, dealerName);
 		//
-		toAddresses.add(toAddr);
+		//toAddresses.add(toAddr);
+		toAddresses.add("SMUKHER1@MAZDAUSA.COM");
+		toAddresses.add("NBUDHIRA@MAZDAUSA.COM");
+		toAddresses.add("GPINJARK@MAZDAUSA.COM");
+		toAddresses.add("ARIJITDU@INTERRAIT.COM");
+		toAddresses.add("RCHAKRAB@MAZDAUSA.COM");
+		//
 		String ccStr = Utils.getAppProperty(AppConstants.REVIEW_MAIL_CC);
 		if (ccStr != null && ccStr.trim().length() > 0) {
 			String[] ccs = ccStr.split("[,; ]");
