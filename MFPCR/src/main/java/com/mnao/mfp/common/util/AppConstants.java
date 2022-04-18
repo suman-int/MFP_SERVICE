@@ -7,7 +7,7 @@ import java.util.Locale;
 public class AppConstants {
 	private static String mfpProfName = "/mfp.properties";
 	static {
-		String prof = System.getProperty("spring.profiles.active", "dev");
+		String prof = System.getProperty("spring.profiles.active", "");
 		if (prof.length() > 0)
 			mfpProfName = "/mfp-" + prof + ".properties";
 	}
