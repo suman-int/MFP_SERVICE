@@ -22,7 +22,7 @@ public interface ContactReportService {
 
     List<DealersByIssue> getAllDealersByIssue();
 
-    Map<String, List<ContactReportInfoDto>> getMyContactReport(String userId, boolean showUsersDraft);
+    Map<String, List<ContactReportInfoDto>> getMyContactReport(MFPUser mfpUser, boolean showUsersDraft);
 
 	String submitReportDataV2(@Valid ContactReportInfoDto report, MFPUser mfpUser, String currURL) throws Exception;
 
