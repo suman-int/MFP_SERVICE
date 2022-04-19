@@ -335,7 +335,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 		Predicate<ContactReportInfo> isDiscussion = cr -> cr
 				.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode();
 		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthorAndIsActive(userId, "Y");
-		List<ContactReportInfo> revCntactReportInfos = contactInfoRepository.findByContactAuthorAndIsActive(empCd, "Y");
+		List<ContactReportInfo> revCntactReportInfos = contactInfoRepository.findByContactReviewerAndIsActive(empCd, "Y");
 		revCntactReportInfos = revCntactReportInfos.stream().filter(isSubmitted.or(isDiscussion))
 				.collect(Collectors.toList());
 		contactReportInfos.addAll(revCntactReportInfos);
