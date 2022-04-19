@@ -1,15 +1,29 @@
 package com.mnao.mfp.common.util;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 
 public class AppConstants {
 	private static String mfpProfName = "/mfp.properties";
 	static {
 		String prof = System.getProperty("spring.profiles.active", "");
+		if( prof.trim().length() == 0 )
+		{
+			try (InputStream is = Utils.class.getResourceAsStream("/application.properties")) {
+				Properties p = new Properties();
+				p.load(is);
+				prof = p.getProperty("spring.profiles.active", "");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
 		if (prof.length() > 0)
 			mfpProfName = "/mfp-" + prof + ".properties";
+		System.out.println("***********************\nActive Profile:" + prof + "\n***********************");
 	}
 	public static final String MFP_PROPS_FILE = System.getProperty("mfp.prop.file", mfpProfName);
 	public static final String EMP_USE_DB_RGN_ZONE_DSTR = "emp.use.db.rgn.zone.dstr";
@@ -43,7 +57,7 @@ public class AppConstants {
 	public static final String SQL_LIST_DEALER_EMPLOYEES = "LIST_DEALER_EMPLOYEES.sql";
 	public static final String SQL_LIST_REVIEWER_EMPLOYEES = "LIST_REVIEWER_EMPLOYEES.sql";
 	public static final String SQL_LIST_REVIEWER_EMPLOYEE = "LIST_REVIEWER_EMPLOYEE.sql";
-	public static final String SQL_LIST_CORPORATE_EMPLOYEES = "LIST_CORPORATE_EMPLOYEES.sql";
+	public static final String SQL_LIST_CORPORATE_EMPLOYEES = "LIST_CORPORATE_EMPLOYEES_V2.sql";
 	public static final String SQL_LIST_ALL_EMPLOYEES = "LIST_ALL_EMPLOYEES_V2.sql";
 	//
 	public static final String CR_URL_KEY = "MFP_CR_URL";
@@ -66,6 +80,7 @@ public class AppConstants {
 	public static final String MAIL_DISCREQ_TO = "cr.mail.discreq.to";
 	public static final String MAIL_DISCREQ_SUBJECT = "cr.mail.discreq.subject";
 	public static final String MAIL_DISCREQ_BODY = "cr.mail.discreq.body";
+	public static final String MAIL_TEST_USERS = "cr.mail.dev.users";
 	//
 	public static final int StatusSubmit = 1;
 	public static final int StatusDeleted = 2;

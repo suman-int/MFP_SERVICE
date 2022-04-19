@@ -16,12 +16,14 @@ public class Utils {
 	//
 	private static final Logger log = LoggerFactory.getLogger(Utils.class);
 	//
-
+	
 	//
 	private static Properties appProps = new Properties();
 	//
-	private static String sqlFilesFolder = getAppProperty("location.sqlfiles");
-
+	//private static String sqlFilesFolder = getAppProperty("location.sqlfiles");
+	public static void setAppProps(Properties props) {
+		appProps = props;
+	}
 	//
 	public static String readTextFromFile(String fPath) {
 		StringBuilder sb = new StringBuilder();

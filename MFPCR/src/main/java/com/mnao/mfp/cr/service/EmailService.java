@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.mail.MessagingException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.mnao.mfp.common.controller.MfpKPIControllerBase;
@@ -25,7 +26,8 @@ import com.mnao.mfp.user.service.UserDetailsService;
 
 @Service
 public class EmailService extends MfpKPIControllerBase {
-
+	@Value("${spring.profiles.active}")
+	private String activeProfile;
 	public void sendEmailNotification(ContactReportInfo report, int origCRStatus, MFPUser mfpUser)
 			throws MessagingException {
 		EMazdamailsender objEMazdamailsender = new EMazdamailsender();
@@ -76,13 +78,15 @@ public class EmailService extends MfpKPIControllerBase {
 		String emailFrom = Utils.getAppProperty(AppConstants.REVIEW_MAIL_FROM);
 		String subject = getEmailSubject(report, subjFmt, authorName, reviewerName, dealerName);
 		String body = getEmailBody(report, toFmt, bodyFmt, authorName, reviewerName, dealerName);
-		//
-		//toAddresses.add(toAddr);
-		toAddresses.add("SMUKHER1@MAZDAUSA.COM");
-		toAddresses.add("NBUDHIRA@MAZDAUSA.COM");
-		toAddresses.add("GPINJARK@MAZDAUSA.COM");
-		toAddresses.add("ARIJITDU@INTERRAIT.COM");
-		toAddresses.add("RCHAKRAB@MAZDAUSA.COM");
+		if(activeProfile.equalsIgnoreCase("dev")) {
+			String toStr = Utils.getAppProperty(AppConstants.MAIL_TEST_USERS);
+			if (toStr != null && toStr.trim().length() > 0) {
+				String[] ccs = toStr.split("[,; ]");
+				toAddresses = Arrays.asList(ccs);
+			}			
+		} else {
+			toAddresses.add(toAddr);
+		}
 		//
 		String ccStr = Utils.getAppProperty(AppConstants.REVIEW_MAIL_CC);
 		if (ccStr != null && ccStr.trim().length() > 0) {
