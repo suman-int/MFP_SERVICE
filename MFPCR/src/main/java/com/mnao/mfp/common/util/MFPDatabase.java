@@ -13,6 +13,9 @@ import javax.sql.rowset.RowSetProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.mnao.mfp.common.service.AppPropertiesService;
 
 //
 public class MFPDatabase {

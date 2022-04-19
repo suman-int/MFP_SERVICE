@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -23,6 +24,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.common.db.KPIQuerySpecs;
+import com.mnao.mfp.common.service.AppPropertiesService;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.DateUtils;
 import com.mnao.mfp.common.util.Utils;
@@ -40,11 +42,13 @@ public abstract class MfpKPIControllerBase {
 	//
 	private static List<KPIQuerySpecs> kpiQuerySpecs = null;
 	private static Map<String, KPIQuerySpecs> kpiMetricQueries = new HashMap<String, KPIQuerySpecs>();
-	private String sqlRootFolder = Utils.getAppProperty("location.sqlfiles");
+	//private String sqlRootFolder = Utils.getAppProperty("location.sqlfiles");
 	protected String kpiQueryFolder = "";
 	//
 	protected DateUtils dateUtils = new DateUtils();
 	//
+	@Autowired
+	private AppPropertiesService propService;
 	//
 	private KPIQuerySpecs getKPIQuerySpecs(String kpiMetric) {
 		if (kpiQuerySpecs == null) {
@@ -90,6 +94,7 @@ public abstract class MfpKPIControllerBase {
 	}
 
 	private void loadKPIQueryConfig() {
+		String sqlRootFolder = propService.getAppProperties().getProperty("location.sqlfiles");
 		if (!sqlRootFolder.endsWith("/"))
 			sqlRootFolder = sqlRootFolder + "/";
 		kpiQueryFolder = sqlRootFolder + AppConstants.KPI_QUERY_SCRIPTS_FOLDER;

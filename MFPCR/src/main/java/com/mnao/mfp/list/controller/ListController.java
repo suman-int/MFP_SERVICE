@@ -201,7 +201,11 @@ public class ListController extends MfpKPIControllerBase {
 		List<ListPersonnel> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
 		try {
-			retRows = service.getListData(sqlName, ListPersonnel.class, df);
+			DealerInfo dlrInfo = getDealerInfo(null, dlrCd);
+			if (dlrInfo != null) {
+				retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(), dlrInfo.getZoneCd(),
+						dlrInfo.getDistrictCd());
+			}
 		} catch (InstantiationException | IllegalAccessException | ParseException e) {
 			log.error("ERROR retrieving list of Employees:", e);
 		}
@@ -210,7 +214,7 @@ public class ListController extends MfpKPIControllerBase {
 
 	//
 	@PostMapping("/GetDealerInfo")
-	public CommonResponse<DealerInfo> getDealerInfo(@RequestParam(required = true,  value = "dlrCd") String dlrCd,
+	public CommonResponse<DealerInfo> getDealerInfo(@RequestParam(required = true, value = "dlrCd") String dlrCd,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		DealerInfo dlrInfo = getDealerInfo(mfpUser, dlrCd);
 		return AbstractService.httpPostSuccess(dlrInfo, "Success");
