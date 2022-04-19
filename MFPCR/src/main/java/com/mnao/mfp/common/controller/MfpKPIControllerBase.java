@@ -94,7 +94,7 @@ public abstract class MfpKPIControllerBase {
 	}
 
 	private void loadKPIQueryConfig() {
-		String sqlRootFolder = propService.getAppProperties().getProperty("location.sqlfiles");
+		String sqlRootFolder = Utils.getAppProperty("location.sqlfiles");
 		if (!sqlRootFolder.endsWith("/"))
 			sqlRootFolder = sqlRootFolder + "/";
 		kpiQueryFolder = sqlRootFolder + AppConstants.KPI_QUERY_SCRIPTS_FOLDER;
