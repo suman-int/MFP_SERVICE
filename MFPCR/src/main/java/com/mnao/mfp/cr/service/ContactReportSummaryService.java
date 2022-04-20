@@ -336,11 +336,17 @@ public class ContactReportSummaryService {
     }
 
 
-    public List<SummaryByDealerListDto> summaryByCurrentStatusOfDealershipList(String issue, MFPUser mfpUser) {
+    /**
+     * Summary By Current Status
+     * @param filterCriteria FilterCriteria
+     * @param mfpUser MFPUser
+     * @return
+     */
+    public List<SummaryByDealerListDto> summaryByCurrentStatusOfDealershipList(FilterCriteria filterCriteria, MFPUser mfpUser) {
+        String issue = filterCriteria.getIssuesFilter().get(0);
         List<ContactReportInfo> contactReportInfoList = contactInfoRepository.findByCurrentIssuesContainingAndIsActive(issue, IsActiveEnum.YES.getValue());
-        contactReportInfoList = dataOperationFilter.filterContactReportsByLocation(FilterCriteria.builder().build(), contactReportInfoList, mfpUser);
+        contactReportInfoList = dataOperationFilter.filterContactReportsByLocation(filterCriteria, contactReportInfoList, mfpUser);
         Set<Dealers> dealerList = contactReportInfoList.stream().map(ContactReportInfo::getDealers).collect(Collectors.toSet());
-
         return dealerList.stream().map(dlr -> SummaryByDealerListDto.builder().cityName(dlr.getCityNm()).dealerCode(dlr.getDlrCd()).dealerName(dlr.getDbaNm()).issue(issue).zipCode(dlr.getZipCd()).stateName(dlr.getStCd()).build()).collect(Collectors.toList());
 
     }

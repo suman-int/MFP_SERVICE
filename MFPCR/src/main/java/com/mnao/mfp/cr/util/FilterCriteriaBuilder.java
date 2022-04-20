@@ -14,6 +14,10 @@ import static com.mnao.mfp.common.util.Utils.isNotNullOrEmpty;
 
 public class FilterCriteriaBuilder {
 
+    private void FilterCriteriaBuilder() {
+
+    }
+
     public static FilterCriteria buildFilterByIssueAndTiming(String issues, String startOf, String endOf) {
         List<String> issuesList = new ArrayList<>();
         if (isNotNullOrEmpty(issues)) {

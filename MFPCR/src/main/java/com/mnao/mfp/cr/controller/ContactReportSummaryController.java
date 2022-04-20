@@ -14,14 +14,8 @@ import com.mnao.mfp.cr.service.GenericResponseWrapper;
 import com.mnao.mfp.cr.util.FilterCriteriaBuilder;
 import com.mnao.mfp.cr.util.IssueType;
 import com.mnao.mfp.user.dao.MFPUser;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -67,7 +61,6 @@ public class ContactReportSummaryController {
     }
 
 
-
     @GetMapping(value = "/by-month/{type}/{value}")
     public ContactReportResponse summaryByMonth(@PathVariable("type") String type,
                                                 @PathVariable("value") String value
@@ -79,7 +72,6 @@ public class ContactReportSummaryController {
                                 .filter(d -> d.getContactDt().getMonth().name().equals(i))
                                 .collect(Collectors.toList())), null);
     }
-
 
 
     @GetMapping(value = "/summary-current-status/{issueType}")
@@ -114,31 +106,39 @@ public class ContactReportSummaryController {
         return GenericResponseWrapper.contactReportResponseFunction
                 .apply(contactReportSummaryService.reportExecutionByException(date), null);
     }
-    
+
     @GetMapping(value = "/v2/summary-current-status")
-    public CommonResponse<List<SummaryByContactStatusDto>> summaryByCurrentStatusUsingIssues( 
-    		 @RequestParam(required = false) String regionId,
-             @RequestParam(required = false) String zoneId,
-             @RequestParam(required = false) String districtId,
-             @RequestParam(required = false) String dealerId,
-             @SessionAttribute(name = "mfpUser") MFPUser mfpUser
-    		) {
-    	 try {
-    		 FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByLocationAndIssueAndTiming(regionId, zoneId, districtId, dealerId, null, null, null);
-             List<SummaryByContactStatusDto> response = contactReportSummaryService.filterSummaryByCurrentStatusUsingIssues(filterCriteria, mfpUser);
-             return AbstractService.httpPostSuccess(response, "Success");
-         } catch (Exception e) {
-             return AbstractService.httpPostError(e);
-         }
+    public CommonResponse<List<SummaryByContactStatusDto>> summaryByCurrentStatusUsingIssues(
+            @RequestParam(required = false) String regionId,
+            @RequestParam(required = false) String zoneId,
+            @RequestParam(required = false) String districtId,
+            @RequestParam(required = false) String dealerId,
+            @SessionAttribute(name = "mfpUser") MFPUser mfpUser
+    ) {
+        try {
+            FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByLocationAndIssueAndTiming(regionId, zoneId, districtId, dealerId, null, null, null);
+            List<SummaryByContactStatusDto> response = contactReportSummaryService.filterSummaryByCurrentStatusUsingIssues(filterCriteria, mfpUser);
+            return AbstractService.httpPostSuccess(response, "Success");
+        } catch (Exception e) {
+            return AbstractService.httpPostError(e);
+        }
     }
 
     @GetMapping(value = "/v2/summary-current-status/dealership-list/{issue}")
-    public CommonResponse<List<SummaryByDealerListDto>> summaryByCurrentStatusOfDealershipList(@PathVariable("issue") String issue, @SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-        issue = issue.replaceAll("~", "/");
+    public CommonResponse<List<SummaryByDealerListDto>> summaryByCurrentStatusOfDealershipList(
+            @PathVariable("issue") String issue,
+            @RequestParam(required = false) String regionId,
+            @RequestParam(required = false) String zoneId,
+            @RequestParam(required = false) String districtId,
+            @RequestParam(required = false) String dealerId,
+            @SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
+
         try {
-        	List<SummaryByDealerListDto> response = contactReportSummaryService.summaryByCurrentStatusOfDealershipList(issue, mfpUser);
-        	 return AbstractService.httpPostSuccess(response, "Success");
-        	
+            issue = issue.replace("~", "/");
+            FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByLocationAndIssueAndTiming(regionId, zoneId, districtId, dealerId, issue, null, null);
+            List<SummaryByDealerListDto> response = contactReportSummaryService.summaryByCurrentStatusOfDealershipList(filterCriteria, mfpUser);
+            return AbstractService.httpPostSuccess(response, "Success");
+
         } catch (Exception e) {
             return AbstractService.httpPostError(e);
         }
