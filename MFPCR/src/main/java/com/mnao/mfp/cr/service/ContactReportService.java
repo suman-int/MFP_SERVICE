@@ -9,7 +9,6 @@ import com.mnao.mfp.user.dao.MFPUser;
 import java.util.List;
 import java.util.Map;
 
-import javax.mail.MessagingException;
 import javax.validation.Valid;
 
 public interface ContactReportService {
