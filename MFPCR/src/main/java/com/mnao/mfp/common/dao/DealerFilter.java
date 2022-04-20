@@ -10,6 +10,7 @@ import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.user.dao.Domain;
 import com.mnao.mfp.user.dao.MFPUser;
 
+@Getter
 public class DealerFilter {
 	//
 	private static final String colDlrCd = "DLR_CD";
