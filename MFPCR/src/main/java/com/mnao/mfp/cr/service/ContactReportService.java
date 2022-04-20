@@ -9,7 +9,6 @@ import com.mnao.mfp.user.dao.MFPUser;
 import java.util.List;
 import java.util.Map;
 
-import javax.mail.MessagingException;
 import javax.validation.Valid;
 
 public interface ContactReportService {
@@ -22,7 +21,7 @@ public interface ContactReportService {
 
     List<DealersByIssue> getAllDealersByIssue();
 
-    Map<String, List<ContactReportInfoDto>> getMyContactReport(String userId, boolean showUsersDraft);
+    Map<String, List<ContactReportInfoDto>> getMyContactReport(MFPUser mfpUser, boolean showUsersDraft);
 
 	String submitReportDataV2(@Valid ContactReportInfoDto report, MFPUser mfpUser, String currURL) throws Exception;
 
