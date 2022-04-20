@@ -13,8 +13,6 @@ import javax.validation.Valid;
 
 public interface ContactReportService {
 
-    String submitReportData(ContactReportInfoDto report, MFPUser mfpUser) throws Exception;
-
     ContactReportDto findByContactReportId(long contactReportId);
 
     void deleteReportById(long contactReportId);

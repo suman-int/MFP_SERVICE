@@ -19,7 +19,6 @@ public class NullCheck<T> {
 		this.root = root;
 	}
 	
-	@Nullable
 	public T get() {
 		return this.root;
 	}

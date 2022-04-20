@@ -88,27 +88,8 @@ public class ContactReportInfo extends BaseEntity {
 	@JoinColumn(name = "dlrCd", updatable = false, insertable = false)
 	@NotNull
 	private Dealers dealers;
-	//
-//	public void doUpdate(ContactReportInfo newCr) {
-//		if(newCr.dlrCd != null)  	dlrCd =  newCr.dlrCd;
-//		if(newCr.contactDt != null)  	contactDt =  newCr.contactDt;
-//		if(newCr.contactLocation != null)  	contactLocation =  newCr.contactLocation;
-//		if(newCr.contactType != null)  	contactType =  newCr.contactType;
-//		if(newCr.currentIssues != null)  	currentIssues =  newCr.currentIssues;
-//		if(newCr.contactAuthor != null)  	contactAuthor =  newCr.contactAuthor;
-//		if(newCr.contactReviewer != null)  	contactReviewer =  newCr.contactReviewer;
-//		if(newCr.contactStatus != 0)  	contactStatus =  newCr.contactStatus;
-//		if(newCr.corporateReps != null)  	corporateReps =  newCr.corporateReps;
-//		if(newCr.updatedBy != null)  	updatedBy =  newCr.updatedBy;
-//		if(newCr.createdBy != null)  	createdBy =  newCr.createdBy;
-//		if(newCr.createdDt != null)  	createdDt =  newCr.createdDt;
-//		if(newCr.updatedDt != null)  	updatedDt =  newCr.updatedDt;
-//		if( dealerPersonnels != null ) {
-//			for( ContactReportDealerPersonnel dp: dealerPersonnels) {
-//				
-//			}
-//		}
-//	}
+
+	private String addDealerPersonnel;
 
 	@PrePersist()
 	public void preSave() {

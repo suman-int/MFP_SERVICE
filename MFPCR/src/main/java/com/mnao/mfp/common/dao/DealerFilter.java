@@ -2,6 +2,8 @@ package com.mnao.mfp.common.dao;
 
 import java.util.ArrayList;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.util.CollectionUtils;
 
 import com.mnao.mfp.common.util.NullCheck;
@@ -51,7 +53,7 @@ public class DealerFilter {
 			this.rgnMulti = false;
 			return;
 		}
-		if ((dom.getRegions() != null) && (dom.getRegions().size() > 0)) {
+		if ((dom.getRegions() != null) && (!dom.getRegions().isEmpty())) {
 			rgnMulti = true;
 			if ((rgnCd != null) && rgnCd.trim().length() > 0) {
 				if (!dom.getRegions().contains(rgnCd)) {
@@ -63,7 +65,7 @@ public class DealerFilter {
 		} else if ((dom.getRegion() != null) && (dom.getRegion().getCode() != null) && (dom.getRegion().getCode().trim().length() > 0)) {
 			rgnCd = dom.getRegion().getCode().trim();
 		}
-		if ((dom.getZones() != null) && (dom.getZones().size() > 0)) {
+		if ((dom.getZones() != null) && (!dom.getZones().isEmpty())) {
 			zoneMulti = true;
 			if ((zoneCd != null) && zoneCd.trim().length() > 0) {
 				if (!dom.getZones().contains(zoneCd)) {
@@ -75,7 +77,7 @@ public class DealerFilter {
 		} else if ((dom.getZone() != null) && (dom.getZone().getCode() != null) && (dom.getZone().getCode().trim().length() > 0)) {
 			zoneCd = dom.getZone().getCode().trim();
 		}
-		if ((dom.getDistricts() != null) && (dom.getDistricts().size() > 0)) {
+		if ((dom.getDistricts() != null) && (!dom.getDistricts().isEmpty())) {
 			districtMulti = true;
 			if ((districtCd != null) && districtCd.trim().length() > 0) {
 				if (!dom.getDistricts().contains(districtCd)) {
@@ -89,54 +91,7 @@ public class DealerFilter {
 		}
 	}
 
-	//
-	public String getDlrCd() {
-		return dlrCd;
-	}
 
-	public void setDlrCd(String dlrCd) {
-		this.dlrCd = dlrCd;
-	}
-
-	public String getRgnCd() {
-		return rgnCd;
-	}
-
-	public void setRgnCd(String rgnCd) {
-		this.rgnCd = rgnCd;
-	}
-
-	public String getZoneCd() {
-		return zoneCd;
-	}
-
-	public void setZoneCd(String zoneCd) {
-		this.zoneCd = zoneCd;
-	}
-
-	public String getDistrictCd() {
-		return districtCd;
-	}
-
-	public void setDistrictCd(String districtCd) {
-		this.districtCd = districtCd;
-	}
-
-	public String getMdaCd() {
-		return mdaCd;
-	}
-
-	public void setMdaCd(String mdaCd) {
-		this.mdaCd = mdaCd;
-	}
-
-	public MFPUser getMfpUser() {
-		return mfpUser;
-	}
-
-	public void setMfpUser(MFPUser mfpUser) {
-		this.mfpUser = mfpUser;
-	}
 
 	public String getWhereCondition(String tabAlias) {
 		StringBuilder sb = new StringBuilder();
