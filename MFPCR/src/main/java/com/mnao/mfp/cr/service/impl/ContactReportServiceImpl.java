@@ -126,15 +126,18 @@ public class ContactReportServiceImpl implements ContactReportService {
                     reportInfo.setReviewedBy(mfpUser.getUserid());
                 }
             }
+         // Additional Dealership personnel
+            String addPersonnel = report.getDealerPersonnels().stream().filter(dp -> dp.getPersonnelId() == -999L).map(ContactReportDealerPersonnel::getPersonnelIdCd).collect(Collectors.joining("|"));
+            if (!addPersonnel.isEmpty()) {
+                reportInfo.setAddDealerPersonnel(addPersonnel);
+            } else {
+            	reportInfo.setAddDealerPersonnel("");
+            }
             // Addition and Deletion of Dealer Personnel
             report.setDealerPersonnels(report.getDealerPersonnels().stream().filter(dp -> dp.getPersonnelId() != -999L).collect(Collectors.toList()));
             addRemoveDealerPersonnel(report, reportInfo);
             duplicateAttachmentChecker(report.getAttachment());
-            // Additional Dealership personnel
-            String addPersonnel = report.getDealerPersonnels().stream().filter(dp -> dp.getPersonnelId() == -999L).map(ContactReportDealerPersonnel::getPersonnelIdCd).collect(Collectors.joining("|"));
-            if (!addPersonnel.isEmpty()) {
-                reportInfo.setAddDealerPersonnel(addPersonnel);
-            }
+            
             // Need to check for Additions and Deletions here as well
             if (!CollectionUtils.isEmpty(report.getAttachment())) {
                 reportInfo.setAttachment(report.getAttachment());
@@ -239,7 +242,11 @@ public class ContactReportServiceImpl implements ContactReportService {
         List<ContactReportDealerPersonnel> contactReportDealerPersonnels = crInfo.getDealerPersonnels().stream()
                 .filter(dp -> IsActiveEnum.YES.getValue().equalsIgnoreCase(dp.getIsActive()))
                 .collect(Collectors.toList());
-        List<String> dealerPersonnel = Arrays.asList(crInfo.getAddDealerPersonnel().split("\\|"));
+        List<String> dealerPersonnel = new ArrayList<>(0);
+        if (new NullCheck<>(crInfo).with(ContactReportInfo::getAddDealerPersonnel).isNotNull()) {
+        	dealerPersonnel = Arrays.asList(crInfo.getAddDealerPersonnel().split("\\|"));
+        }
+         
         List<ContactReportDealerPersonnel> dealerList = dealerPersonnel.stream().map(dp -> {
             ContactReportDealerPersonnel reportDealerPersonnel = new ContactReportDealerPersonnel();
             reportDealerPersonnel.setPersonnelId(-999L);
