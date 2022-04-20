@@ -131,7 +131,7 @@ public class ContactReportServiceImpl implements ContactReportService {
             if (!addPersonnel.isEmpty()) {
                 reportInfo.setAddDealerPersonnel(addPersonnel);
             } else {
-            	reportInfo.setAddDealerPersonnel("");
+            	reportInfo.setAddDealerPersonnel(null);
             }
             // Addition and Deletion of Dealer Personnel
             report.setDealerPersonnels(report.getDealerPersonnels().stream().filter(dp -> dp.getPersonnelId() != -999L).collect(Collectors.toList()));
