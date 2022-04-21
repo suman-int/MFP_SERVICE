@@ -156,7 +156,7 @@ public class ContactReportServiceImpl implements ContactReportService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            submission = "Failed to save Contact Report. Please check data.";
+            submission = "Failed to save Contact Report. " + e.getMessage();
             throw new Exception(submission);
         }
         return submission;

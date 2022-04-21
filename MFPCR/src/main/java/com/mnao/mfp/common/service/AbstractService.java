@@ -21,6 +21,7 @@ public class AbstractService {
 		commonResp.setResult(null);
 		commonResp.setSuccess(false);
 		commonResp.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+		commonResp.setError(exp.getMessage());
 		return commonResp;
 	}
 
