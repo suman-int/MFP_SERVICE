@@ -272,8 +272,10 @@ public class ContactReportServiceImpl implements ContactReportService {
         Predicate<ContactReportInfo> isDiscussion = cr -> cr
                 .getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode();
         List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthorAndIsActive(userId, IsActiveEnum.YES.getValue());
-        List<ContactReportInfo> revCntactReportInfos = contactInfoRepository.findByContactReviewerAndIsActive(empCd, IsActiveEnum.YES.getValue());
-        revCntactReportInfos = revCntactReportInfos.stream().filter(isSubmitted.or(isDiscussion)).collect(Collectors.toList());
+        List<ContactReportInfo> revCntactReportInfos = contactInfoRepository.findByContactReviewerAndContactAuthorNotAndIsActive(empCd, userId, IsActiveEnum.YES.getValue());
+        revCntactReportInfos = revCntactReportInfos.stream()
+        		.filter(isSubmitted.or(isDiscussion))
+        		.collect(Collectors.toList());
         contactReportInfos.addAll(revCntactReportInfos);
         Map<String, List<ContactReportInfoDto>> contactReportDtoMaps = new HashMap<>();
         final List<ContactReportInfo> ownDrafts = new ArrayList<>(0);

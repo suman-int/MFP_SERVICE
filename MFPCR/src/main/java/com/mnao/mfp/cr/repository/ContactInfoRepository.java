@@ -38,7 +38,7 @@ public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, 
 
     List<ContactReportInfo> findByContactAuthorAndIsActive(String authorId, String isActive);
 
-    List<ContactReportInfo> findByContactReviewerAndIsActive(String reviewerEmpCdd, String isActive);
+    List<ContactReportInfo> findByContactReviewerAndContactAuthorNotAndIsActive(String reviewerEmpCdd, String authorId, String isActive);
 
     List<ContactReportInfo> findByContactDtBetweenAndIsActive(LocalDate startDate, LocalDate endDate, String isActive);
 
