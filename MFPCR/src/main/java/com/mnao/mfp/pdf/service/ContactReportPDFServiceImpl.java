@@ -57,6 +57,9 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 	@Autowired
 	private PdfNeoService neoService;
 	
+	@Autowired
+	PDFService pdfService;
+	
 	@Override
 	public ResponseEntity<Resource> createBulkPdfByFilterCriteria(FilterCriteria filter, MFPUser mfpUser,
 			HttpServletRequest request) throws DocumentException, FileNotFoundException, IOException {
@@ -116,13 +119,12 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 		if (isNotNullOrEmpty(filter.getStartDate()) && isNotNullOrEmpty(filter.getEndDate())) {
 			contactReports = dataOperationFilter.filterContactReportsByDateRange(filter, contactReports);
 		}
-		PDFService service = new PDFService();
 		Resource pdfRes = null;
 		try {
-			pdfRes = service.createXLSFResource(mfpUser, contactReports);
+			pdfRes = pdfService.createXLSFResource(mfpUser, contactReports);
 		} catch (Exception e) {
 			e.printStackTrace();
-			Path excFile = service.getTmpFilePath(mfpUser, "ERROR_", "ExcelConversion", "txt");
+			Path excFile = pdfService.getTmpFilePath(mfpUser, "ERROR_", "ExcelConversion", "txt");
 			try {
 				Files.write(excFile, Arrays.toString(e.getStackTrace()).getBytes(), StandardOpenOption.WRITE);
 				pdfRes = new UrlResource(excFile.toUri());
