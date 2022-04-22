@@ -279,7 +279,7 @@ public class PdfGenerateUtil {
 			String updatedHtml3 = updatedHtmlText
 					.replace("%REVIEWER%",
 							new NullCheck<>(
-									Utils.getNameString(rvr.getFirstNm(), rvr.getLastNm(), ",", rvr.getJobTitleFx()))
+									rvr == null ? " " : Utils.getNameString(rvr.getFirstNm(), rvr.getLastNm(), ",", rvr.getJobTitleFx()))
 									.orElse(""))
 					.replace("%AUTHOR_NAME%", new NullCheck<>(getAuthorUser(mfpUser, cr.getContactAuthor())).orElse(""))
 					.replace("%ADDRESS%", new NullCheck<>(cr).with(ContactReportInfo::getContactLocation).orElse(""))
