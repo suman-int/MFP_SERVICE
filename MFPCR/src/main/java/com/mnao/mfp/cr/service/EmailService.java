@@ -43,6 +43,10 @@ public class EmailService extends MfpKPIControllerBase {
 		ReviewerEmployeeInfo revEmp = getReviewerEmployeeInfo(mfpUser, report.getContactReviewer(), dInfo);
 		String authorName = getNameStr(authorUser.getFirstName(), authorUser.getLastName());
 		String reviewerName = getNameStr(revEmp.getFirstNm(), revEmp.getLastNm());
+		if( ! revEmp.getPrsnIdCd().trim().equalsIgnoreCase(mfpUser.getEmployeeNumber().trim())) {
+			// Corporate user is APPROVing or DISC REQ
+			reviewerName = getNameStr(mfpUser.getFirstName(), mfpUser.getLastName());
+		}
 		String dealerName = dInfo.getDbaNm() + " - " + dInfo.getDlrCd();
 		String toAddr = null;
 		String subjFmt = null;
@@ -81,8 +85,8 @@ public class EmailService extends MfpKPIControllerBase {
 		if(activeProfile.equalsIgnoreCase("dev")) {
 			String toStr = Utils.getAppProperty(AppConstants.MAIL_TEST_USERS);
 			if (toStr != null && toStr.trim().length() > 0) {
-				String[] ccs = toStr.split("[,; ]");
-				toAddresses = Arrays.asList(ccs);
+				String[] tos = toStr.split("[,; ]");
+				toAddresses = Arrays.asList(tos);
 			}			
 		} else {
 			toAddresses.add(toAddr);

@@ -45,7 +45,7 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 	public ListPersonnel getByWSLCd(String wslId) {
 		ListPersonnel lp = null;
 		if( getAllEmployees().size() > 0)
-			lp = allEmployeesByWSLId.get(wslId);
+			lp = allEmployeesByWSLId.get(wslId.trim().toUpperCase());
 		return lp;
 	}
 
@@ -110,7 +110,7 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 		if (retRows != null) {
 			for (ListPersonnel le : retRows) {
 				allEmployeesById.put(le.getPrsnIdCd(), le);
-				allEmployeesByWSLId.put(le.getUserId(), le);
+				allEmployeesByWSLId.put(le.getUserId().trim().toUpperCase(), le);
 			}
 		}
 		System.out.println("" + allEmployeesById.size() + " Employees loaded to cache.");

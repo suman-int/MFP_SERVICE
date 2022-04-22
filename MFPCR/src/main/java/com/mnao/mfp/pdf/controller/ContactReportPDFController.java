@@ -39,12 +39,15 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 
 	@Autowired
 	ContactReportPDFService contactReportPDFService;
+	
+	@Autowired
+	PDFService prfService;
 
 	@PostMapping(value = "/downloadPDF")
 	public ResponseEntity<Resource> createPDF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
 			@Valid @RequestBody ContactReportInfo report, HttpServletRequest request) {
-		PDFService service = new PDFService();
-		Resource pdfRes = service.createPDFResource(mfpUser, report);
+//		PDFService service = new PDFService();
+		Resource pdfRes = prfService.createPDFResource(mfpUser, report);
 		if (pdfRes != null) {
 			String contentType = null;
 			try {

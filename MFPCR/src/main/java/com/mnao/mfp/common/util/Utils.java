@@ -16,25 +16,27 @@ public class Utils {
 	//
 	private static final Logger log = LoggerFactory.getLogger(Utils.class);
 	//
-	
+
 	//
 	private static Properties appProps = new Properties();
+
 	//
-	//private static String sqlFilesFolder = getAppProperty("location.sqlfiles");
+	// private static String sqlFilesFolder = getAppProperty("location.sqlfiles");
 	public static void setAppProps(Properties props) {
 		appProps = props;
 	}
+
 	//
 	public static String readTextFromFile(String fPath) {
 		StringBuilder sb = new StringBuilder();
 		try (InputStream is = Utils.class.getResourceAsStream(fPath)) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            if (is != null) {  
-            	String str = null;
-                while ((str = reader.readLine()) != null) {    
-                    sb.append(str + "\n" );
-                }                
-            }
+			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+			if (is != null) {
+				String str = null;
+				while ((str = reader.readLine()) != null) {
+					sb.append(str + "\n");
+				}
+			}
 		} catch (Exception e) {
 			log.error("ERROR Reading data from text file : " + fPath, e);
 		}
@@ -54,7 +56,7 @@ public class Utils {
 
 	public static String getAppProperty(String propKey, String defValue) {
 		String val = getAppProperty(propKey);
-		if( val == null || val.trim().length() == 0)
+		if (val == null || val.trim().length() == 0)
 			val = defValue;
 		return val;
 	}
@@ -98,7 +100,23 @@ public class Utils {
 	public static boolean isNullOrEmpty(String value) {
 		return !isNotNullOrEmpty(value);
 	}
+
 	public static boolean isNotNullOrEmpty(LocalDate value) {
 		return (value != null);
 	}
+
+	public static String getNameString(String... nParts) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < nParts.length; i++) {
+			if ((nParts[i] != null) && (nParts[i].trim().length() > 0)) {
+				if (i > 0 && (!nParts[i].equalsIgnoreCase(",")))
+					sb.append(" ");
+				sb.append(nParts[i].substring(0, 1).toUpperCase());
+				if (nParts[i].length() > 1)
+					sb.append(nParts[i].substring(1).toLowerCase().trim());
+			}
+		}
+		return sb.toString();
+	}
+
 }

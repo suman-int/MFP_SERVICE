@@ -9,6 +9,7 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.properties.UnitValue;
 import com.mnao.mfp.common.dao.DealerInfo;
+import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
@@ -77,7 +78,7 @@ public class PDFCRMain {
 		if (author == null) {
 			addCell(tbl, crInfo.getContactAuthor());
 		} else {
-			String auth = getNameString(author.getFirstName(), author.getLastName());
+			String auth = Utils.getNameString(author.getFirstName(), author.getLastName());
 			String jDesc = author.getHrJobName().trim();
 			if ((jDesc != null) && (jDesc.trim().length() > 0))
 				auth += ", " + jDesc;
@@ -87,7 +88,7 @@ public class PDFCRMain {
 		if (revEmpInfo == null) {
 			addCell(tbl, crInfo.getContactReviewer());
 		} else {
-			String person = getNameString(revEmpInfo.getFirstNm(), revEmpInfo.getMidlNm(), revEmpInfo.getLastNm());
+			String person = Utils.getNameString(revEmpInfo.getFirstNm(), revEmpInfo.getMidlNm(), revEmpInfo.getLastNm());
 			String jDesc = revEmpInfo.getJobTitleTx().trim();
 			if ((jDesc != null) && (jDesc.trim().length() > 0)) {
 				person += ", " + jDesc;
@@ -95,12 +96,13 @@ public class PDFCRMain {
 			addCell(tbl, person);
 		}
 		addCell(tbl, "DEALERSHIP CONTACTS", 1, 2);
+		String addDP = crInfo.getAddDealerPersonnel();
 		List<ContactReportDealerPersonnel> dps = crInfo.getDealerPersonnels();
 		StringBuilder dpers = new StringBuilder();
 		if (dps != null) {
 			if (dEmpInfos != null) {
 				for (DealerEmployeeInfo dei : dEmpInfos) {
-					String person = getNameString(dei.getFirstNm(), dei.getMidlNm(), dei.getLastNm());
+					String person = Utils.getNameString(dei.getFirstNm(), dei.getMidlNm(), dei.getLastNm());
 					person += ", " + dei.getJobTitleTx().trim();
 					dpers.append(person);
 					dpers.append("\n");
@@ -111,23 +113,19 @@ public class PDFCRMain {
 					dpers.append("\n");
 				}
 			}
-		} else {
+		} 
+		if( addDP != null && addDP.trim().length() > 0) {
+			String [] addDPs = addDP.split("[,;]");
+			for(String dp : addDPs) {
+				dpers.append(dp);
+				dpers.append("\n");
+			}
+		}
+		if( dpers.length() == 0 ) {
 			dpers.append(" ");
 		}
 		addCell(tbl, dpers.toString(), 1, 2);
 		report.addToReport(tbl);
-	}
-
-	private String getNameString(String... nParts) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < nParts.length; i++) {
-			if ((nParts[i] != null) && (nParts[i].trim().length() > 0)) {
-				if (i > 0)
-					sb.append(" ");
-				sb.append(nParts[i].trim());
-			}
-		}
-		return sb.toString();
 	}
 
 	private void addHeadPortion(PDFReport report, ContactReportInfo crInfo, DealerInfo dInfo, MFPUser author) {
@@ -166,7 +164,7 @@ public class PDFCRMain {
 		if (author == null) {
 			addCell(tbl, crInfo.getContactAuthor());
 		} else {
-			String auth = getNameString(author.getFirstName(), author.getLastName());
+			String auth = Utils.getNameString(author.getFirstName(), author.getLastName());
 			addCell(tbl, auth);
 		}
 		//
