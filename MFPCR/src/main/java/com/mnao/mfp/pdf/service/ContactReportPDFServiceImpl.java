@@ -72,6 +72,9 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 			contactReports = dataOperationFilter.filterContactReportsByDateRange(filter, contactReports);
 		}
 		contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports, mfpUser);
+		if( contactReports.size() == 0 ) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
 		List<String> fullHtmlWithData = pdfGenerateUtil.replaceStringWithData(contactReports, mfpUser);
 		List<InputStream> multiplePdf = new ArrayList<>();
 		fullHtmlWithData.forEach(val -> {
