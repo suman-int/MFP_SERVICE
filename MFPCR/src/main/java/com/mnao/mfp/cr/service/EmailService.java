@@ -43,10 +43,6 @@ public class EmailService extends MfpKPIControllerBase {
 		ReviewerEmployeeInfo revEmp = getReviewerEmployeeInfo(mfpUser, report.getContactReviewer(), dInfo);
 		String authorName = getNameStr(authorUser.getFirstName(), authorUser.getLastName());
 		String reviewerName = getNameStr(revEmp.getFirstNm(), revEmp.getLastNm());
-		if( ! revEmp.getPrsnIdCd().trim().equalsIgnoreCase(mfpUser.getEmployeeNumber().trim())) {
-			// Corporate user is APPROVing or DISC REQ
-			reviewerName = getNameStr(mfpUser.getFirstName(), mfpUser.getLastName());
-		}
 		String dealerName = dInfo.getDbaNm() + " - " + dInfo.getDlrCd();
 		String toAddr = null;
 		String subjFmt = null;
@@ -65,11 +61,19 @@ public class EmailService extends MfpKPIControllerBase {
 				toFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_TO);
 			}
 		} else if (report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+			if( ! revEmp.getPrsnIdCd().trim().equalsIgnoreCase(mfpUser.getEmployeeNumber().trim())) {
+				// Corporate user is APPROVing or DISC REQ
+				reviewerName = getNameStr(mfpUser.getFirstName(), mfpUser.getLastName());
+			}
 			toAddr = authorUser.getEmail();
 			subjFmt = Utils.getAppProperty(AppConstants.MAIL_REVIEWED_SUBJECT);
 			bodyFmt = Utils.getAppProperty(AppConstants.MAIL_REVIEWED_BODY);
 			toFmt = Utils.getAppProperty(AppConstants.MAIL_REVIEWED_TO);
 		} else if (report.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
+			if( ! revEmp.getPrsnIdCd().trim().equalsIgnoreCase(mfpUser.getEmployeeNumber().trim())) {
+				// Corporate user is APPROVing or DISC REQ
+				reviewerName = getNameStr(mfpUser.getFirstName(), mfpUser.getLastName());
+			}
 			toAddr = authorUser.getEmail();
 			subjFmt = Utils.getAppProperty(AppConstants.MAIL_DISCREQ_SUBJECT);
 			bodyFmt = Utils.getAppProperty(AppConstants.MAIL_DISCREQ_BODY);
