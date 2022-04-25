@@ -139,6 +139,10 @@ public class PDFServiceImpl extends MfpKPIControllerBase implements PDFService {
 			// Dealer is of region different than logged in user.
 			return rCnt;
 		}
+		if (report.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
+				|| report.getContactStatus() == ContactReportEnum.CANCELLED.getStatusCode()) {
+			return rCnt;
+		}
 		MFPUser uInfo = getAuthorUser(mfpUser, report.getContactAuthor());
 		List<String> topics = new ArrayList<String>();
 		if (report.getDiscussions() != null && report.getDiscussions().size() > 0) {
@@ -260,8 +264,7 @@ public class PDFServiceImpl extends MfpKPIControllerBase implements PDFService {
 			List<ReviewerEmployeeInfo> retRows = null;
 			DealerFilter df = new DealerFilter(mfpUser, null, mfpUser.getRgnCd(), null, null, null);
 			try {
-				retRows = service.getListData(sqlName, ReviewerEmployeeInfo.class, df, rgn,
-						zon);
+				retRows = service.getListData(sqlName, ReviewerEmployeeInfo.class, df, rgn, zon);
 			} catch (InstantiationException | IllegalAccessException | ParseException e) {
 				log.error("ERROR retrieving list of Employees:", e);
 			}
