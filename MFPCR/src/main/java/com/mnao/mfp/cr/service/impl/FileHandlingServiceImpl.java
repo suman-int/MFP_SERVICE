@@ -230,6 +230,10 @@ public class FileHandlingServiceImpl implements FileHandlingService {
     public Resource loadFileAsResource(long attachmentId) {
         ContactReportAttachment attachment = attachmentRepository.findByAttachmentIdAndIsActive(attachmentId, IsActiveEnum.YES.getValue());
         Path filePath = Paths.get(attachment.getAttachmentPath());
+        String currentFileName = filePath.getFileName().toString();
+        if (currentFileName.startsWith("_TEMP")) {
+        	filePath = Paths.get(getTemporaryFilePath(currentFileName));
+        }
         return downloadResource(filePath);
 
     }
