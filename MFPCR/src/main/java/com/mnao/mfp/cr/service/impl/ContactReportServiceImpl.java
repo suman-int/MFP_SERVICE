@@ -141,6 +141,12 @@ public class ContactReportServiceImpl implements ContactReportService {
             // Need to check for Additions and Deletions here as well
             if (!CollectionUtils.isEmpty(report.getAttachment())) {
                 reportInfo.setAttachment(report.getAttachment());
+            } else {
+            	List<ContactReportAttachment> existingAttachments = reportInfo.getAttachment();
+            	if (!CollectionUtils.isEmpty(existingAttachments)) {
+            		existingAttachments.forEach(att -> att.setIsActive(IsActiveEnum.NO.getValue()));
+            		reportInfo.setAttachment(existingAttachments);
+            	}
             }
             //
             ContactReportInfo info = contactInfoRepository.save(reportInfo);
@@ -255,6 +261,7 @@ public class ContactReportServiceImpl implements ContactReportService {
         }).collect(Collectors.toList());
         contactReportDealerPersonnels.addAll(dealerList);
         crInfo.setDealerPersonnels(contactReportDealerPersonnels);
+        crInfo.setAttachment(crInfo.getAttachment().stream().filter(cr -> cr.getIsActive().equalsIgnoreCase(IsActiveEnum.YES.getValue())).collect(Collectors.toList()));
         contactReportDto.setContactReport(crInfo);
         return contactReportDto;
     }
