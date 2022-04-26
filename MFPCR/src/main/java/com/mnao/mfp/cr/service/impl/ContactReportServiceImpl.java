@@ -278,10 +278,12 @@ public class ContactReportServiceImpl implements ContactReportService {
                 .getStatusCode();
         Predicate<ContactReportInfo> isDiscussion = cr -> cr
                 .getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode();
+        Predicate<ContactReportInfo> isReviewed = cr -> cr
+                .getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode();
         List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthorAndIsActive(userId, IsActiveEnum.YES.getValue());
         List<ContactReportInfo> revCntactReportInfos = contactInfoRepository.findByContactReviewerAndContactAuthorNotAndIsActive(empCd, userId, IsActiveEnum.YES.getValue());
         revCntactReportInfos = revCntactReportInfos.stream()
-        		.filter(isSubmitted.or(isDiscussion))
+        		.filter(isSubmitted.or(isDiscussion).or(isReviewed))
         		.collect(Collectors.toList());
         contactReportInfos.addAll(revCntactReportInfos);
         Map<String, List<ContactReportInfoDto>> contactReportDtoMaps = new HashMap<>();
