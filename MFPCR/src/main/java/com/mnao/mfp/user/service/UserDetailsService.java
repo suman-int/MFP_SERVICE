@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -18,6 +19,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -26,13 +29,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.mnao.mfp.common.service.AppPropertiesService;
 import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.user.dao.MFPUser;
 
 public class UserDetailsService {
 	private static final Logger log = LoggerFactory.getLogger(UserDetailsService.class);
 
-	private String[][] headerTokens = { { "RS_SEC_HDR_IV_NAME", "VFQXyd4hz5SETe39G5mvJQ==" },
+	private String[][] defaultHeaderTokens = { { "RS_SEC_HDR_IV_NAME", "VFQXyd4hz5SETe39G5mvJQ==" },
 			{ "RS_SEC_HDR_TOKEN_NAME",
 					"QXc0UTKC5D8o3YE7A0shwnqkWaloIetAgYjihm+NYpbKEIDtxMS+WAqLuHSPNZbUqYUT14n7jOPpXcM0x1OaoQ==" },
 			{ "RS_SEC_HDR_VENDOR_ID", "MFPMNAOIT" } };
@@ -41,25 +45,48 @@ public class UserDetailsService {
 			{ "PROD", "http://dcs175.mnao.net/WSLUserInfoService/users/%s/domain/yes" } };
 	private Map<String, String> uris = new HashMap<String, String>();
 	private String activeURI = null;
+	private String[][] headerTokens = new String[3][2];
 	//
 	private String staticJsonFile = "/testUserAttribs.json";
 	private HashMap<String, String> mfpUsers = null;
+	//
+	private static Properties wslProperties = new Properties();
 
 	//
 	public UserDetailsService() {
 		uris.put(uriStrings[0][0], uriStrings[0][1]);
 		uris.put(uriStrings[1][0], uriStrings[1][1]);
 		uris.put(uriStrings[2][0], uriStrings[2][1]);
-		activeURI = uris.get("QA");
+		if (wslProperties.size() == 0) {
+			activeURI = uris.get("QA");
+			for (int i = 0; i < defaultHeaderTokens.length; i++) {
+				headerTokens[i][0] = defaultHeaderTokens[i][0];
+				headerTokens[i][1] = defaultHeaderTokens[i][1];
+			}
+		} else {
+			activeURI = wslProperties.getProperty("SVC_URL");
+			for (int i = 0; i < defaultHeaderTokens.length; i++) {
+				headerTokens[i][0] = defaultHeaderTokens[i][0];
+				headerTokens[i][1] = wslProperties.getProperty(headerTokens[i][0]);
+			}
+		}
 		//
 		if (mfpUsers == null) {
 			mfpUsers = new HashMap<String, String>();
-			if (staticJsonFile != null && staticJsonFile.trim().length() > 0 ) {
+			if (staticJsonFile != null && staticJsonFile.trim().length() > 0) {
 				Map<String, String> staticJsons = loadStaticJson(staticJsonFile);
 				if (staticJsons != null)
 					mfpUsers.putAll(staticJsons);
 			}
 		}
+	}
+
+	public static Properties getWslProperties() {
+		return wslProperties;
+	}
+
+	public static void setWslProperties(Properties wslProperties) {
+		UserDetailsService.wslProperties = wslProperties;
 	}
 
 	public MFPUser getMFPUser(String userID) {
@@ -96,7 +123,7 @@ public class UserDetailsService {
 	private Map<String, String> loadStaticJson(String staticJsonFile) {
 		List<Map<Object, Object>> jsons = null;
 		Map<String, String> retJsons = new HashMap<String, String>();
-		//File jf = new File(staticJsonFile);
+		// File jf = new File(staticJsonFile);
 		try {
 //			String allJsonsStr = new String(Files.readAllBytes(jf.toPath()));
 			String allJsonsStr = readUserJsonFromFile(staticJsonFile);
@@ -141,7 +168,6 @@ public class UserDetailsService {
 		HttpGet request = new HttpGet(qStrUri);
 
 		// add request headers
-//        request.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		for (int i = 0; i < headerTokens.length; i++) {
 			request.addHeader(headerTokens[i][0], headerTokens[i][1]);
 		}
