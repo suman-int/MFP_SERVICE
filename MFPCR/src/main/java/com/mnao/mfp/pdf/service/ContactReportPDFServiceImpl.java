@@ -72,6 +72,9 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 			contactReports = dataOperationFilter.filterContactReportsByDateRange(filter, contactReports);
 		}
 		contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports, mfpUser);
+		contactReports.forEach(cr -> {
+			cr.setDealerPersonnels(cr.getDealerPersonnels().stream().filter(dp -> IsActiveEnum.YES.getValue().equalsIgnoreCase(dp.getIsActive())).collect(Collectors.toList()));
+		});
 		if( contactReports.size() == 0 ) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
