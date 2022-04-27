@@ -28,6 +28,8 @@ import com.mnao.mfp.user.service.UserDetailsService;
 public class EmailService extends MfpKPIControllerBase {
 	@Value("${spring.profiles.active}")
 	private String activeProfile;
+	
+	
 	public void sendEmailNotification(ContactReportInfo report, int origCRStatus, MFPUser mfpUser)
 			throws MessagingException {
 		EMazdamailsender objEMazdamailsender = new EMazdamailsender();
@@ -86,7 +88,8 @@ public class EmailService extends MfpKPIControllerBase {
 		String emailFrom = Utils.getAppProperty(AppConstants.REVIEW_MAIL_FROM);
 		String subject = getEmailSubject(report, subjFmt, authorName, reviewerName, dealerName);
 		String body = getEmailBody(report, toFmt, bodyFmt, authorName, reviewerName, dealerName);
-		if(activeProfile.equalsIgnoreCase("dev")) {
+		boolean sendTestEmail = Boolean.parseBoolean(Utils.getAppProperty(AppConstants.SEND_TEST_EMAIL_ONLY, "false"));
+		if(sendTestEmail) {
 			String toStr = Utils.getAppProperty(AppConstants.MAIL_TEST_USERS);
 			if (toStr != null && toStr.trim().length() > 0) {
 				String[] tos = toStr.split("[,; ]");

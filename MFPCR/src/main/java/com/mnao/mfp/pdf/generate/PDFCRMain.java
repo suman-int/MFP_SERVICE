@@ -3,6 +3,9 @@ package com.mnao.mfp.pdf.generate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
@@ -14,6 +17,8 @@ import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.util.ContactReportEnum;
+import com.mnao.mfp.list.dao.ListPersonnel;
+import com.mnao.mfp.list.emp.AllEmployeesCache;
 import com.mnao.mfp.pdf.dao.DealerEmployeeInfo;
 import com.mnao.mfp.pdf.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.user.dao.MFPUser;
@@ -25,6 +30,7 @@ public class PDFCRMain {
 //		Files.write(p, b, StandardOpenOption.CREATE);
 //	}
 //
+
 	public void createPDF(PDFReport report, ContactReportInfo crInfo, MFPUser author, DealerInfo dInfo,
 			List<DealerEmployeeInfo> dEmpInfos, ReviewerEmployeeInfo revEmpInfo) {
 		try {
@@ -88,7 +94,8 @@ public class PDFCRMain {
 		if (revEmpInfo == null) {
 			addCell(tbl, crInfo.getContactReviewer());
 		} else {
-			String person = Utils.getNameString(revEmpInfo.getFirstNm(), revEmpInfo.getMidlNm(), revEmpInfo.getLastNm());
+			String person = Utils.getNameString(revEmpInfo.getFirstNm(), revEmpInfo.getMidlNm(),
+					revEmpInfo.getLastNm());
 			String jDesc = revEmpInfo.getJobTitleTx().trim();
 			if ((jDesc != null) && (jDesc.trim().length() > 0)) {
 				person += ", " + jDesc;
@@ -113,18 +120,44 @@ public class PDFCRMain {
 					dpers.append("\n");
 				}
 			}
-		} 
-		if( addDP != null && addDP.trim().length() > 0) {
-			String [] addDPs = addDP.split("[,;]");
-			for(String dp : addDPs) {
+		}
+		if (addDP != null && addDP.trim().length() > 0) {
+			String[] addDPs = addDP.split("[,;]");
+			for (String dp : addDPs) {
 				dpers.append(dp);
 				dpers.append("\n");
 			}
 		}
-		if( dpers.length() == 0 ) {
+		if (dpers.length() == 0) {
 			dpers.append(" ");
 		}
 		addCell(tbl, dpers.toString(), 1, 2);
+		if (crInfo.getCorporateReps() != null && crInfo.getCorporateReps().trim().length() > 0) {
+			addCell(tbl, "CORPORATE REPRESENTATIVES", 1, 2);
+			String[] cRepStr = crInfo.getCorporateReps().split("[,]");
+			StringBuilder cReps = new StringBuilder();
+			AllEmployeesCache allEmployeesCache = new AllEmployeesCache();
+			for (int i = 0; i < cRepStr.length; i++) {
+				if (allEmployeesCache != null) {
+					ListPersonnel lp = allEmployeesCache.getByPrsnIdCd(cRepStr[i]);
+					if (lp != null) {
+						String person = Utils.getNameString(lp.getFirstNm(), lp.getMidlNm(), lp.getLastNm());
+						cReps.append(person);
+					} else {
+						cReps.append(cRepStr[i]);
+					}
+					cReps.append("\n");
+				}
+				else {
+					cReps.append(cRepStr[i]);
+					cReps.append("\n");
+				}
+			}
+			if( cReps.length() == 0 ) {
+				cReps.append(" ");
+			}
+			addCell(tbl, cReps.toString(), 1, 2);
+		}
 		report.addToReport(tbl);
 	}
 
@@ -139,7 +172,7 @@ public class PDFCRMain {
 			addCell(tbl, crInfo.getDlrCd());
 		}
 		addCell(tbl, "STATUS:");
-		//addCell(tbl, "" + crInfo.getContactStatus());
+		// addCell(tbl, "" + crInfo.getContactStatus());
 		addCell(tbl, "" + ContactReportEnum.valueByStatus(crInfo.getContactStatus()));
 		//
 		addCell(tbl, "ADDRESS:");
