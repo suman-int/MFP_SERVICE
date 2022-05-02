@@ -50,21 +50,23 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 
 	@Autowired
 	private DataOperationFilter dataOperationFilter;
-	
+
 	@Autowired
 	private PdfGenerateUtil pdfGenerateUtil;
 
 	@Autowired
 	private PdfNeoService neoService;
-	
+
 	@Autowired
 	PDFService pdfService;
-	
+
 	@Override
 	public ResponseEntity<Resource> createBulkPdfByFilterCriteria(FilterCriteria filter, MFPUser mfpUser,
 			HttpServletRequest request) throws DocumentException, FileNotFoundException, IOException {
 		List<ContactReportInfo> contactReports = contactInfoRepository.findByIsActive(IsActiveEnum.YES.getValue());
-		contactReports = contactReports.stream().filter(cr -> cr.getContactStatus() != ContactReportEnum.DRAFT.getStatusCode()).collect(Collectors.toList());
+		contactReports = contactReports.stream()
+				.filter(cr -> cr.getContactStatus() != ContactReportEnum.DRAFT.getStatusCode())
+				.collect(Collectors.toList());
 		if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
 			contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
 		}
@@ -73,11 +75,18 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 		}
 		contactReports = dataOperationFilter.filterContactReportsByLocation(filter, contactReports, mfpUser);
 		contactReports.forEach(cr -> {
-			cr.setDealerPersonnels(cr.getDealerPersonnels().stream().filter(dp -> IsActiveEnum.YES.getValue().equalsIgnoreCase(dp.getIsActive())).collect(Collectors.toList()));
+			cr.setDealerPersonnels(cr.getDealerPersonnels().stream()
+					.filter(dp -> IsActiveEnum.YES.getValue().equalsIgnoreCase(dp.getIsActive()))
+					.collect(Collectors.toList()));
 		});
-		if( contactReports.size() == 0 ) {
+		if (contactReports.size() == 0) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
+		return generatePdfByReports(contactReports, mfpUser, request);
+	}
+
+	private ResponseEntity<Resource> generatePdfByReports(List<ContactReportInfo> contactReports, MFPUser mfpUser,
+			HttpServletRequest request) throws DocumentException, FileNotFoundException, IOException {
 		List<String> fullHtmlWithData = pdfGenerateUtil.replaceStringWithData(contactReports, mfpUser);
 		List<InputStream> multiplePdf = new ArrayList<>();
 		fullHtmlWithData.forEach(val -> {
@@ -92,7 +101,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 			}
 		});
 		Path outputPath = neoService.getTmpFilePath(mfpUser, "contact_report_", "_FINAL_BULK_", ".pdf");
-		neoService.doMerge(multiplePdf, new FileOutputStream( outputPath.toFile()));
+		neoService.doMerge(multiplePdf, new FileOutputStream(outputPath.toFile()));
 //		PDFService service = new PDFService();
 //		Resource pdfRes = service.createBulkPDFResource(mfpUser, contactReports);
 		Resource pdfRes = new UrlResource(outputPath.toUri());
@@ -155,5 +164,13 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+	}
+
+	@Override
+	public ResponseEntity<Resource> createPdf(MFPUser mfpUser, HttpServletRequest request, ContactReportInfo report)
+			throws DocumentException, FileNotFoundException, IOException {
+		List<ContactReportInfo> newList = new ArrayList<>(0);
+		newList.add(report);
+		return generatePdfByReports(newList, mfpUser, request);
 	}
 }

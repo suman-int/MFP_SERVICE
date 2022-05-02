@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,7 @@ import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;
+import com.mnao.mfp.cr.repository.DealerRepository;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.list.dao.ListPersonnel;
 import com.mnao.mfp.list.emp.AllEmployeesCache;
@@ -32,6 +34,9 @@ public class PdfGenerateUtil {
 
 	@Autowired
 	AllEmployeesCache allEmpCache;
+	
+	@Autowired
+	private DealerRepository dealerRepo;
 
 	private final String HTML = "<html>\r\n" + "\r\n" + "<head>\r\n"
 			+ "    <meta http-equiv=Content-Type content=\"text/html; charset=UTF-8\">\r\n"
@@ -272,6 +277,12 @@ public class PdfGenerateUtil {
 				}
 			}
 			//
+			if (new NullCheck<>(cr).with(ContactReportInfo::getDealers).isNull()) {
+				Optional<Dealers> dealerData = dealerRepo.findById(new NullCheck<>(cr).with(ContactReportInfo::getDlrCd).get());
+				if (dealerData.isPresent()) {
+					dealers = dealerData.get();
+				}
+			}
 			String updatedHtmlText = HTML.replace("%DEALER_NAME%", dealers.getDbaNm())
 					.replace("%DEALER_CODE%", dealers.getDlrCd())
 					.replace("%CURRENT_PAGE%", String.valueOf(currentPageNumber.incrementAndGet()))

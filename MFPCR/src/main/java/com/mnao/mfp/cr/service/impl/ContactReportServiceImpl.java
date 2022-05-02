@@ -312,12 +312,14 @@ public class ContactReportServiceImpl implements ContactReportService {
 		final List<ContactReportInfo> ownDrafts = new ArrayList<>(0);
 		if (showUsersDraft) {
 			contactReportInfos.stream()
+					.sorted((ContactReportInfo cr1, ContactReportInfo cr2) -> compareByUpdatedDate(cr1, cr2))
 					.filter(val -> val.getCreatedBy().trim().equalsIgnoreCase(userId)
 							&& val.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode())
 					.forEach(ownDrafts::add);
 		}
 
 		Map<String, List<ContactReportInfoDto>> contactReportDtos = contactReportInfos.stream()
+				.sorted((ContactReportInfo cr1, ContactReportInfo cr2) -> compareByUpdatedDate(cr1, cr2))
 				.map(reportInfo -> ContactReportInfoDto.builder().contactReportId(reportInfo.getContactReportId())
 						.contactDt(reportInfo.getContactDt()).dealers(reportInfo.getDealers())
 						.contactStatus(reportInfo.getContactStatus())
@@ -377,6 +379,10 @@ public class ContactReportServiceImpl implements ContactReportService {
 		});
 		return topicList;
 
+	}
+	
+	private static int compareByUpdatedDate(ContactReportInfo cr, ContactReportInfo cr2) {
+	   return new NullCheck<>(cr2).with(ContactReportInfo::getUpdatedDt).orElse(cr2.getCreatedDt()).compareTo(new NullCheck<>(cr).with(ContactReportInfo::getUpdatedDt).orElse(cr.getCreatedDt()));
 	}
 
 }
