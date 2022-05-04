@@ -1,14 +1,19 @@
 package com.mnao.mfp.user.interceptors;
 
 import com.mnao.mfp.common.util.AppConstants;
+import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.common.util.Utils;
+import com.mnao.mfp.config.ApplicationProperties;
+import com.mnao.mfp.config.CrConfiguration;
 import com.mnao.mfp.list.emp.AllEmployeesCache;
 import com.mnao.mfp.user.dao.MFPUser;
 import com.mnao.mfp.user.service.UserDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -18,17 +23,23 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.validation.constraints.NotNull;
+
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Properties;
 
 @Configuration
 @Component
 public class MFPRequestInterceptor implements HandlerInterceptor {
+	
+	@Autowired
+	private ApplicationProperties properties;
 
-    @Value("${spring.profiles.active}")
-    private String activeProfile;
+	@Autowired
+	private CrConfiguration configuration;
 
     private static final Logger log = LoggerFactory.getLogger(MFPRequestInterceptor.class);
     private static final String USERID_REQUEST_HEADER = "IV-USER";
@@ -44,8 +55,8 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object arg2) throws Exception {
         boolean rv = true;
         String userID = request.getHeader(USERID_REQUEST_HEADER);
-
-        if ("test".equalsIgnoreCase(activeProfile) || validateToken(request, response)) {
+        log.info("Active Env : {}", configuration);
+        if ("DEV".equalsIgnoreCase(configuration.getActiveProfile()) || validateToken(request, response)) {
 
             log.debug("UserID= {}", userID);
             if (userID == null || userID.trim().length() == 0) {

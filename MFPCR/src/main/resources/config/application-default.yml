@@ -1,0 +1,32 @@
+spring:
+  profiles:
+    active:
+      - default
+    include: common
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyHbmImpl
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+    properties:
+      hibernate:
+        default_schema: db2admin
+        show:
+          sql: true
+        dialect: org.hibernate.dialect.DB2Dialect
+    show-sql: true
+  datasource:
+    url: jdbc:db2://M2UDB102:50000/MFP_TEST
+    username: udb_batchdev004
+    password: BNMghjTYUd004
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+
+
+app:
+  email: default@email.com
+  
