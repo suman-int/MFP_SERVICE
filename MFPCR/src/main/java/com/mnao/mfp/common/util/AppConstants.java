@@ -29,7 +29,6 @@ public class AppConstants {
 	public static final String MFP_PROPS_NAME = "mfp";
 	public static final String WSL_PROPS_NAME = "wslusersvc";
 	public static final String EMP_USE_DB_RGN_ZONE_DSTR = "emp.use.db.rgn.zone.dstr";
-	public static final String SEND_TEST_EMAIL_ONLY = "cr.email.test.only";
 	public static final String TABLE_QUERY_CONFIG = "TableQueryConfig.json";
 	public static final String KPI_QUERY_CONFIG = "KPIQueryConfig.json";
 	public static final String INIT_SCRIPTS_FOLDER = "init";
@@ -109,4 +108,9 @@ public class AppConstants {
 
 	public static final String DOUBLE_INT_PERCENT = "%d/%d";
 	public static final String DOUBLE_STRING_FORMAT = "%s-%s";
+	
+	public static final String RS_SEC_HDR_TOKEN_NAME = "RS_SEC_HDR_TOKEN_NAME";
+	public static final String RS_SEC_HDR_IV_NAME = "RS_SEC_HDR_IV_NAME";
+	public static final String RS_SEC_HDR_VENDOR_ID = "RS_SEC_HDR_VENDOR_ID";
+	
 }
