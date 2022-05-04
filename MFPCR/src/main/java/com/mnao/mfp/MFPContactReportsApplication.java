@@ -1,82 +1,63 @@
 package com.mnao.mfp;
 
-import com.mnao.mfp.config.CrConfig;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletComponentScan;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Profile;
 
-import javax.annotation.PostConstruct;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import com.mnao.mfp.config.ApplicationProperties;
+import com.mnao.mfp.config.CrConfiguration;
 
 @ServletComponentScan
 @SpringBootApplication
+@EnableConfigurationProperties(ApplicationProperties.class)
 public class MFPContactReportsApplication {
 
-	private static Logger logger = LoggerFactory.getLogger(MFPContactReportsApplication.class);
+	 private static Logger logger = LoggerFactory.getLogger(MFPContactReportsApplication.class);
+
 
 	@Autowired
-	private CrConfig crConfig;
+	private ApplicationProperties properties;
 
-	public static void main(String[] args) {
+	@Autowired
+	private CrConfiguration configuration;
+
+	public static void main(String... args) throws Exception {
 		checkWarnEnv();
-		ApplicationContext applicationContext = SpringApplication.run(MFPContactReportsApplication.class, args);
-		for (String name : applicationContext.getBeanDefinitionNames()) {
-			logger.debug("{}", name);
-		}
+		SpringApplication.run(MFPContactReportsApplication.class, args);
 	}
 
 	@PostConstruct
 	private void init() {
-		logger.info("{} - active profile: {}", crConfig.getName(), crConfig.getProfile());
-	}
+		logger.info("{} - active profile: {}", properties.getAppName(), configuration.getName());
+		logger.info(properties.toString());
 
-	@Profile({"dev", "default"})
-	@Bean
-	public String devBean() {
-		return "dev";
-	}
-
-	@Profile("test")
-	@Bean
-	public String testBean() {
-		return "test";
-	}
-
-	@Profile("qa")
-	@Bean
-	public String qaBean() {
-		return "qa";
-	}
-
-	@Profile("prod")
-	@Bean
-	public String prodBean() {
-		return "prod";
 	}
 
 	private static void checkWarnEnv() {
 		String prof = System.getProperty("spring.profiles.active", "");
-		if (prof.length() == 0 || (!prof.equalsIgnoreCase("dev")) ) {
-		 try {  
-		      InetAddress id = InetAddress.getLocalHost(); 
-		      String hName = id.getHostName();
-		      System.out.println( id.getHostName()); 
-		      if( hName.startsWith("VDIX-DEV")) {
-		    	  System.out.println("***** WARNING *****");
-		    	  System.out.println("*Profile " + prof + " is set in " + hName);
-		    	  System.out.println("*ALL EMAILS WILL GO TO ORIGINAL RECEPIENTS");
-		    	  System.out.println("*******************");
-		      }
-		    } catch (UnknownHostException e) {  
-		    	e.printStackTrace();
-		    }  
+		if (prof.length() == 0 || (!prof.equalsIgnoreCase("dev"))) {
+			try {
+				InetAddress id = InetAddress.getLocalHost();
+				String hName = id.getHostName();
+				System.out.println(id.getHostName());
+				if (hName.startsWith("VDIX-DEV")) {
+					System.out.println("***** WARNING *****");
+					System.out.println("*Profile " + prof + " is set in " + hName);
+					System.out.println("*ALL EMAILS WILL GO TO ORIGINAL RECEPIENTS");
+					System.out.println("*******************");
+				}
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
