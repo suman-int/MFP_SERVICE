@@ -45,7 +45,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
         boolean rv = true;
         String userID = request.getHeader(USERID_REQUEST_HEADER);
 
-        if ("test".equalsIgnoreCase(activeProfile) || validateToken(request, response)) {
+        if (validateToken(request, response)) {
 
             log.debug("UserID= {}", userID);
             if (userID == null || userID.trim().length() == 0) {
