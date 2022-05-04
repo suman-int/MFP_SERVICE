@@ -112,5 +112,6 @@ public class AppConstants {
 	public static final String RS_SEC_HDR_TOKEN_NAME = "RS_SEC_HDR_TOKEN_NAME";
 	public static final String RS_SEC_HDR_IV_NAME = "RS_SEC_HDR_IV_NAME";
 	public static final String RS_SEC_HDR_VENDOR_ID = "RS_SEC_HDR_VENDOR_ID";
+	public static final String SEND_TEST_EMAIL_ONLY = "cr.email.test.only";
 	
 }
