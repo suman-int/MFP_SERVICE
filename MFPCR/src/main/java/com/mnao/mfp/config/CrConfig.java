@@ -1,4 +1,4 @@
-package com.mnao.contactreport.config;
+package com.mnao.mfp.config;
 
 import lombok.Getter;
 import lombok.Setter;
