@@ -8,7 +8,6 @@ import java.util.Properties;
 
 public class AppConstants {
 	private static String mfpProfName = "/mfp.properties";
-	private static String wslProfName = "/wslusersvc.properties";
 	static {
 		String prof = System.getProperty("spring.profiles.active", "");
 		if( prof.trim().length() == 0 )
@@ -24,11 +23,9 @@ public class AppConstants {
 		}
 		if (prof.length() > 0)
 			mfpProfName = "/mfp-" + prof + ".properties";
-			wslProfName = "/wslusersvc-" + prof + ".properties";
 		System.out.println("***********************\nActive Profile:" + prof + "\n***********************");
 	}
 	public static final String MFP_PROPS_FILE = System.getProperty("mfp.prop.file", mfpProfName);
-	public static final String WSL_PROPS_FILE = System.getProperty("wsl.prop.file", wslProfName);
 	public static final String MFP_PROPS_NAME = "mfp";
 	public static final String WSL_PROPS_NAME = "wslusersvc";
 	public static final String EMP_USE_DB_RGN_ZONE_DSTR = "emp.use.db.rgn.zone.dstr";
