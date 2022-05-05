@@ -25,6 +25,7 @@ import java.util.Properties;
 
 @Configuration
 @Component
+@Profile("test")
 public class MFPRequestInterceptor implements HandlerInterceptor {
 
     @Value("${spring.profiles.active}")
@@ -39,6 +40,22 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
         useDBDomain = useDB.equalsIgnoreCase("true");
         log.debug("Interceptor Created. Use DB for USer Domain: {}", useDBDomain);
     }
+    
+    /**
+	 * In local system getProperty() returns the profile correctly, however in docker getenv() return profile correctly
+	 * */
+	protected void setSpringProfile(ServletContext servletContext) {
+	if(null!= System.getenv(SPRING_PROFILES_ACTIVE)){
+	    profile=System.getenv(SPRING_PROFILES_ACTIVE);
+	}else if(null!= System.getProperty(SPRING_PROFILES_ACTIVE)){
+	    profile=System.getProperty(SPRING_PROFILES_ACTIVE);
+	}else{
+	    profile="local";
+	}
+	log.info("***** Profile configured  is  ****** "+ profile);
+
+	servletContext.setInitParameter("spring.profiles.active", profile);
+	}
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object arg2) throws Exception {
@@ -93,9 +110,12 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
         boolean validateFlag = false;
         HttpURLConnection con = null;
 
-        try (InputStream ist = Utils.class.getResourceAsStream("/wslusersvc-test.properties")) {
+       /* try (InputStream ist = Utils.class.getResourceAsStream("/wslusersvc-test.properties")) {
             Properties wslProperties = new Properties();
-            wslProperties.load(ist);
+            wslProperties.load(ist);*/
+        
+        try {
+			Properties wslProperties = Utils.getWslProperties();
 
             URL url = new URL(wslProperties.getProperty("AUTH_SVC_URL"));
             con = (HttpURLConnection) url.openConnection();
