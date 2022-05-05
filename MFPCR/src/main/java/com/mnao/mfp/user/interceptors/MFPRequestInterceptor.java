@@ -46,7 +46,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object arg2) throws Exception {
         boolean rv = true;
         String userID = request.getHeader(USERID_REQUEST_HEADER);
-        Boolean isDev = "dev".equalsIgnoreCase(crConfig.getProfile()) || "default".equalsIgnoreCase(crConfig.getProfile())
+        Boolean isDev = "dev".equalsIgnoreCase(crConfig.getProfile()) || "default".equalsIgnoreCase(crConfig.getProfile());
         if (isDev || validateToken(request, response)) {
 
             log.debug("UserID= {}", userID);

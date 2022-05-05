@@ -1,5 +1,6 @@
 package com.mnao.mfp;
 
+import com.mnao.mfp.config.CrConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class MFPContactReportsApplication {
 	private static Logger logger = LoggerFactory.getLogger(MFPContactReportsApplication.class);
 
 	@Autowired
-	private com.mnao.contactreport.config.CrConfig crConfig;
+	private CrConfig crConfig;
 
 	public static void main(String[] args) {
 		checkWarnEnv();
