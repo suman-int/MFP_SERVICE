@@ -3,6 +3,7 @@ package com.mnao.mfp.user.interceptors;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.list.emp.AllEmployeesCache;
+import com.mnao.mfp.sec.service.MNAOSecurityService;
 import com.mnao.mfp.user.dao.MFPUser;
 import com.mnao.mfp.user.service.UserDetailsService;
 import org.slf4j.Logger;
@@ -26,11 +27,7 @@ import java.util.Properties;
 
 @Configuration
 @Component
-@Profile("test")
 public class MFPRequestInterceptor implements HandlerInterceptor {
-
-	@Value("${spring.profiles.active}")
-	private String activeProfile;
 
 	private static final Logger log = LoggerFactory.getLogger(MFPRequestInterceptor.class);
 	private static final String USERID_REQUEST_HEADER = "IV-USER";
@@ -46,8 +43,8 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object arg2) throws Exception {
 		boolean rv = true;
 		String userID = request.getHeader(USERID_REQUEST_HEADER);
-
-		if (validateToken(request, response)) {
+		MNAOSecurityService secSvc = new MNAOSecurityService();
+		if (secSvc.isValidHeaderTokens(request)) {
 
 			log.debug("UserID= {}", userID);
 			if (userID == null || userID.trim().length() == 0) {
@@ -88,49 +85,6 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 		}
 
 		return rv;
-	}
-
-	public boolean validateToken(HttpServletRequest request, HttpServletResponse response) {
-
-		boolean validateFlag = false;
-		HttpURLConnection con = null;
-
-		/*
-		 * try (InputStream ist =
-		 * Utils.class.getResourceAsStream("/wslusersvc-test.properties")) { Properties
-		 * wslProperties = new Properties(); wslProperties.load(ist);
-		 */
-
-		try {
-			Properties wslProperties = Utils.getWslProperties();
-
-			URL url = new URL(wslProperties.getProperty("AUTH_SVC_URL"));
-			con = (HttpURLConnection) url.openConnection();
-			con.setRequestMethod("GET");
-			con.setRequestProperty(wslProperties.getProperty("AUTH_RS_SEC_HDR_TOKEN_NAME"),
-					request.getHeader(AppConstants.RS_SEC_HDR_TOKEN_NAME));
-			con.setRequestProperty(wslProperties.getProperty("AUTH_RS_SEC_HDR_IV_NAME"),
-					request.getHeader(AppConstants.RS_SEC_HDR_IV_NAME));
-			con.setRequestProperty(wslProperties.getProperty("AUTH_RS_SEC_HDR_VENDOR_ID"),
-					request.getHeader(AppConstants.RS_SEC_HDR_VENDOR_ID));
-			con.setUseCaches(false);
-			con.setDoInput(true);
-			con.setDoOutput(true);
-
-			int statusCode = con.getResponseCode();
-			if (statusCode == 200) {
-				validateFlag = true;
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (con != null) {
-				con.disconnect();
-			}
-		}
-
-		return validateFlag;
 	}
 
 }
