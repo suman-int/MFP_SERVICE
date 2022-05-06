@@ -1,7 +1,11 @@
 package com.mnao.mfp;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Properties;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,7 +21,7 @@ public class MFPContactReportsApplication {
 	}
 
 	private static void checkWarnEnv() {
-		String prof = System.getProperty("spring.profiles.active", "");
+		String prof = getActiveProfile();
 		if (prof.length() == 0 || (!prof.equalsIgnoreCase("dev")) ) {
 		 try {  
 		      InetAddress id = InetAddress.getLocalHost(); 
@@ -33,6 +37,23 @@ public class MFPContactReportsApplication {
 		    	e.printStackTrace();
 		    }  
 		}
+	}
+
+	private static String getActiveProfile() {
+		String rProf = System.getProperty("spring.profiles.active");
+		if( rProf == null ) {
+			String addProfName = System.getProperty("spring.config.additional-location"); 
+			if( addProfName != null ) {
+				Properties prop = new Properties();
+				try (FileInputStream fis = new FileInputStream(addProfName)) {
+					prop.load(fis);
+					rProf = prop.getProperty("spring.profiles.active");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return rProf;
 	}
 
 }
