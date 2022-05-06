@@ -22,7 +22,7 @@ public class MFPContactReportsApplication {
 
 	private static void checkWarnEnv() {
 		String prof = getActiveProfile();
-		if (prof.length() == 0 || (!prof.equalsIgnoreCase("dev")) ) {
+		if (prof!=null && (prof.length() == 0 || (!prof.equalsIgnoreCase("dev")))) {
 		 try {  
 		      InetAddress id = InetAddress.getLocalHost(); 
 		      String hName = id.getHostName();
