@@ -71,6 +71,17 @@ public class Utils {
 		}
 		return appProps;
 	}
+	
+//	public static Properties getWslProperties() {
+//		if (appProps.size() > 0) {
+//			try (InputStream is = Utils.class.getResourceAsStream(AppConstants.WSL_PROPS_FILE)) {
+//				appProps.load(is);
+//			} catch (Exception e) {
+//				log.error("ERROR Reading MFP Properties", e);
+//			}
+//		}
+//		return appProps;
+//	}
 
 	private static String getSchemaName(Connection conn) throws SQLException {
 		String schema = conn.getSchema();

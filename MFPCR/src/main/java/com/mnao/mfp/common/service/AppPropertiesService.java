@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.Utils;
+import com.mnao.mfp.sec.service.MNAOSecurityService;
 import com.mnao.mfp.user.service.UserDetailsService;
 
 @Service
@@ -27,6 +28,7 @@ public class AppPropertiesService {
 		System.out.println("Property Service instantiated. Profile:" + (env != null ? env.getActiveProfiles()[0] : ""));
 		Utils.setAppProps(getAppProperties());
 		UserDetailsService.setWslProperties(getWslUserProperties());
+		MNAOSecurityService.setWslProperties(getWslUserProperties());
 	}
 
 	public Properties getAppProperties() {
