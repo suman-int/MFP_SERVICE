@@ -14,10 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mnao.mfp.common.util.AppConstants;
+import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.user.service.UserDetailsService;
 
 public class MNAOSecurityService {
-	private static final Logger log = LoggerFactory.getLogger(UserDetailsService.class);
+	private static final Logger log = LoggerFactory.getLogger(MNAOSecurityService.class);
 	private static Properties wslProperties = new Properties();
 
 	public static Properties getWslProperties() {
@@ -27,29 +28,32 @@ public class MNAOSecurityService {
 	public static void setWslProperties(Properties wslProperties) {
 		MNAOSecurityService.wslProperties = wslProperties;
 	}
-	
-	public boolean isValidHeaderTokens(HttpServletRequest request) {
 
+	public boolean isValidHeaderTokens(HttpServletRequest request) {
 		boolean validateFlag = false;
-		String strUri = MNAOSecurityService.wslProperties.getProperty("AUTH_SVC_URL");
-		HttpGet svcReq = new HttpGet(strUri);
-		svcReq.setHeader(AppConstants.RS_SEC_HDR_TOKEN_NAME, request.getHeader(AppConstants.RS_SEC_HDR_TOKEN_NAME));
-		svcReq.setHeader(AppConstants.RS_SEC_HDR_IV_NAME, request.getHeader(AppConstants.RS_SEC_HDR_IV_NAME));
-		svcReq.setHeader(AppConstants.RS_SEC_HDR_VENDOR_ID, request.getHeader(AppConstants.RS_SEC_HDR_VENDOR_ID));
-		try (CloseableHttpClient httpClient = HttpClients.createDefault();
-				CloseableHttpResponse svcResp = httpClient.execute(svcReq)) {
-			int statCode = svcResp.getStatusLine().getStatusCode();
-			log.debug("Status Code", statCode); // 200
-			if( statCode == 200 ) {
-				validateFlag = true;
+		if (Utils.isNotNullOrEmpty(request.getHeader(AppConstants.RS_SEC_HDR_TOKEN_NAME))
+				&& Utils.isNotNullOrEmpty(request.getHeader(AppConstants.RS_SEC_HDR_IV_NAME))
+				&& Utils.isNotNullOrEmpty(request.getHeader(AppConstants.RS_SEC_HDR_VENDOR_ID))) {
+			String strUri = MNAOSecurityService.wslProperties.getProperty("AUTH_SVC_URL");
+			HttpGet svcReq = new HttpGet(strUri);
+			svcReq.setHeader(AppConstants.RS_SEC_HDR_TOKEN_NAME, request.getHeader(AppConstants.RS_SEC_HDR_TOKEN_NAME));
+			svcReq.setHeader(AppConstants.RS_SEC_HDR_IV_NAME, request.getHeader(AppConstants.RS_SEC_HDR_IV_NAME));
+			svcReq.setHeader(AppConstants.RS_SEC_HDR_VENDOR_ID, request.getHeader(AppConstants.RS_SEC_HDR_VENDOR_ID));
+			try (CloseableHttpClient httpClient = HttpClients.createDefault();
+					CloseableHttpResponse svcResp = httpClient.execute(svcReq)) {
+				int statCode = svcResp.getStatusLine().getStatusCode();
+				log.debug("Status Code", statCode); // 200
+				if (statCode == 200) {
+					validateFlag = true;
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-	
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		return validateFlag;
 	}
-	
+
 	public boolean isValidHeaderTokensOld(HttpServletRequest request) {
 
 		boolean validateFlag = false;
@@ -85,6 +89,5 @@ public class MNAOSecurityService {
 
 		return validateFlag;
 	}
-
 
 }

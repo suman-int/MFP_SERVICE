@@ -14,6 +14,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.user.interceptors.MFPRequestInterceptor;
 
 @EnableWebMvc
@@ -33,7 +34,7 @@ public class MvcConfig implements WebMvcConfigurer {
 		config.setAllowCredentials(true);
 		// Don't do this in production, use a proper list of allowed origins
 		config.setAllowedOrigins(Collections.singletonList("*"));
-		config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept"));
+		config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "IV-USER", AppConstants.RS_SEC_HDR_IV_NAME, AppConstants.RS_SEC_HDR_TOKEN_NAME,AppConstants.RS_SEC_HDR_VENDOR_ID));
 		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH", "IV-USER"));
 		source.registerCorsConfiguration("/**", config);
 		System.out.println("new corsFilter() ...");
