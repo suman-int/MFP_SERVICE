@@ -24,7 +24,7 @@ public class MFPDatabase {
 
 	//
 	public enum DB {
-		mfp("mfp"), local("local"), cr("cr"), mma("mma");
+		mfp("mfp"), local("local"), cr("cr"), mma("mma"), edw("edw");
 
 		//
 		private String dbID = "";
@@ -93,7 +93,7 @@ public class MFPDatabase {
 				} else if (dbProduct.toUpperCase().indexOf("DB2") >= 0) {
 					conn.setSchema(jdbcSchema.toUpperCase());
 				} else if (dbProduct.toUpperCase().indexOf("ORACLE") >= 0) {
-//					execute("ALTER SESSION SET CURRENT_SCHEMA=" + jdbcSchema);
+					execute(conn, "ALTER SESSION SET CURRENT_SCHEMA=" + jdbcSchema);
 				}
 			}
 			log.debug(String.format("Connected to database %s " + "successfully.", conn.getCatalog()));
@@ -159,7 +159,8 @@ public class MFPDatabase {
 		boolean rv = false;
 		try (Statement stmt = conn.createStatement()) {
 			sql = Utils.replaceSchemaName(conn, sql);
-			rv = stmt.execute(sql);
+			stmt.execute(sql);
+			rv = true;
 		} catch (SQLException e) {
 			rv = false;
 			log.error("ERROR EXECUTING: " + sql, e);

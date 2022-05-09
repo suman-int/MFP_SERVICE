@@ -11,8 +11,7 @@ public class AppConstants {
 	private static String wslProfName = "/wslusersvc.properties";
 	static {
 		String prof = System.getProperty("spring.profiles.active", "");
-		if( prof.trim().length() == 0 )
-		{
+		if (prof.trim().length() == 0) {
 			try (InputStream is = Utils.class.getResourceAsStream("/application.properties")) {
 				Properties p = new Properties();
 				p.load(is);
@@ -24,7 +23,7 @@ public class AppConstants {
 		}
 		if (prof.length() > 0)
 			mfpProfName = "/mfp-" + prof + ".properties";
-			wslProfName = "/wslusersvc-" + prof + ".properties";
+		wslProfName = "/wslusersvc-" + prof + ".properties";
 		System.out.println("***********************\nActive Profile:" + prof + "\n***********************");
 	}
 	public static final String MFP_PROPS_FILE = System.getProperty("mfp.prop.file", mfpProfName);
@@ -34,7 +33,9 @@ public class AppConstants {
 	public static final String EMP_USE_DB_RGN_ZONE_DSTR = "emp.use.db.rgn.zone.dstr";
 	public static final String TABLE_QUERY_CONFIG = "TableQueryConfig.json";
 	public static final String KPI_QUERY_CONFIG = "KPIQueryConfig.json";
+	public static final String LOCATION_SQLFILES = "location.sqlfiles";
 	public static final String INIT_SCRIPTS_FOLDER = "init";
+	public static final String SYNC_SCRIPTS_FOLDER = "sync";
 	public static final String KPI_QUERY_SCRIPTS_FOLDER = "query";
 	public static final String API_VIEWS_PAGINATION_PGNO = "0";
 	public static final String API_VIEWS_PAGINATION_DealerPgSize = "10";
@@ -52,6 +53,9 @@ public class AppConstants {
 	public static final String API_VIEWS_METRICS_RetailInventoryByDealer = "RetailInventoryByDealer";
 	public static final String API_VIEWS_METRICS_RetailInventoryByDate = "RetailInventoryByDate";
 	//
+	public static final String SQL_UNIQUE_EDW_DEALERS = "UNQ_DEALERS.sql";
+	public static final String SQL_MERGE_UPDATE_DEALERS = "DEALERS_MERGE_UPDATE.sql";
+	//
 	public static final String SQL_LIST_DEALERS = "LIST_DEALERS.sql";
 	public static final String SQL_LIST_DEALERS_LIKE = "LIST_DEALERS_LIKE.sql";
 	public static final String SQL_LIST_DEALERS_BY_MARKET = "LIST_DEALERS.sql";
@@ -64,6 +68,9 @@ public class AppConstants {
 	public static final String SQL_LIST_REVIEWER_EMPLOYEE = "LIST_REVIEWER_EMPLOYEE.sql";
 	public static final String SQL_LIST_CORPORATE_EMPLOYEES = "LIST_CORPORATE_EMPLOYEES_V2.sql";
 	public static final String SQL_LIST_ALL_EMPLOYEES = "LIST_ALL_EMPLOYEES_V2.sql";
+	//
+	public static final String EDW_SYNC_TIMEOUT = "edw.sync.max.timeout.sec";
+	public static final String EDW_SYNC_MIN_INTERVAL = "edw.sync.min.interval.days";
 	//
 	public static final String CR_URL_KEY = "MFP_CR_URL";
 	public static final String SMTP_HOST = "cr.email.smtp.host";
@@ -111,10 +118,10 @@ public class AppConstants {
 
 	public static final String DOUBLE_INT_PERCENT = "%d/%d";
 	public static final String DOUBLE_STRING_FORMAT = "%s-%s";
-	
+
 	public static final String RS_SEC_HDR_TOKEN_NAME = "RS_SEC_HDR_TOKEN_NAME";
 	public static final String RS_SEC_HDR_IV_NAME = "RS_SEC_HDR_IV_NAME";
 	public static final String RS_SEC_HDR_VENDOR_ID = "RS_SEC_HDR_VENDOR_ID";
 	public static final String SEND_TEST_EMAIL_ONLY = "cr.email.test.only";
-	
+
 }
