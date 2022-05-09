@@ -42,6 +42,10 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object arg2) throws Exception {
 		boolean rv = true;
+		System.out.println(AppConstants.RS_SEC_HDR_TOKEN_NAME + " := " +  request.getHeader(AppConstants.RS_SEC_HDR_TOKEN_NAME));
+		System.out.println(AppConstants.RS_SEC_HDR_IV_NAME + " := " +  request.getHeader(AppConstants.RS_SEC_HDR_IV_NAME));
+		System.out.println(AppConstants.RS_SEC_HDR_VENDOR_ID + " := " +  request.getHeader(AppConstants.RS_SEC_HDR_VENDOR_ID));
+		
 		String userID = request.getHeader(USERID_REQUEST_HEADER);
 		MNAOSecurityService secSvc = new MNAOSecurityService();
 		if (secSvc.isValidHeaderTokens(request)) {
