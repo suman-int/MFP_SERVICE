@@ -61,6 +61,8 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 		boolean rv = true;
 		final String requestURI = request.getRequestURI();
 		System.out.println(request.getRequestURI());
+		System.out.println(AUTH_HEADER);
+		System.out.println(USERID_REQUEST_HEADER);
 		final String requestTokenHeader = request.getHeader(AUTH_HEADER);
 		String userID = request.getHeader(USERID_REQUEST_HEADER);
 		if( userID == null ) {
