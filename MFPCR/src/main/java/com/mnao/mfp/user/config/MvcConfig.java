@@ -36,7 +36,7 @@ public class MvcConfig implements WebMvcConfigurer {
 		// Don't do this in production, use a proper list of allowed origins
 		config.setAllowedOrigins(Collections.singletonList("*"));
 		config.setAllowedHeaders(Arrays.asList("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH", "Origin",
-				"Content-Type", "Accept", "IV-USER", AppConstants.RS_SEC_HDR_IV_NAME,
+				"Content-Type", "Accept", "IV-USER", "Authorization", AppConstants.RS_SEC_HDR_IV_NAME,
 				AppConstants.RS_SEC_HDR_TOKEN_NAME, AppConstants.RS_SEC_HDR_VENDOR_ID));
 		source.registerCorsConfiguration("/**", config);
 		System.out.println("new corsFilter() ...");
