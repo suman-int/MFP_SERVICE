@@ -41,7 +41,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 	private final boolean useDBDomain;
 	private JwtTokenUtil jwtTokenUtil = null;
 	private AllEmployeesCache allEmployeesCache = null;
-
+	private UserDetailsService uds = null;
 	//
 	public MFPRequestInterceptor() {
 		String useDB = Utils.getAppProperty(AppConstants.EMP_USE_DB_RGN_ZONE_DSTR, "false");
@@ -56,20 +56,24 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 			WebApplicationContext wac = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
 			jwtTokenUtil = wac.getBean(JwtTokenUtil.class);
 			allEmployeesCache = wac.getBean(AllEmployeesCache.class);
+			uds = wac.getBean(UserDetailsService.class);
 		}
 		boolean rv = true;
 		final String requestURI = request.getRequestURI();
 		System.out.println(request.getRequestURI());
 		final String requestTokenHeader = request.getHeader(AUTH_HEADER);
 		String userID = request.getHeader(USERID_REQUEST_HEADER);
+		if( userID == null ) {
+			userID = uds.getUserFromFile();
+		}
 		log.debug("UserID= {}", userID);
 		if (userID == null || userID.trim().length() == 0) {
 			response.sendError(401, "UNAUTHORISED");
 			log.error("Unauthorised Access");
 			rv = false;
 		} else {
-			UserDetailsService ud = new UserDetailsService();
-			MFPUser u = ud.getMFPUser(userID);
+//			UserDetailsService ud = new UserDetailsService();
+			MFPUser u = uds.getMFPUser(userID);
 			if (u == null || jwtTokenUtil == null) {
 				response.sendError(401, "UNAUTHORISED");
 				log.error("Unauthorised Access");
@@ -78,10 +82,6 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 				if (useDBDomain) {
 					u.setUseDBDomain(true);
 					try {
-//						ServletContext servletContext = request.getServletContext();
-//						WebApplicationContext wac = WebApplicationContextUtils
-//								.getRequiredWebApplicationContext(servletContext);
-//						AllEmployeesCache allEmployeesCache = wac.getBean(AllEmployeesCache.class);
 						if (allEmployeesCache != null) {
 							allEmployeesCache.updateDomain(u);
 						}
@@ -92,7 +92,8 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 				HttpSession session = request.getSession();
 				session.setAttribute("mfpUser", u);
 				/*
-				 * 1. Authorization Request 2. Invalid token
+				 * 1. Authorization Request 
+				 * 2. Invalid token
 				 */
 				if (requestURI.endsWith(AUTH_REQUEST_URI)) {
 					rv = true;

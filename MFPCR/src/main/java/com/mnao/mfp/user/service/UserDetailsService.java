@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,7 @@ import com.mnao.mfp.common.service.AppPropertiesService;
 import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.user.dao.MFPUser;
 
+@Service
 public class UserDetailsService {
 	private static final Logger log = LoggerFactory.getLogger(UserDetailsService.class);
 
@@ -233,6 +235,30 @@ public class UserDetailsService {
 			}
 		}
 		return user;
+	}
+
+	public String getUserFromFile() {
+		String uid = null;
+		java.net.InetAddress addr;
+		try {
+			addr = java.net.InetAddress.getLocalHost();
+			String fqdn = addr.getHostName();
+			if (fqdn.startsWith("VDIX-DEV-")) {
+				// Developer workstation. Userid may be in file
+				File f = new File("/config/user.txt");
+				if (f.exists() && f.canRead() && f.isFile()) {
+					byte[] b = Files.readAllBytes(f.toPath());
+					uid = new String(b);
+					if( uid != null )
+						uid = uid.trim();
+				}
+			}
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return uid;
 	}
 
 }
