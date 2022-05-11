@@ -60,9 +60,12 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 		}
 		boolean rv = true;
 		final String requestURI = request.getRequestURI();
-		System.out.println(request.getRequestURI());
-		System.out.println(AUTH_HEADER);
-		System.out.println(USERID_REQUEST_HEADER);
+		System.out.println("URI: " +request.getRequestURI());
+		System.out.println("AUTH_HEADER: " +request.getHeader(AUTH_HEADER));
+		System.out.println("USERID_REQUEST_HEADER: " +request.getHeader(USERID_REQUEST_HEADER));
+		if(requestURI.equals("/error")) {
+			return false;
+		}
 		final String requestTokenHeader = request.getHeader(AUTH_HEADER);
 		String userID = request.getHeader(USERID_REQUEST_HEADER);
 		if( userID == null ) {
@@ -74,7 +77,6 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 			log.error("Unauthorised Access");
 			rv = false;
 		} else {
-//			UserDetailsService ud = new UserDetailsService();
 			MFPUser u = uds.getMFPUser(userID);
 			if (u == null || jwtTokenUtil == null) {
 				response.sendError(401, "UNAUTHORISED");
@@ -120,7 +122,14 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 	    	log.warn("JWT Token does not begin with Bearer String");
 	    	jwtToken = requestTokenHeader;
 	    }
-		return jwtTokenUtil.validateToken(jwtToken, u);
+	    boolean rv = false;
+	    try {
+	    	rv = jwtTokenUtil.validateToken(jwtToken, u);
+	    }
+	    catch(Exception e) {
+	    	log.error("Error parsing JWTToken: " + e.getMessage());
+	    }
+		return rv;
 	}
 
 

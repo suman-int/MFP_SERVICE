@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
@@ -31,7 +32,8 @@ public class JwtAuthController {
 	JwtTokenUtil jwtTokenUtil;
 
 	//
-	@PostMapping("/Authorize")
+	//@PostMapping("/Authorize")
+	@RequestMapping(value = "/Authorize", method = { RequestMethod.GET, RequestMethod.POST })
 	public JwtResponse authorize(@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String token = jwtTokenUtil.generateToken(mfpUser);
 		return new JwtResponse(token);
