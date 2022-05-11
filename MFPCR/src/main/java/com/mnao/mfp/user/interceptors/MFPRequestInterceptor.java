@@ -19,6 +19,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -36,12 +37,12 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 
 	private static final Logger log = LoggerFactory.getLogger(MFPRequestInterceptor.class);
 	private static final String USERID_REQUEST_HEADER = "IV-USER";
-	private static final String AUTH_HEADER = "Authorization";
 	private static final String AUTH_REQUEST_URI = "Authorize";
 	private final boolean useDBDomain;
 	private JwtTokenUtil jwtTokenUtil = null;
 	private AllEmployeesCache allEmployeesCache = null;
 	private UserDetailsService uds = null;
+
 	//
 	public MFPRequestInterceptor() {
 		String useDB = Utils.getAppProperty(AppConstants.EMP_USE_DB_RGN_ZONE_DSTR, "false");
@@ -60,15 +61,26 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 		}
 		boolean rv = true;
 		final String requestURI = request.getRequestURI();
-		System.out.println("URI: " +request.getRequestURI());
-		System.out.println("AUTH_HEADER: " +request.getHeader(AUTH_HEADER));
-		System.out.println("USERID_REQUEST_HEADER: " +request.getHeader(USERID_REQUEST_HEADER));
-		if(requestURI.equals("/error")) {
+		System.out.println("URI: " + request.getRequestURI());
+		System.out.println("AUTH_HEADER: " + request.getHeader(AppConstants.AUTH_HEADER));
+		Cookie[] cks = request.getCookies();
+		String tok = null;
+		if (cks != null) {
+			for (Cookie ck : cks) {
+				if (AppConstants.AUTH_COOKIE.equalsIgnoreCase(ck.getName())) {
+					tok = ck.getValue();
+					break;
+				}
+			}
+		}
+		System.out.println("USERID_REQUEST_HEADER: " + request.getHeader(USERID_REQUEST_HEADER));
+		System.out.println("Cokie MFPUSRTOK: " + tok);
+		if (requestURI.equals("/error")) {
 			return false;
 		}
-		final String requestTokenHeader = request.getHeader(AUTH_HEADER);
+		final String requestTokenHeader = request.getHeader(AppConstants.AUTH_HEADER);
 		String userID = request.getHeader(USERID_REQUEST_HEADER);
-		if( userID == null ) {
+		if (userID == null) {
 			userID = uds.getUserFromFile();
 		}
 		log.debug("UserID= {}", userID);
@@ -96,12 +108,11 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 				HttpSession session = request.getSession();
 				session.setAttribute("mfpUser", u);
 				/*
-				 * 1. Authorization Request 
-				 * 2. Invalid token
+				 * 1. Authorization Request 2. Invalid token
 				 */
 				if (requestURI.endsWith(AUTH_REQUEST_URI)) {
 					rv = true;
-				} else if (!validateJwtToken(requestTokenHeader, u) ) {
+				} else if (!validateJwtToken(requestTokenHeader == null ? tok : requestTokenHeader, u)) {
 					response.sendError(401, "UNAUTHORISED");
 					log.error("Unauthorised Access");
 					rv = false;
@@ -113,24 +124,24 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 	}
 
 	private boolean validateJwtToken(String requestTokenHeader, MFPUser u) {
-	    String jwtToken = null;
-	    // JWT Token is in the form "Bearer token". Remove Bearer word and get
-	    // only the Token
-	    if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
-	        jwtToken = requestTokenHeader.substring(7);
-	    } else {
-	    	log.warn("JWT Token does not begin with Bearer String");
-	    	jwtToken = requestTokenHeader;
-	    }
-	    boolean rv = false;
-	    try {
-	    	rv = jwtTokenUtil.validateToken(jwtToken, u);
-	    }
-	    catch(Exception e) {
-	    	log.error("Error parsing JWTToken: " + e.getMessage());
-	    }
+		String jwtToken = null;
+		// JWT Token is in the form "Bearer token". Remove Bearer word and get
+		// only the Token
+		if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
+			jwtToken = requestTokenHeader.substring(7);
+		} else {
+			log.warn("JWT Token does not begin with Bearer String");
+			jwtToken = requestTokenHeader;
+		}
+		boolean rv = false;
+		if (jwtToken != null) {
+			try {
+				rv = jwtTokenUtil.validateToken(jwtToken, u);
+			} catch (Exception e) {
+				log.error("Error parsing JWTToken: " + e.getMessage());
+			}
+		}
 		return rv;
 	}
-
 
 }
