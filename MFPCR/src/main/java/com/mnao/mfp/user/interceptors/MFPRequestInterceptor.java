@@ -79,8 +79,8 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 		} else {
 			MFPUser u = uds.getMFPUser(userID);
 			if (u == null || jwtTokenUtil == null) {
-				response.sendError(401, "UNAUTHORISED");
-				log.error("Unauthorised Access");
+				response.sendError(403, "FORBIDDEN");
+				log.error("Unauthorised (Forbidden) Access");
 				rv = false;
 			} else {
 				if (useDBDomain) {
