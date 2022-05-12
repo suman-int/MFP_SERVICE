@@ -27,6 +27,7 @@ public class MvcConfig implements WebMvcConfigurer {
 	public void addInterceptors(final InterceptorRegistry registry) {
 		registry.addInterceptor(new MFPRequestInterceptor());
 	}
+
 	@Bean
 	public CorsFilter corsFilter() {
 		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -34,8 +35,9 @@ public class MvcConfig implements WebMvcConfigurer {
 		config.setAllowCredentials(true);
 		// Don't do this in production, use a proper list of allowed origins
 		config.setAllowedOrigins(Collections.singletonList("*"));
-		config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "IV-USER", AppConstants.RS_SEC_HDR_IV_NAME, AppConstants.RS_SEC_HDR_TOKEN_NAME,AppConstants.RS_SEC_HDR_VENDOR_ID));
-		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH", "IV-USER"));
+		config.setAllowedHeaders(Arrays.asList("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH", "Origin",
+				"Content-Type", "Accept", "IV-USER", "Authorization", AppConstants.RS_SEC_HDR_IV_NAME,
+				AppConstants.RS_SEC_HDR_TOKEN_NAME, AppConstants.RS_SEC_HDR_VENDOR_ID, AppConstants.AUTH_HEADER));
 		source.registerCorsConfiguration("/**", config);
 		System.out.println("new corsFilter() ...");
 		return new CorsFilter(source);
