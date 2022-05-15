@@ -19,6 +19,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@org.hibernate.annotations.Cache(usage = org.hibernate.annotations.CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "mfp_contact_report_info")
 public class ContactReportInfo extends BaseEntity {
 
@@ -66,6 +67,7 @@ public class ContactReportInfo extends BaseEntity {
 	@Column(name = "LAST_DISCUSSION_REQ4_DT")
 	private LocalDate lastDiscussionReqDt;
 
+	@org.hibernate.annotations.Cache(usage = org.hibernate.annotations.CacheConcurrencyStrategy.READ_WRITE)
 	@OneToMany(targetEntity = ContactReportDealerPersonnel.class, cascade = CascadeType.ALL)
 	@JoinColumn(name = "contactReportIdFk", referencedColumnName = "contactReportId", nullable = false)
 	@NotNull
@@ -76,14 +78,17 @@ public class ContactReportInfo extends BaseEntity {
 //	@NotNull
 //	private List<ContactReportMetrics> metrics;
 
+	@org.hibernate.annotations.Cache(usage = org.hibernate.annotations.CacheConcurrencyStrategy.READ_WRITE)
 	@OneToMany(targetEntity = ContactReportDiscussion.class, cascade = CascadeType.ALL)
 	@JoinColumn(name = "contactReportIdFk", referencedColumnName = "contactReportId")
 	private List<ContactReportDiscussion> discussions;
 
+	@org.hibernate.annotations.Cache(usage = org.hibernate.annotations.CacheConcurrencyStrategy.READ_WRITE)
 	@OneToMany(targetEntity = ContactReportAttachment.class, cascade = CascadeType.ALL)
 	@JoinColumn(name = "contactReportIdFk", referencedColumnName = "contactReportId")
 	private List<ContactReportAttachment> attachment;
 
+	@org.hibernate.annotations.Cache(usage = org.hibernate.annotations.CacheConcurrencyStrategy.READ_ONLY)
 	@ManyToOne(targetEntity = Dealers.class, cascade = CascadeType.ALL)
 	@JoinColumn(name = "dlrCd", updatable = false, insertable = false)
 	@NotNull

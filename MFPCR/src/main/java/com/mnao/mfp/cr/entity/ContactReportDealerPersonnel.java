@@ -2,6 +2,7 @@ package com.mnao.mfp.cr.entity;
 
 import java.time.LocalDate;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
