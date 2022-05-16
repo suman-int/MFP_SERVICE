@@ -99,7 +99,7 @@ public class Utils {
 			retSql = retSql.replaceAll("\\$SCHEMA\\$", sch);
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			log.error("", e1);
 		}
 		return retSql;
 	}

@@ -11,7 +11,11 @@ import com.mnao.mfp.cr.model.ContactReportResponse;
 import com.mnao.mfp.cr.service.ContactReportService;
 import com.mnao.mfp.cr.service.GenericResponseWrapper;
 import com.mnao.mfp.cr.service.impl.FileHandlingServiceImpl;
+import com.mnao.mfp.sync.SyncEDW;
 import com.mnao.mfp.user.dao.MFPUser;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +36,9 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "ContactReport")
 public class ReportController {
+	//
+	private static final Logger log = LoggerFactory.getLogger(ReportController.class);
+	//
 
     @Autowired()
     private ContactReportService contactReportService;
@@ -113,7 +120,7 @@ public class ReportController {
             try {
                 contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
             } catch (IOException ex) {
-                System.out.println("Could not determine file type.");
+                log.debug("Could not determine file type.");
             }
 
             // Fallback to the default content type if type could not be determined
@@ -141,7 +148,7 @@ public class ReportController {
             try {
                 contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
             } catch (IOException ex) {
-                System.out.println("Could not determine file type.");
+                log.debug("Could not determine file type.");
             }
 
             // Fallback to the default content type if type could not be determined

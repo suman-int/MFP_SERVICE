@@ -6,7 +6,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.mnao.mfp.MFPContactReportsApplication;
+
 public class AppConstants {
+	//
+	private static final Logger log = LoggerFactory.getLogger(AppConstants.class);
+	//
 	private static String mfpProfName = "/mfp.properties";
 	private static String wslProfName = "/wslusersvc.properties";
 	static {
@@ -17,14 +25,14 @@ public class AppConstants {
 				p.load(is);
 				prof = p.getProperty("spring.profiles.active", "");
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("", e);
 			}
 
 		}
 		if (prof.length() > 0)
 			mfpProfName = "/mfp-" + prof + ".properties";
 		wslProfName = "/wslusersvc-" + prof + ".properties";
-		System.out.println("***********************\nActive Profile:" + prof + "\n***********************");
+		log.debug("***********************\nActive Profile:" + prof + "\n***********************");
 	}
 	public static final String MFP_PROPS_FILE = System.getProperty("mfp.prop.file", mfpProfName);
 	public static final String WSL_PROPS_FILE = System.getProperty("wsl.prop.file", wslProfName);

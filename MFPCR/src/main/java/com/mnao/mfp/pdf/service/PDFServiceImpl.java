@@ -76,13 +76,13 @@ public class PDFServiceImpl extends MfpKPIControllerBase implements PDFService {
 			}
 			pdfReport.closePdf();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("", e);
 		}
 		Resource resource = null;
 		try {
 			resource = new UrlResource(filePath.toUri());
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			log.error("", e);
 		}
 		return resource;
 	}
@@ -105,7 +105,7 @@ public class PDFServiceImpl extends MfpKPIControllerBase implements PDFService {
 			out.close();
 			resource = new UrlResource(filePath.toUri());
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("", e);
 			throw e;
 		}
 		return resource;
@@ -229,7 +229,7 @@ public class PDFServiceImpl extends MfpKPIControllerBase implements PDFService {
 			tmpFile.deleteOnExit();
 			tmpFilePath = tmpFile.toPath();
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			log.error("", e1);
 		}
 		return tmpFilePath;
 	}

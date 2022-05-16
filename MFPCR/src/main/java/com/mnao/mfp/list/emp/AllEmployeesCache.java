@@ -113,7 +113,7 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 				allEmployeesByWSLId.put(le.getUserId().trim().toUpperCase(), le);
 			}
 		}
-		System.out.println("" + allEmployeesById.size() + " Employees loaded to cache.");
+		log.debug("" + allEmployeesById.size() + " Employees loaded to cache.");
 	}
 
 }

@@ -14,12 +14,19 @@ import javax.sql.RowSet;
 import javax.sql.RowSetMetaData;
 import javax.sql.rowset.CachedRowSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.MFPDatabase;
 import com.mnao.mfp.common.util.MFPDatabase.DB;
+import com.mnao.mfp.login.LoggedInUser;
 import com.mnao.mfp.common.util.Utils;
 
 public class SyncEDW {
+	//
+	private static final Logger log = LoggerFactory.getLogger(SyncEDW.class);
+	//
 	private static final int ACQUIRE_LOCK_TIMEOUT = 15;
 
 	public void startSync() {
@@ -36,7 +43,7 @@ public class SyncEDW {
 			if (lastUpdt == null) {
 				lastUpdt = new Date(0);
 			}
-			System.out.println("Last Update Date: " + lastUpdt);
+			log.debug("Last Update Date: " + lastUpdt);
 			long timeDiff = Calendar.getInstance().getTimeInMillis() - lastUpdt.getTime();
 			long dayDiff = TimeUnit.MILLISECONDS.toDays(timeDiff);
 			if (dayDiff <= minDays) {
@@ -51,7 +58,7 @@ public class SyncEDW {
 			doSync(edwdb, mfpdb, mfpconn, lastUpdt);
 			releaseLocks(mfpconn);
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			log.error("", e1);
 		}
 	}
 
@@ -70,7 +77,7 @@ public class SyncEDW {
 				mergeUpdateDEalersFromStage(mfpdb, mfpconn, mergeSQL);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("", e);
 		}
 	}
 
@@ -82,7 +89,7 @@ public class SyncEDW {
 			mfpconn.close();
 			rv = true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("", e);
 		}
 		return rv;
 	}
@@ -99,10 +106,10 @@ public class SyncEDW {
 				stmt.execute(sql);
 				rv = true;
 			} catch (com.ibm.db2.jcc.am.SqlTimeoutException e) {
-				System.out.println("SYNC WITH EDW process is already running. Skipping sync process in this instance.");
+				log.debug("SYNC WITH EDW process is already running. Skipping sync process in this instance.");
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("", e);
 		}
 		return rv;
 	}
@@ -110,7 +117,7 @@ public class SyncEDW {
 	private void mergeUpdateDEalersFromStage(MFPDatabase mfpdb, Connection mfpconn, String mergeSQL) {
 		boolean rv = mfpdb.execute(mfpconn, mergeSQL);
 		if (rv)
-			System.out.println("Successfully merged DEALERS from DEALERS_STAGE.");
+			log.debug("Successfully merged DEALERS from DEALERS_STAGE.");
 	}
 
 	private void insertRecordsToStage(MFPDatabase db, Connection mfpconn, RowSet rs) {
@@ -129,11 +136,11 @@ public class SyncEDW {
 				ps.addBatch();
 				ctr++;
 			}
-			System.out.println("Inserting " + ctr + " rows into DEALERS_STAGE.");
+			log.debug("Inserting " + ctr + " rows into DEALERS_STAGE.");
 			int[] rins = ps.executeBatch();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("", e);
 		}
 	}
 
@@ -158,7 +165,7 @@ public class SyncEDW {
 			insSql += " )";
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("", e);
 		}
 		return insSql;
 	}
@@ -173,7 +180,7 @@ public class SyncEDW {
 			}
 			rs.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			log.error("", e);
 		}
 		return dt;
 	}

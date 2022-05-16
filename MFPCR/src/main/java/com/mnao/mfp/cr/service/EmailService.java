@@ -8,9 +8,12 @@ import java.util.List;
 
 import javax.mail.MessagingException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.mnao.mfp.MFPContactReportsApplication;
 import com.mnao.mfp.common.controller.MfpKPIControllerBase;
 import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.dao.DealerInfo;
@@ -26,6 +29,9 @@ import com.mnao.mfp.user.service.UserDetailsService;
 
 @Service
 public class EmailService extends MfpKPIControllerBase {
+	//
+	private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+	//
 	@Value("${spring.profiles.active}")
 	private String activeProfile;
 	
@@ -156,7 +162,7 @@ public class EmailService extends MfpKPIControllerBase {
 				if (retRows != null && retRows.size() > 0)
 					revEmp = retRows.get(0);
 			} catch (InstantiationException | IllegalAccessException | ParseException e) {
-				System.err.println("ERROR retrieving list of Employees:" + e);
+				log.error("ERROR retrieving list of Employees:" , e);
 			}
 		}
 		return revEmp;

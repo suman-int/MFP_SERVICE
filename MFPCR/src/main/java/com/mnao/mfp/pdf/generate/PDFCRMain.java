@@ -3,6 +3,8 @@ package com.mnao.mfp.pdf.generate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +13,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.properties.UnitValue;
+import com.mnao.mfp.MFPContactReportsApplication;
 import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
@@ -24,6 +27,9 @@ import com.mnao.mfp.pdf.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.user.dao.MFPUser;
 
 public class PDFCRMain {
+	//
+	private static final Logger log = LoggerFactory.getLogger(PDFCRMain.class);
+	//
 //	public void createPdfFile(Path p, ContactReportInfo crInfo, MFPUser author, DealerInfo dInfo,
 //			List<DealerEmployeeInfo> dEmpInfos, ReviewerEmployeeInfo revEmpInfo) throws IOException {
 //		byte[] b = createPDF(crInfo, author, dInfo, dEmpInfos, revEmpInfo);
@@ -38,7 +44,7 @@ public class PDFCRMain {
 			addPersonnel(report, crInfo, dEmpInfos, revEmpInfo, author);
 			addDiscussions(report, crInfo);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("", e);
 		}
 		return;
 	}

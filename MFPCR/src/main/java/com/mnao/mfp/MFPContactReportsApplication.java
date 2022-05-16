@@ -7,16 +7,22 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import com.mnao.mfp.common.controller.MFPCommonUserController;
+
 @ServletComponentScan
 @SpringBootApplication
 @EnableScheduling
 public class MFPContactReportsApplication {
-
+	//
+	private static final Logger log = LoggerFactory.getLogger(MFPContactReportsApplication.class);
+	//
 	public static void main(String[] args) {
 		checkWarnEnv();
 		SpringApplication.run(MFPContactReportsApplication.class, args);
@@ -28,15 +34,15 @@ public class MFPContactReportsApplication {
 		 try {  
 		      InetAddress id = InetAddress.getLocalHost(); 
 		      String hName = id.getHostName();
-		      System.out.println( id.getHostName()); 
+		      log.debug( id.getHostName()); 
 		      if( hName.startsWith("VDIX-DEV")) {
-		    	  System.out.println("***** WARNING *****");
-		    	  System.out.println("*Profile " + prof + " is set in " + hName);
-		    	  System.out.println("*ALL EMAILS WILL GO TO ORIGINAL RECEPIENTS");
-		    	  System.out.println("*******************");
+		    	  log.debug("***** WARNING *****");
+		    	  log.debug("*Profile " + prof + " is set in " + hName);
+		    	  log.debug("*ALL EMAILS WILL GO TO ORIGINAL RECEPIENTS");
+		    	  log.debug("*******************");
 		      }
 		    } catch (UnknownHostException e) {  
-		    	e.printStackTrace();
+		    	log.error("", e);
 		    }  
 		}
 	}
@@ -51,7 +57,7 @@ public class MFPContactReportsApplication {
 					prop.load(fis);
 					rProf = prop.getProperty("spring.profiles.active");
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error("", e);
 				}
 			}
 		}

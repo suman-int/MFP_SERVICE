@@ -97,7 +97,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 				multiplePdf.add(new FileInputStream(outputPath.toFile()));
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("", e);
 			}
 		});
 		Path outputPath = neoService.getTmpFilePath(mfpUser, "contact_report_", "_FINAL_BULK_", ".pdf");
@@ -138,13 +138,13 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 		try {
 			pdfRes = pdfService.createXLSFResource(mfpUser, contactReports);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("", e);
 			Path excFile = pdfService.getTmpFilePath(mfpUser, "ERROR_", "ExcelConversion", "txt");
 			try {
 				Files.write(excFile, Arrays.toString(e.getStackTrace()).getBytes(), StandardOpenOption.WRITE);
 				pdfRes = new UrlResource(excFile.toUri());
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				log.error("", e1);
 			}
 		}
 		if (pdfRes != null) {

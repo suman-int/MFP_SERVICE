@@ -61,8 +61,8 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 		}
 		boolean rv = true;
 		final String requestURI = request.getRequestURI();
-		System.out.println("URI: " + request.getRequestURI());
-		System.out.println("AUTH_HEADER: " + request.getHeader(AppConstants.AUTH_HEADER));
+		log.debug("URI: " + request.getRequestURI());
+		log.debug("AUTH_HEADER: " + request.getHeader(AppConstants.AUTH_HEADER));
 		Cookie[] cks = request.getCookies();
 		String tok = null;
 		if (cks != null) {
@@ -73,8 +73,8 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 				}
 			}
 		}
-		System.out.println("USERID_REQUEST_HEADER: " + request.getHeader(USERID_REQUEST_HEADER));
-		System.out.println("Cokie MFPUSRTOK: " + tok);
+		log.debug("USERID_REQUEST_HEADER: " + request.getHeader(USERID_REQUEST_HEADER));
+		log.debug("Cokie MFPUSRTOK: " + tok);
 		if (requestURI.equals("/error")) {
 			return false;
 		}
@@ -102,7 +102,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 							allEmployeesCache.updateDomain(u);
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
+						log.error("", e);
 					}
 				}
 				HttpSession session = request.getSession();
