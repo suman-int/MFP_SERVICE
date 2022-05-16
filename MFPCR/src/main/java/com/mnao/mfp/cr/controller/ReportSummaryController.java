@@ -1,11 +1,15 @@
 package com.mnao.mfp.cr.controller;
 
+import com.mnao.mfp.common.dao.MetricData;
 import com.mnao.mfp.common.datafilters.FilterCriteria;
 import com.mnao.mfp.common.dto.CommonResponse;
 import com.mnao.mfp.common.service.AbstractService;
 import com.mnao.mfp.cr.service.ReportSummaryService;
 import com.mnao.mfp.cr.util.FilterCriteriaBuilder;
 import com.mnao.mfp.user.dao.MFPUser;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +19,9 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/report-summary")
 public class ReportSummaryController {
+	//
+	private static final Logger log = LoggerFactory.getLogger(ReportSummaryController.class);
+	//
 
     @Autowired
     private ReportSummaryService summaryService;
@@ -101,7 +108,7 @@ public class ReportSummaryController {
             List<Map<String, String>> response = summaryService.getSummaryOfMonthByLocation(filterCriteria, mfpUser);
             return AbstractService.httpPostSuccess(response, "Success");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("", e);
             return AbstractService.httpPostError(e);
         }
     }

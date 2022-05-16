@@ -114,7 +114,7 @@ public class UserDetailsService {
 			java.net.InetAddress addr = java.net.InetAddress.getLocalHost();
 			fqdn = addr.getCanonicalHostName();
 			log.debug("FQDN : " + fqdn);
-			System.out.println("FQDN : " + fqdn);
+			log.debug("FQDN : " + fqdn);
 		} catch (Exception e) {
 		}
 		// return fqdn.endsWith("mnao.net");
@@ -142,7 +142,7 @@ public class UserDetailsService {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("", e);
 		}
 		return retJsons;
 	}
@@ -187,12 +187,12 @@ public class UserDetailsService {
 			if (entity != null) {
 				// return it as a String
 				String result = EntityUtils.toString(entity);
-				System.out.println(result);
+				log.debug(result);
 				rv = result;
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("", e);
 		}
 		return rv;
 	}
@@ -231,7 +231,7 @@ public class UserDetailsService {
 				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 				user = mapper.readValue(data.toString(), MFPUser.class);
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error("", e);
 			}
 		}
 		return user;
@@ -254,9 +254,9 @@ public class UserDetailsService {
 				}
 			}
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
+			log.error("", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("", e);
 		}
 		return uid;
 	}

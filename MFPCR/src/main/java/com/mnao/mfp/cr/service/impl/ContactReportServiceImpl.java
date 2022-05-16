@@ -1,5 +1,6 @@
 package com.mnao.mfp.cr.service.impl;
 
+import com.mnao.mfp.MFPContactReportsApplication;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.IsActiveEnum;
 import com.mnao.mfp.common.util.NullCheck;
@@ -20,6 +21,9 @@ import com.mnao.mfp.list.dao.ListEmployee;
 import com.mnao.mfp.list.dao.ListPersonnel;
 import com.mnao.mfp.list.emp.AllEmployeesCache;
 import com.mnao.mfp.user.dao.MFPUser;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -32,6 +36,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class ContactReportServiceImpl implements ContactReportService {
+	//
+	private static final Logger log = LoggerFactory.getLogger(ContactReportServiceImpl.class);
+	//
 
 	@Autowired
 	private ContactInfoRepository contactInfoRepository;
@@ -179,7 +186,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 				emailService.sendEmailNotification(reportInfo, origCRStatus, mfpUser);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("", e);
 			submission = "Failed to save Contact Report. " + e.getMessage();
 			throw new Exception(submission);
 		}

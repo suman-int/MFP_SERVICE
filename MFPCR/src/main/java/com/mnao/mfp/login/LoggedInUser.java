@@ -10,11 +10,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.Utils;
+import com.mnao.mfp.user.config.CorsAddFilter;
 
 @WebServlet(urlPatterns = "/login/*", loadOnStartup = 1)
 public class LoggedInUser extends HttpServlet {
+	//
+	private static final Logger log = LoggerFactory.getLogger(LoggedInUser.class);
+	//
 
 	/**
 	 * 
@@ -25,7 +32,7 @@ public class LoggedInUser extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		System.out.println("Login Servlet");
+		log.debug("Login Servlet");
 		String defUrl = "https://portaltest.mazdausa.com/m320/mfpwebui";
 		String mfpUrl = Utils.getAppProperty(AppConstants.CR_URL_KEY);
 		if (mfpUrl == null || mfpUrl.trim().length() == 0)

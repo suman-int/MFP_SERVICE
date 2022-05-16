@@ -22,10 +22,14 @@ import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfImportedPage;
 import com.lowagie.text.pdf.PdfReader;
+import com.mnao.mfp.common.dao.MetricData;
 import com.mnao.mfp.user.dao.MFPUser;
 
 @Component
 public class PdfNeoService {
+	//
+	private static final Logger log = LoggerFactory.getLogger(PdfNeoService.class);
+	//
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	public void xhtmlToPdf(String xhtml, Path outputPath) {
@@ -47,9 +51,9 @@ public class PdfNeoService {
 			renderer.createPDF(os);
 			os.close();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			log.error("", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("", e);
 		}
 	}
 
@@ -70,7 +74,7 @@ public class PdfNeoService {
 			tmpFile.deleteOnExit();
 			tmpFilePath = tmpFile.toPath();
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			log.error("", e1);
 		}
 		return tmpFilePath;
 	}

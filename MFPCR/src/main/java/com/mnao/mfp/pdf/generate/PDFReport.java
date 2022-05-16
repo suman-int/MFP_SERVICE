@@ -3,6 +3,9 @@ package com.mnao.mfp.pdf.generate;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.font.PdfFontFactory;
@@ -26,8 +29,12 @@ import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.renderer.ParagraphRenderer;
+import com.mnao.mfp.common.dao.MetricData;
 
 public class PDFReport {
+	//
+	private static final Logger log = LoggerFactory.getLogger(PDFReport.class);
+	//
 	private String pdfName;
 	private PageSize pageSize = PageSize.A4; // .rotate();
 	private static int widthMM = 210;
@@ -167,7 +174,7 @@ public class PDFReport {
 						.setWidth(new UnitValue(UnitValue.PERCENT, 100));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("", e);
 			}
 		}
 		return para;

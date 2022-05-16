@@ -28,9 +28,9 @@ public class MNAOSecurityService {
 
 	public boolean isValidHeaderTokens(HttpServletRequest request) {
 		boolean validateFlag = false;
-		System.out.println(AppConstants.RS_SEC_HDR_TOKEN_NAME + " := " +  request.getHeader(AppConstants.RS_SEC_HDR_TOKEN_NAME));
-		System.out.println(AppConstants.RS_SEC_HDR_IV_NAME + " := " +  request.getHeader(AppConstants.RS_SEC_HDR_IV_NAME));
-		System.out.println(AppConstants.RS_SEC_HDR_VENDOR_ID + " := " +  request.getHeader(AppConstants.RS_SEC_HDR_VENDOR_ID));
+		log.debug(AppConstants.RS_SEC_HDR_TOKEN_NAME + " := " +  request.getHeader(AppConstants.RS_SEC_HDR_TOKEN_NAME));
+		log.debug(AppConstants.RS_SEC_HDR_IV_NAME + " := " +  request.getHeader(AppConstants.RS_SEC_HDR_IV_NAME));
+		log.debug(AppConstants.RS_SEC_HDR_VENDOR_ID + " := " +  request.getHeader(AppConstants.RS_SEC_HDR_VENDOR_ID));
 		//
 		if (Utils.isNotNullOrEmpty(request.getHeader(AppConstants.RS_SEC_HDR_TOKEN_NAME))
 				&& Utils.isNotNullOrEmpty(request.getHeader(AppConstants.RS_SEC_HDR_IV_NAME))
@@ -49,7 +49,7 @@ public class MNAOSecurityService {
 				}
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("", e);
 			}
 		}
 		return validateFlag;

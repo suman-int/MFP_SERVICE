@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,11 +26,15 @@ import com.mnao.mfp.list.emp.AllEmployeesCache;
 import com.mnao.mfp.pdf.dao.DealerEmployeeInfo;
 import com.mnao.mfp.pdf.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.pdf.service.PDFService;
+import com.mnao.mfp.sync.SyncEDW;
 import com.mnao.mfp.user.dao.MFPUser;
 import com.mnao.mfp.user.service.UserDetailsService;
 
 @Component
 public class PdfGenerateUtil {
+	//
+	private static final Logger log = LoggerFactory.getLogger(PdfGenerateUtil.class);
+	//
 	@Autowired
 	PDFService pdfService;
 
@@ -259,7 +265,7 @@ public class PdfGenerateUtil {
 		List<String> fullHtml = new ArrayList<>();
 		AtomicInteger currentPageNumber = new AtomicInteger(0);
 		contactReports.forEach(cr -> {
-			System.out.println(currentPageNumber.get());
+			log.debug("" + currentPageNumber.get());
 			Dealers dealers = new NullCheck<>(cr).with(ContactReportInfo::getDealers).orElse(new Dealers());
 			List<DealerEmployeeInfo> dps = pdfService.getDealerEmployeeInfos(mfpUser, cr.getDlrCd(),
 					cr.getDealerPersonnels());
