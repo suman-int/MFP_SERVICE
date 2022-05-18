@@ -1,7 +1,10 @@
 package com.mnao.mfp.common.service;
 
 import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -52,7 +55,21 @@ public class AppPropertiesService {
 				log.error("", e);
 			}
 		}
+		updateAppPropsWithEnv();
 		return appProps;
+	}
+
+	private void updateAppPropsWithEnv() {
+	    @SuppressWarnings("unchecked")
+		Enumeration<String> enums = (Enumeration<String>) appProps.propertyNames();
+	    while (enums.hasMoreElements()) {
+			String key = enums.nextElement();
+			String val = env.getProperty(key);
+			if( val != null && !val.equalsIgnoreCase("#{null}")) {
+				appProps.setProperty(key, val);
+				log.debug("Updated Property Value of " + key + " with " + val + " from Environment.");
+			}
+		}
 	}
 
 	public Properties getWslUserProperties() {
