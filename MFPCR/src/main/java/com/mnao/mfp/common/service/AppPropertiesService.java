@@ -71,7 +71,7 @@ public class AppPropertiesService {
 			String val = env.getProperty(key);
 			if (val != null && !val.equalsIgnoreCase("#{null}")) {
 				appProps.setProperty(key, val);
-				log.debug("Updated Property Value of " + key + " with " + val + " from Environment.");
+				log.debug("Updated Property Value of " + key + " from Environment.");
 			}
 		}
 	}

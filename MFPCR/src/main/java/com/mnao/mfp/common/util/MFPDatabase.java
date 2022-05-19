@@ -96,7 +96,7 @@ public class MFPDatabase {
 					execute(conn, "ALTER SESSION SET CURRENT_SCHEMA=" + jdbcSchema);
 				}
 			}
-			log.debug(String.format("Connected to database %s " + "successfully.", conn.getCatalog()));
+			log.debug(String.format("Connected to database %s " + "successfully.", jdbcUrl ));
 
 		} catch (SQLException e) {
 			conn = null;
