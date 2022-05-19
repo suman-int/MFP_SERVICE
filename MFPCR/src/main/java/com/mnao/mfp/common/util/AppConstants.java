@@ -63,7 +63,7 @@ public class AppConstants {
 	public static final String API_VIEWS_METRICS_RetailInventoryByDealer = "RetailInventoryByDealer";
 	public static final String API_VIEWS_METRICS_RetailInventoryByDate = "RetailInventoryByDate";
 	//
-	public static final String SQL_UNIQUE_EDW_DEALERS = "UNQ_DEALERS.sql";
+	public static final String SQL_UNIQUE_EDW_DEALERS = "UNQ_DEALERS_V2.sql";
 	public static final String SQL_MERGE_UPDATE_DEALERS = "DEALERS_MERGE_UPDATE.sql";
 	//
 	public static final String SQL_LIST_DEALERS = "LIST_DEALERS.sql";
