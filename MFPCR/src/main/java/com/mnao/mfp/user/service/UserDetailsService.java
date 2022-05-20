@@ -129,16 +129,21 @@ public class UserDetailsService {
 		try {
 //			String allJsonsStr = new String(Files.readAllBytes(jf.toPath()));
 			String allJsonsStr = readUserJsonFromFile(staticJsonFile);
-			ObjectMapper mapper = new ObjectMapper();
-			jsons = mapper.readValue(allJsonsStr, new TypeReference<List<Map<Object, Object>>>() {
-			});
-			for (int i = 0; i < jsons.size(); i++) {
-				ObjectMapper m1 = new ObjectMapper();
-				String jstr = m1.writeValueAsString(jsons.get(i)).toString();
-				MFPUser user = processUserInfoJson(jstr);
-				if (user != null) {
-					retJsons.put(user.getUserid(), jstr);
-					log.debug("Loaded from static JSON : " + user.getUserid());
+			if (allJsonsStr != null) {
+				allJsonsStr = allJsonsStr.trim();
+				if (allJsonsStr.length() > 0 && (allJsonsStr.startsWith("[") || allJsonsStr.startsWith("{"))) {
+					ObjectMapper mapper = new ObjectMapper();
+					jsons = mapper.readValue(allJsonsStr, new TypeReference<List<Map<Object, Object>>>() {
+					});
+					for (int i = 0; i < jsons.size(); i++) {
+						ObjectMapper m1 = new ObjectMapper();
+						String jstr = m1.writeValueAsString(jsons.get(i)).toString();
+						MFPUser user = processUserInfoJson(jstr);
+						if (user != null) {
+							retJsons.put(user.getUserid(), jstr);
+							log.debug("Loaded from static JSON : " + user.getUserid());
+						}
+					}
 				}
 			}
 		} catch (IOException e) {
@@ -249,7 +254,7 @@ public class UserDetailsService {
 				if (f.exists() && f.canRead() && f.isFile()) {
 					byte[] b = Files.readAllBytes(f.toPath());
 					uid = new String(b);
-					if( uid != null )
+					if (uid != null)
 						uid = uid.trim();
 				}
 			}
