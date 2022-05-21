@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.*;
@@ -183,7 +184,14 @@ public class ContactReportServiceImpl implements ContactReportService {
 			if (info.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()
 					|| info.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()
 					|| info.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
-				emailService.sendEmailNotification(reportInfo, origCRStatus, mfpUser);
+				try {
+					String emailResp = emailService.sendEmailNotification(reportInfo, origCRStatus, mfpUser);
+					if (!emailResp.startsWith("OK"))
+						submission += "; " + emailResp;
+				} catch (MessagingException ex) {
+					log.error("Failed to send email.", ex);
+					submission += "; Error send email";
+				}
 			}
 		} catch (Exception e) {
 			log.error("", e);
@@ -387,9 +395,10 @@ public class ContactReportServiceImpl implements ContactReportService {
 		return topicList;
 
 	}
-	
+
 	private static int compareByUpdatedDate(ContactReportInfo cr, ContactReportInfo cr2) {
-	   return new NullCheck<>(cr2).with(ContactReportInfo::getUpdatedDt).orElse(cr2.getCreatedDt()).compareTo(new NullCheck<>(cr).with(ContactReportInfo::getUpdatedDt).orElse(cr.getCreatedDt()));
+		return new NullCheck<>(cr2).with(ContactReportInfo::getUpdatedDt).orElse(cr2.getCreatedDt())
+				.compareTo(new NullCheck<>(cr).with(ContactReportInfo::getUpdatedDt).orElse(cr.getCreatedDt()));
 	}
 
 }
