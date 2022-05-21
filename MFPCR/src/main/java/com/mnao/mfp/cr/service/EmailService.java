@@ -36,8 +36,9 @@ public class EmailService extends MfpKPIControllerBase {
 	private String activeProfile;
 	
 	
-	public void sendEmailNotification(ContactReportInfo report, int origCRStatus, MFPUser mfpUser)
+	public String sendEmailNotification(ContactReportInfo report, int origCRStatus, MFPUser mfpUser)
 			throws MessagingException {
+		String resp = "OK";
 		EMazdamailsender objEMazdamailsender = new EMazdamailsender();
 		objEMazdamailsender.set_mimeType("text/html");
 		List<String> toAddresses = new ArrayList<String>();
@@ -59,6 +60,8 @@ public class EmailService extends MfpKPIControllerBase {
 		//
 		if (report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
 			toAddr = revEmp.getEmailAddr();
+			if( toAddr == null || toAddr.trim().length() == 0 )
+				return "Email address of " + reviewerName + " is invalid";
 			if (origCRStatus == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
 				subjFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_DISC_SUBJECT);
 				bodyFmt = Utils.getAppProperty(AppConstants.MAIL_SUBMITTED_DISC_BODY);
@@ -74,6 +77,8 @@ public class EmailService extends MfpKPIControllerBase {
 				reviewerName = getNameStr(mfpUser.getFirstName(), mfpUser.getLastName());
 			}
 			toAddr = authorUser.getEmail();
+			if( toAddr == null || toAddr.trim().length() == 0 )
+				return "Email address of " + authorName + " is invalid";
 			subjFmt = Utils.getAppProperty(AppConstants.MAIL_REVIEWED_SUBJECT);
 			bodyFmt = Utils.getAppProperty(AppConstants.MAIL_REVIEWED_BODY);
 			toFmt = Utils.getAppProperty(AppConstants.MAIL_REVIEWED_TO);
@@ -83,12 +88,14 @@ public class EmailService extends MfpKPIControllerBase {
 				reviewerName = getNameStr(mfpUser.getFirstName(), mfpUser.getLastName());
 			}
 			toAddr = authorUser.getEmail();
+			if( toAddr == null || toAddr.trim().length() == 0 )
+				return "Email address of " + authorName + " is invalid";
 			subjFmt = Utils.getAppProperty(AppConstants.MAIL_DISCREQ_SUBJECT);
 			bodyFmt = Utils.getAppProperty(AppConstants.MAIL_DISCREQ_BODY);
 			toFmt = Utils.getAppProperty(AppConstants.MAIL_DISCREQ_TO);
 		}
 		if (subjFmt == null || subjFmt.trim().length() == 0 || bodyFmt == null || bodyFmt.trim().length() == 0) {
-			return;
+			return "Subject format not defined";
 		}
 		//
 		String emailFrom = Utils.getAppProperty(AppConstants.REVIEW_MAIL_FROM);
@@ -105,6 +112,9 @@ public class EmailService extends MfpKPIControllerBase {
 			toAddresses.add(toAddr);
 		}
 		//
+		if( toAddr == null || toAddr.trim().length() == 0 )
+			return "No email address to send email";
+		//
 		String ccStr = Utils.getAppProperty(AppConstants.REVIEW_MAIL_CC);
 		if (ccStr != null && ccStr.trim().length() > 0) {
 			String[] ccs = ccStr.split("[,; ]");
@@ -120,6 +130,7 @@ public class EmailService extends MfpKPIControllerBase {
 		String[] cc = ccAddresses.toArray(new String[0]);
 		String[] bcc = bccAddresses.toArray(new String[0]);
 		objEMazdamailsender.SendMazdaMail(emailFrom, to, cc, bcc, subject, body);
+		return "OK";
 	}
 
 	private String getEmailSubject(ContactReportInfo report, String subjFmt, String authorName, String reviewerName,

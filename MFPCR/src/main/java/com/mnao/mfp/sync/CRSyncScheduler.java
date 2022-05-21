@@ -18,21 +18,22 @@ public class CRSyncScheduler {
 
 	@Value("${edw.sync.schedule.cron}")
 	private String CronSetting;
-	
-    @PostConstruct
-    public void init() {
-        //Update: Resolve compile time error for static method `parse`
-        CronExpression cronTrigger = CronExpression.parse(CronSetting);
 
-        LocalDateTime next = cronTrigger.next(LocalDateTime.now());
-
-        log.debug("Next Sync Execution Time: " + next);
-    }
+	@PostConstruct
+	public void init() {
+		CronExpression cronTrigger = CronExpression.parse(CronSetting);
+		if (cronTrigger != null) {
+			LocalDateTime next = cronTrigger.next(LocalDateTime.now());
+			log.debug("Next Sync Execution Time: " + next);
+		}
+	}
 
 	@Scheduled(cron = "${edw.sync.schedule.cron}")
 	public void ExecEDWSync() {
 		CRSyncFromEDW crSync = new CRSyncFromEDW();
 		crSync.StartEDWSync();
+		// Just to log when the next sync would be run.
+		init();
 	}
 
 }
