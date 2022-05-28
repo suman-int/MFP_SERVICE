@@ -1,5 +1,24 @@
 package com.mnao.mfp.cr.service.impl;
 
+import static com.mnao.mfp.common.util.AppConstants.MONTHS_LIST;
+import static com.mnao.mfp.common.util.Utils.isNotNullOrEmpty;
+
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import com.mnao.mfp.common.datafilters.FilterCriteria;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.IsActiveEnum;
@@ -12,19 +31,6 @@ import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.cr.util.DataOperationFilter;
 import com.mnao.mfp.cr.util.LocationEnum;
 import com.mnao.mfp.user.dao.MFPUser;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.mnao.mfp.common.util.AppConstants.MONTHS_LIST;
-import static com.mnao.mfp.common.util.Utils.isNotNullOrEmpty;
 
 @Service
 public class ReportSummaryServiceImpl implements ReportSummaryService {
@@ -51,39 +57,46 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
         Map<String, Map<String, List<ContactReportInfo>>> reports;
         reports = dataOperationFilter.filterContactReportsByLocationAndGroupingByDealer(filter, contactReports, mfpUser);
 
-        reports.forEach((key, value) -> {
+        // MW -> Other => [], Isssue => []
+        reports.forEach((dealerData, dealerSpecificMap) -> {
             HashMap<String, List<ContactReportInfo>> finalData = new HashMap<>();
             HashMap<String, String> responseData = new HashMap<>();
-            value.forEach((key1, value1) -> Arrays.asList(key1.split("\\|")).forEach(issue -> {
-                if (finalData.containsKey(issue)) {
-                    List<ContactReportInfo> existingData = finalData.get(issue);
-                    existingData.addAll(value1);
-                    finalData.put(issue, existingData);
-                } else {
-                    finalData.put(issue, value1);
-                }
-            }));
-            finalData.forEach((key1, value1) -> {
-                if (filter.getIssuesFilter().contains(key1)) {
-                    long submittedCount = value1.stream()
+            Set<String> distinctIssues = new HashSet<>();
+            dealerSpecificMap.forEach((issues, crList) -> Arrays.asList(issues.split("\\|")).forEach(data -> distinctIssues.add(data)));
+            distinctIssues.forEach(issue -> {
+            	List<ContactReportInfo> crInfoList = new ArrayList<>();
+            	dealerSpecificMap.forEach((issues, crList) ->  {
+            		if (Arrays.asList(issues.split("\\|")).contains(issue)) {
+            			crInfoList.addAll(crList);
+            		}
+            	});
+            	logger.info("{} => {}", issue, crInfoList.size());
+            	finalData.put(issue, crInfoList);
+            });
+            logger.info("FInal Data => {}", finalData.size());
+            finalData.forEach((distinctIssue, crList) -> {
+            	logger.info("FInal Data Loop => {} => {}", distinctIssue, crList.size());
+                if (filter.getIssuesFilter().contains(distinctIssue)) {
+                    long submittedCount = crList.stream()
                             .filter(report -> report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode())
                             .count();
-                    long discussionReqCount = value1.stream()
+                    long discussionReqCount = crList.stream()
                             .filter(report -> report.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode())
                             .count();
                     long pendingReviewCount = discussionReqCount + submittedCount;
-                    long reviewedCount = value1.stream()
+                    long reviewedCount = crList.stream()
                             .filter(report -> report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode())
                             .count();
                     if (pendingReviewCount > 0 || reviewedCount > 0) {
                     	totals[0] += pendingReviewCount;
                     	totals[1] += reviewedCount;
-                        responseData.put(key1, String.format(AppConstants.DOUBLE_INT_PERCENT, pendingReviewCount, reviewedCount));
+                        responseData.put(distinctIssue, String.format(AppConstants.DOUBLE_INT_PERCENT, pendingReviewCount, reviewedCount));
                     }
+                    
                 }
             });
             if (!CollectionUtils.isEmpty(responseData)) {
-                responseData.put(getStringByType(filter.forLocation().name()), key);
+                responseData.put(getStringByType(filter.forLocation().name()), dealerData);
                 responseData.put("TOTAL",  String.format(AppConstants.DOUBLE_INT_PERCENT, totals[0], totals[1]));
                 totals[0] = 0;
                 totals[1] = 0;
@@ -180,4 +193,6 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
         }
         return LocationEnum.REGION.name();
     }
+   
+
 }
