@@ -16,11 +16,17 @@ public class CRSyncScheduler {
 	//
 	private static final Logger log = LoggerFactory.getLogger(CRSyncScheduler.class);
 
-	@Value("${edw.sync.schedule.cron}")
+	@Value("${dlr.sync.schedule.cron}")
 	private String CronSetting;
 
 	@PostConstruct
 	public void init() {
+		showNextSyncTime();
+		//For TEST only
+		execDLRSync();
+	}
+
+	private void showNextSyncTime() {
 		CronExpression cronTrigger = CronExpression.parse(CronSetting);
 		if (cronTrigger != null) {
 			LocalDateTime next = cronTrigger.next(LocalDateTime.now());
@@ -28,12 +34,12 @@ public class CRSyncScheduler {
 		}
 	}
 
-	@Scheduled(cron = "${edw.sync.schedule.cron}")
-	public void ExecEDWSync() {
+	@Scheduled(cron = "${dlr.sync.schedule.cron}")
+	public void execDLRSync() {
 		CRSyncFromEDW crSync = new CRSyncFromEDW();
 		crSync.StartEDWSync();
 		// Just to log when the next sync would be run.
-		init();
+		showNextSyncTime();
 	}
 
 }

@@ -11,7 +11,7 @@ import com.mnao.mfp.cr.model.ContactReportResponse;
 import com.mnao.mfp.cr.service.ContactReportService;
 import com.mnao.mfp.cr.service.GenericResponseWrapper;
 import com.mnao.mfp.cr.service.impl.FileHandlingServiceImpl;
-import com.mnao.mfp.sync.SyncEDW;
+import com.mnao.mfp.sync.SyncDLR;
 import com.mnao.mfp.user.dao.MFPUser;
 
 import org.slf4j.Logger;
