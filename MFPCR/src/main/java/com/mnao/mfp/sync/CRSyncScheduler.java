@@ -23,7 +23,7 @@ public class CRSyncScheduler {
 	public void init() {
 		showNextSyncTime();
 		//For TEST only
-		execDLRSync();
+		//execDLRSync();
 	}
 
 	private void showNextSyncTime() {
