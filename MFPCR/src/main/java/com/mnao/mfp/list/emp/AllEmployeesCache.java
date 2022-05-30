@@ -30,18 +30,21 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 	private String empSyncCronSetting;
 	private static LocalDateTime nextSync = LocalDateTime.now();
 	//
-	private HashMap<String, ListPersonnel> allEmployeesById = new HashMap<>();
-	private HashMap<String, ListPersonnel> allEmployeesByWSLId = new HashMap<>();
+	private static final HashMap<String, ListPersonnel> allEmployeesById = new HashMap<>();
+	private static final HashMap<String, ListPersonnel> allEmployeesByWSLId = new HashMap<>();
+	private static final List<ListPersonnel> allEmployeesList = new ArrayList<>();
 
 	public synchronized HashMap<String, ListPersonnel> getAllEmployees() {
-		if (allEmployeesById.size() == 0 || LocalDateTime.now().isAfter(nextSync)) {
+		if (allEmployeesList.size() == 0 || LocalDateTime.now().isAfter(nextSync)) {
 			loadAllEmployees();
+			if( empSyncCronSetting == null || empSyncCronSetting.trim().length() == 0) {
+				empSyncCronSetting = "0 0 5-17 * * MON-FRI";
+			}
 			CronExpression cronTrigger = CronExpression.parse(empSyncCronSetting);
 			if (cronTrigger != null) {
 				nextSync = cronTrigger.next(LocalDateTime.now());
 				log.debug("Next Emp Sync Execution Time: " + nextSync);
 			}
-
 		}
 		return allEmployeesById;
 	}
@@ -110,6 +113,9 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
 		List<ListPersonnel> retRows = null;
 		DealerFilter df = new DealerFilter();
+		allEmployeesList.clear();
+		allEmployeesById.clear();
+		allEmployeesByWSLId.clear();
 		try {
 			retRows = service.getListData(sqlName, ListPersonnel.class, df);
 		} catch (InstantiationException | IllegalAccessException | ParseException e) {
@@ -117,6 +123,7 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 		}
 		if (retRows != null) {
 			for (ListPersonnel le : retRows) {
+				allEmployeesList.add(le);
 				allEmployeesById.put(le.getPrsnIdCd(), le);
 				allEmployeesByWSLId.put(le.getUserId().trim().toUpperCase(), le);
 			}
