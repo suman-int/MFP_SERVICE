@@ -1,21 +1,20 @@
 package com.mnao.mfp.list.emp;
 
 import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
 
 import com.mnao.mfp.common.controller.MfpKPIControllerBase;
 import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.util.AppConstants;
-import com.mnao.mfp.list.controller.ListController;
 import com.mnao.mfp.list.dao.ListPersonnel;
 import com.mnao.mfp.list.service.MMAListService;
 import com.mnao.mfp.user.dao.Domain;
@@ -25,15 +24,27 @@ import com.mnao.mfp.user.dao.MFPUser;
 @Service
 public class AllEmployeesCache extends MfpKPIControllerBase {
 	//
-	private static final Logger log = LoggerFactory.getLogger(ListController.class);
+	private static final Logger log = LoggerFactory.getLogger(AllEmployeesCache.class);
 	//
-
-	private HashMap<String, ListPersonnel> allEmployeesById = new HashMap<>();
-	private HashMap<String, ListPersonnel> allEmployeesByWSLId = new HashMap<>();
+	@Value("${emp.sync.schedule.cron}")
+	private String empSyncCronSetting;
+	private static LocalDateTime nextSync = LocalDateTime.now();
+	//
+	private static final HashMap<String, ListPersonnel> allEmployeesById = new HashMap<>();
+	private static final HashMap<String, ListPersonnel> allEmployeesByWSLId = new HashMap<>();
+	private static final List<ListPersonnel> allEmployeesList = new ArrayList<>();
 
 	public synchronized HashMap<String, ListPersonnel> getAllEmployees() {
-		if (allEmployeesById.size() == 0) {
+		if (allEmployeesList.size() == 0 || LocalDateTime.now().isAfter(nextSync)) {
 			loadAllEmployees();
+			if( empSyncCronSetting == null || empSyncCronSetting.trim().length() == 0) {
+				empSyncCronSetting = "0 0 5-17 * * MON-FRI";
+			}
+			CronExpression cronTrigger = CronExpression.parse(empSyncCronSetting);
+			if (cronTrigger != null) {
+				nextSync = cronTrigger.next(LocalDateTime.now());
+				log.debug("Next Emp Sync Execution Time: " + nextSync);
+			}
 		}
 		return allEmployeesById;
 	}
@@ -102,6 +113,9 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
 		List<ListPersonnel> retRows = null;
 		DealerFilter df = new DealerFilter();
+		allEmployeesList.clear();
+		allEmployeesById.clear();
+		allEmployeesByWSLId.clear();
 		try {
 			retRows = service.getListData(sqlName, ListPersonnel.class, df);
 		} catch (InstantiationException | IllegalAccessException | ParseException e) {
@@ -109,6 +123,7 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 		}
 		if (retRows != null) {
 			for (ListPersonnel le : retRows) {
+				allEmployeesList.add(le);
 				allEmployeesById.put(le.getPrsnIdCd(), le);
 				allEmployeesByWSLId.put(le.getUserId().trim().toUpperCase(), le);
 			}
