@@ -6,12 +6,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.RowSet;
-import javax.sql.RowSetMetaData;
 import javax.sql.rowset.CachedRowSet;
 
 import org.slf4j.Logger;
@@ -20,17 +18,16 @@ import org.slf4j.LoggerFactory;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.MFPDatabase;
 import com.mnao.mfp.common.util.MFPDatabase.DB;
-import com.mnao.mfp.login.LoggedInUser;
 import com.mnao.mfp.common.util.Utils;
 
-public class SyncEDW {
+public class SyncDLR {
 	//
-	private static final Logger log = LoggerFactory.getLogger(SyncEDW.class);
+	private static final Logger log = LoggerFactory.getLogger(SyncDLR.class);
 	//
 	private static final int ACQUIRE_LOCK_TIMEOUT = 15;
 
 	public void startSync() {
-		MFPDatabase edwdb = new MFPDatabase(DB.edw);
+		MFPDatabase srcdb = new MFPDatabase(DB.mma);
 		MFPDatabase mfpdb = new MFPDatabase(DB.mfp);
 		try (Connection mfpconn = mfpdb.getConnection()) {
 			if (!setLocks(mfpdb, mfpconn)) {
@@ -38,7 +35,7 @@ public class SyncEDW {
 				// Implies that another node is running
 				return;
 			}
-			int minDays = Integer.parseInt(Utils.getAppProperty(AppConstants.EDW_SYNC_MIN_INTERVAL, "0"));
+			int minDays = Integer.parseInt(Utils.getAppProperty(AppConstants.DLR_SYNC_MIN_INTERVAL, "0"));
 			Date lastUpdt = getLastUpdateDate(mfpdb, mfpconn, "DEALERS_STAGE", "W_UPDT_DT");
 			if (lastUpdt == null) {
 				lastUpdt = new Date(0);
@@ -55,14 +52,14 @@ public class SyncEDW {
 				releaseLocks(mfpconn);
 				return;
 			}
-			doSync(edwdb, mfpdb, mfpconn, lastUpdt);
+			doSync(srcdb, mfpdb, mfpconn, lastUpdt);
 			releaseLocks(mfpconn);
 		} catch (SQLException e1) {
 			log.error("", e1);
 		}
 	}
 
-	private void doSync(MFPDatabase edwdb, MFPDatabase mfpdb, Connection mfpconn, Date lastUpdt) {
+	private void doSync(MFPDatabase srcdb, MFPDatabase mfpdb, Connection mfpconn, Date lastUpdt) {
 		String sqlFolderName = Utils.getAppProperty(AppConstants.LOCATION_SQLFILES);
 		if (!sqlFolderName.endsWith("/"))
 			sqlFolderName += "/";
@@ -70,11 +67,11 @@ public class SyncEDW {
 		String inSQL = Utils.readTextFromFile(sqlName);
 		sqlName = sqlFolderName + AppConstants.SYNC_SCRIPTS_FOLDER + "/" + AppConstants.SQL_MERGE_UPDATE_DEALERS;
 		String mergeSQL = Utils.readTextFromFile(sqlName);
-		try (Connection edwconn = edwdb.getConnection();
-				CachedRowSet crs = edwdb.executeQueryCRS(edwconn, inSQL, lastUpdt.toString())) {
+		try (Connection srcConn = srcdb.getConnection();
+				CachedRowSet crs = srcdb.executeQueryCRS(srcConn, inSQL, lastUpdt.toString())) {
 			if (crs.size() > 0) {
 				insertRecordsToStage(mfpdb, mfpconn, crs);
-				mergeUpdateDEalersFromStage(mfpdb, mfpconn, mergeSQL);
+				mergeUpdateDealersFromStage(mfpdb, mfpconn, mergeSQL);
 			}
 		} catch (SQLException e) {
 			log.error("", e);
@@ -114,7 +111,7 @@ public class SyncEDW {
 		return rv;
 	}
 
-	private void mergeUpdateDEalersFromStage(MFPDatabase mfpdb, Connection mfpconn, String mergeSQL) {
+	private void mergeUpdateDealersFromStage(MFPDatabase mfpdb, Connection mfpconn, String mergeSQL) {
 		boolean rv = mfpdb.execute(mfpconn, mergeSQL);
 		if (rv)
 			log.debug("Successfully merged DEALERS from DEALERS_STAGE.");
@@ -155,7 +152,10 @@ public class SyncEDW {
 					colList += ", ";
 					valList += ", ";
 				}
-				colList += rsMeta.getColumnName(i);
+				String colName = rsMeta.getColumnLabel(i);
+				if (colName == null || colName.trim().length() == 0)
+					colName = rsMeta.getColumnName(i);
+				colList += colName;
 				valList += "?";
 			}
 			insSql = "INSERT INTO DEALERS_STAGE (";

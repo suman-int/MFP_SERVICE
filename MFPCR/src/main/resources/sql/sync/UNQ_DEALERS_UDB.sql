@@ -43,3 +43,5 @@ AND
 	B.ZONE_CD  <> '99'
 AND
 	A.STATUS_CD  = 'A'
+AND 
+	A.LAST_UPDT_TM > ?

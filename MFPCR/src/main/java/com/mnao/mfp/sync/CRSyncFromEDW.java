@@ -11,7 +11,7 @@ public class CRSyncFromEDW {
 	class RunSyncTask implements Runnable {
 		@Override
 		public void run() {
-			SyncEDW syncEDW = new SyncEDW();
+			SyncDLR syncEDW = new SyncDLR();
 			syncEDW.startSync();
 		}
 	}
@@ -35,7 +35,7 @@ public class CRSyncFromEDW {
 	}
 
 	public void StartEDWSync() {
-		long timeoutms = Integer.parseInt(Utils.getAppProperty(AppConstants.EDW_SYNC_TIMEOUT, "0")) * 1000;
+		long timeoutms = Integer.parseInt(Utils.getAppProperty(AppConstants.DLR_SYNC_TIMEOUT, "0")) * 1000;
 		if (timeoutms > 0) {
 			Thread thread = new Thread(new RunSyncTask());
 			thread.start();

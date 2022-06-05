@@ -26,7 +26,7 @@ import com.mnao.mfp.list.emp.AllEmployeesCache;
 import com.mnao.mfp.pdf.dao.DealerEmployeeInfo;
 import com.mnao.mfp.pdf.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.pdf.service.PDFService;
-import com.mnao.mfp.sync.SyncEDW;
+import com.mnao.mfp.sync.SyncDLR;
 import com.mnao.mfp.user.dao.MFPUser;
 import com.mnao.mfp.user.service.UserDetailsService;
 

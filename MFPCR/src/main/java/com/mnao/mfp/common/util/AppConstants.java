@@ -3,13 +3,10 @@ package com.mnao.mfp.common.util;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.mnao.mfp.MFPContactReportsApplication;
 
 public class AppConstants {
 	//
@@ -63,8 +60,8 @@ public class AppConstants {
 	public static final String API_VIEWS_METRICS_RetailInventoryByDealer = "RetailInventoryByDealer";
 	public static final String API_VIEWS_METRICS_RetailInventoryByDate = "RetailInventoryByDate";
 	//
-	public static final String SQL_UNIQUE_EDW_DEALERS = "UNQ_DEALERS_V2.sql";
-	public static final String SQL_MERGE_UPDATE_DEALERS = "DEALERS_MERGE_UPDATE.sql";
+	public static final String SQL_UNIQUE_EDW_DEALERS = "UNQ_DEALERS_UDB.sql";
+	public static final String SQL_MERGE_UPDATE_DEALERS = "DEALERS_UDB_MERGE_UPDATE.sql";
 	//
 	public static final String SQL_LIST_DEALERS = "LIST_DEALERS.sql";
 	public static final String SQL_LIST_DEALERS_LIKE = "LIST_DEALERS_LIKE.sql";
@@ -79,8 +76,8 @@ public class AppConstants {
 	public static final String SQL_LIST_CORPORATE_EMPLOYEES = "LIST_CORPORATE_EMPLOYEES_V2.sql";
 	public static final String SQL_LIST_ALL_EMPLOYEES = "LIST_ALL_EMPLOYEES_V2.sql";
 	//
-	public static final String EDW_SYNC_TIMEOUT = "edw.sync.max.timeout.sec";
-	public static final String EDW_SYNC_MIN_INTERVAL = "edw.sync.min.interval.days";
+	public static final String DLR_SYNC_TIMEOUT = "dlr.sync.max.timeout.sec";
+	public static final String DLR_SYNC_MIN_INTERVAL = "dlr.sync.min.interval.days";
 	//
 	public static final String CR_URL_KEY = "MFP_CR_URL";
 	public static final String SMTP_HOST = "cr.email.smtp.host";
