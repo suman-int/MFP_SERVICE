@@ -17,9 +17,9 @@ import com.mnao.mfp.cr.repository.ContactReportDealerPersonnelRepository;
 import com.mnao.mfp.cr.service.ContactReportService;
 import com.mnao.mfp.cr.service.EmailService;
 import com.mnao.mfp.cr.util.ContactReportEnum;
+import com.mnao.mfp.list.cache.AllEmployeesCache;
 import com.mnao.mfp.list.dao.ListEmployee;
 import com.mnao.mfp.list.dao.ListPersonnel;
-import com.mnao.mfp.list.emp.AllEmployeesCache;
 import com.mnao.mfp.user.dao.MFPUser;
 
 import org.slf4j.Logger;

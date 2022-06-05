@@ -1,7 +1,6 @@
 package com.mnao.mfp.common.service;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,8 +15,6 @@ import org.springframework.data.domain.Sort.Order;
 import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.dao.MetricData;
 import com.mnao.mfp.common.util.DateUtils;
-import com.mnao.mfp.common.util.MFPDatabase;
-import com.mnao.mfp.common.util.MFPDatabase.DB;
 import com.mnao.mfp.common.util.Utils;
 
 public abstract class MetricsDataServiceBase<T extends MetricData> extends DBDataService<T>{
@@ -36,22 +33,22 @@ public abstract class MetricsDataServiceBase<T extends MetricData> extends DBDat
 			throws ParseException;
 
 
-	public Date getLastEDWUpdateDate(String baseTable) {
-		Date lastUpdt = null;
-		if (baseTable != null && baseTable.trim().length() > 0) {
-			String sql = "SELECT LAST_UPDATE_DATE FROM S$SCHEMA$LAST_EDW_UPDATE_DATES WHERE TABLE_NAME = '" + baseTable
-					+ "'";
-			MFPDatabase db = new MFPDatabase(DB.local);
-			try (ResultSet rs = db.executeQueryCRS(db.getConnection(), sql)) {
-				if (rs.next()) {
-					lastUpdt = rs.getDate(1);
-				}
-			} catch (SQLException e) {
-				log.error("ERROR executing query: " + sql, e);
-			}
-		}
-		return lastUpdt;
-	}
+//	public Date getLastEDWUpdateDate(String baseTable) {
+//		Date lastUpdt = null;
+//		if (baseTable != null && baseTable.trim().length() > 0) {
+//			String sql = "SELECT LAST_UPDATE_DATE FROM S$SCHEMA$LAST_EDW_UPDATE_DATES WHERE TABLE_NAME = '" + baseTable
+//					+ "'";
+//			MFPDatabase db = new MFPDatabase(DB.local);
+//			try (ResultSet rs = db.executeQueryCRS(db.getConnection(), sql)) {
+//				if (rs.next()) {
+//					lastUpdt = rs.getDate(1);
+//				}
+//			} catch (SQLException e) {
+//				log.error("ERROR executing query: " + sql, e);
+//			}
+//		}
+//		return lastUpdt;
+//	}
 
 	public String AddPagingAndSorting(Pageable page) {
 

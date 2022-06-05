@@ -6,6 +6,7 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronExpression;
@@ -15,15 +16,19 @@ import org.springframework.stereotype.Component;
 public class CRSyncScheduler {
 	//
 	private static final Logger log = LoggerFactory.getLogger(CRSyncScheduler.class);
-
+	//
+	//
 	@Value("${dlr.sync.schedule.cron}")
 	private String CronSetting;
-
+	//
+	@Autowired
+	private CRSyncDealers crSync;
+	//
 	@PostConstruct
 	public void init() {
 		showNextSyncTime();
 		//For TEST only
-		//execDLRSync();
+		execDLRSync();
 	}
 
 	private void showNextSyncTime() {
@@ -36,8 +41,7 @@ public class CRSyncScheduler {
 
 	@Scheduled(cron = "${dlr.sync.schedule.cron}")
 	public void execDLRSync() {
-		CRSyncFromEDW crSync = new CRSyncFromEDW();
-		crSync.StartEDWSync();
+		crSync.startDealersSync();
 		// Just to log when the next sync would be run.
 		showNextSyncTime();
 	}
