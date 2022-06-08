@@ -60,6 +60,14 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 		return lp;
 	}
 
+	/* Checks for DOmain Change
+	 * This is used to flag refresh of in mem cache
+	 */
+	public boolean isDomainChanged(ListPersonnel lp) {
+		boolean rv = false;
+		return rv;
+	}
+	//
 	public void updateDomain(MFPUser mfpUser) {
 		if (!mfpUser.isDbDomainUpdated()) {
 			boolean updateEmpID = false;
