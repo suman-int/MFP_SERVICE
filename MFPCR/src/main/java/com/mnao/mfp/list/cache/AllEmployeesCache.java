@@ -63,8 +63,36 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 	/* Checks for DOmain Change
 	 * This is used to flag refresh of in mem cache
 	 */
-	public boolean isDomainChanged(ListPersonnel lp) {
+	public boolean checkDomaniChanged(List<ListPersonnel> emps) {
 		boolean rv = false;
+//		for(ListPersonnel lp : emps) {
+//			if( isDomainChanged(lp)) {
+//				allEmployeesList.clear();
+//				rv = true;
+//				break;
+//			}
+//		}
+		rv = emps.stream().anyMatch(e -> isDomainChanged(e));
+		if( rv )
+			allEmployeesList.clear();
+		return rv;
+	}
+	//
+	private boolean isDomainChanged(ListPersonnel lp) {
+		boolean rv = false;
+		// Do not use getAllEmployees()
+		if( allEmployeesById.size() > 0 ) {
+			ListPersonnel lpch = allEmployeesById.get(lp.getPrsnIdCd());
+			if( lpch == null ) {
+				// New Employee
+				rv = true;
+			} else {
+				rv = ! (lp.getLoctnCd().equals(lpch.getLoctnCd()) &&
+						lp.getRgnCd().equals(lpch.getRgnCd()) && 
+						lp.getZoneCd().equals(lpch.getZoneCd()) &&
+						lp.getDistrictCd().equals(lpch.getDistrictCd()) ) ;
+			}
+		}
 		return rv;
 	}
 	//
