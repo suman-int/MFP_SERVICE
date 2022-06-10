@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
-import com.mnao.mfp.list.emp.AllEmployeesCache;
+import com.mnao.mfp.list.cache.AllEmployeesCache;
 import com.mnao.mfp.user.dao.MFPUser;
 import com.mnao.mfp.user.service.UserDetailsService;
 

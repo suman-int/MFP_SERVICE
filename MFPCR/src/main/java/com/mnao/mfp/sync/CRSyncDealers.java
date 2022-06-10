@@ -3,16 +3,19 @@ package com.mnao.mfp.sync;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.springframework.stereotype.Service;
+
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.Utils;
 
-public class CRSyncFromEDW {
+@Service
+public class CRSyncDealers {
 
 	class RunSyncTask implements Runnable {
 		@Override
 		public void run() {
-			SyncDLR syncEDW = new SyncDLR();
-			syncEDW.startSync();
+			SyncDLR syncDLR = new SyncDLR();
+			syncDLR.startSync();
 		}
 	}
 
@@ -34,7 +37,7 @@ public class CRSyncFromEDW {
 		}
 	}
 
-	public void StartEDWSync() {
+	public void startDealersSync() {
 		long timeoutms = Integer.parseInt(Utils.getAppProperty(AppConstants.DLR_SYNC_TIMEOUT, "0")) * 1000;
 		if (timeoutms > 0) {
 			Thread thread = new Thread(new RunSyncTask());
@@ -46,9 +49,5 @@ public class CRSyncFromEDW {
 		}
 	}
 
-//	public static void main(String[] args) {
-//		CRSyncFromEDW crSync = new CRSyncFromEDW();
-//		crSync.StartEDWSync();
-//	}
 
 }

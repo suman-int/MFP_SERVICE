@@ -1,4 +1,4 @@
-package com.mnao.mfp.list.emp;
+package com.mnao.mfp.list.cache;
 
 import java.text.ParseException;
 import java.time.LocalDateTime;
@@ -60,6 +60,35 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 		return lp;
 	}
 
+	/* Checks for DOmain Change
+	 * This is used to flag refresh of in mem cache
+	 */
+	public boolean checkDomaniChanged(List<ListPersonnel> emps) {
+		boolean rv = false;
+		rv = emps.stream().anyMatch(e -> isDomainChanged(e));
+		if( rv )
+			allEmployeesList.clear();
+		return rv;
+	}
+	//
+	private boolean isDomainChanged(ListPersonnel lp) {
+		boolean rv = false;
+		// Do not use getAllEmployees()
+		if( allEmployeesById.size() > 0 ) {
+			ListPersonnel lpch = allEmployeesById.get(lp.getPrsnIdCd());
+			if( lpch == null ) {
+				// New Employee
+				rv = true;
+			} else {
+				rv = ! (lp.getLoctnCd().equals(lpch.getLoctnCd()) &&
+						lp.getRgnCd().equals(lpch.getRgnCd()) && 
+						lp.getZoneCd().equals(lpch.getZoneCd()) &&
+						lp.getDistrictCd().equals(lpch.getDistrictCd()) ) ;
+			}
+		}
+		return rv;
+	}
+	//
 	public void updateDomain(MFPUser mfpUser) {
 		if (!mfpUser.isDbDomainUpdated()) {
 			boolean updateEmpID = false;

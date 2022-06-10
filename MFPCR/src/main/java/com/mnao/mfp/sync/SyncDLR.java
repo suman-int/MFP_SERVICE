@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +29,7 @@ public class SyncDLR {
 	private static final int ACQUIRE_LOCK_TIMEOUT = 15;
 
 	public void startSync() {
+		Instant start = Instant.now();
 		MFPDatabase srcdb = new MFPDatabase(DB.mma);
 		MFPDatabase mfpdb = new MFPDatabase(DB.mfp);
 		try (Connection mfpconn = mfpdb.getConnection()) {
@@ -42,7 +45,7 @@ public class SyncDLR {
 			}
 			log.debug("Last Update Date: " + lastUpdt);
 			long timeDiff = Calendar.getInstance().getTimeInMillis() - lastUpdt.getTime();
-			long dayDiff = TimeUnit.MILLISECONDS.toDays(timeDiff);
+			long dayDiff = TimeUnit.MILLISECONDS.toSeconds(timeDiff);
 			if (dayDiff <= minDays) {
 				// Exceptional situation where the clocks
 				// of the different nodes are not synchronized
@@ -54,6 +57,10 @@ public class SyncDLR {
 			}
 			doSync(srcdb, mfpdb, mfpconn, lastUpdt);
 			releaseLocks(mfpconn);
+			//your code
+			Instant end = Instant.now();
+			Duration timeElapsed = Duration.between(start, end);
+			log.info("Time taken to Sync Dealers : "+ timeElapsed.toMillis() +" milliseconds.");
 		} catch (SQLException e1) {
 			log.error("", e1);
 		}
@@ -63,7 +70,7 @@ public class SyncDLR {
 		String sqlFolderName = Utils.getAppProperty(AppConstants.LOCATION_SQLFILES);
 		if (!sqlFolderName.endsWith("/"))
 			sqlFolderName += "/";
-		String sqlName = sqlFolderName + AppConstants.SYNC_SCRIPTS_FOLDER + "/" + AppConstants.SQL_UNIQUE_EDW_DEALERS;
+		String sqlName = sqlFolderName + AppConstants.SYNC_SCRIPTS_FOLDER + "/" + AppConstants.SQL_UNIQUE_DEALERS;
 		String inSQL = Utils.readTextFromFile(sqlName);
 		sqlName = sqlFolderName + AppConstants.SYNC_SCRIPTS_FOLDER + "/" + AppConstants.SQL_MERGE_UPDATE_DEALERS;
 		String mergeSQL = Utils.readTextFromFile(sqlName);
@@ -103,7 +110,7 @@ public class SyncDLR {
 				stmt.execute(sql);
 				rv = true;
 			} catch (com.ibm.db2.jcc.am.SqlTimeoutException e) {
-				log.debug("SYNC WITH EDW process is already running. Skipping sync process in this instance.");
+				log.debug("SYNC DEALERS process is already running. Skipping sync process in this instance.");
 			}
 		} catch (SQLException e) {
 			log.error("", e);
@@ -136,7 +143,6 @@ public class SyncDLR {
 			log.debug("Inserting " + ctr + " rows into DEALERS_STAGE.");
 			int[] rins = ps.executeBatch();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			log.error("", e);
 		}
 	}

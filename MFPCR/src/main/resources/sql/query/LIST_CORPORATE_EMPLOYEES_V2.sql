@@ -20,7 +20,7 @@ FROM 	(
 		AND 	D.JOB_CD = B.JOB_CD 
 		AND		PRSN_TYPE_CD = 'M'
 		AND 	C.END_DT = '0001-01-01'
-		AND 	B.JOB_CD IN ('MB11', 'MC11', 'MD11', 'ME11', 'MO11', 'MP11')
+		AND 	B.JOB_CD IN ('MB11', 'MC11', 'MD11', 'ME11', 'MO11', 'MP11', 'MG11', 'MO11')
 		AND 	E.RGN_CD = ?
 		AND 	E.ZONE_CD = ?
 		AND 	E.DSTRCT_CD = ?

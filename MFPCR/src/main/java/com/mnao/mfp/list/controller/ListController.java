@@ -1,23 +1,36 @@
 package com.mnao.mfp.list.controller;
 
+import java.text.ParseException;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttribute;
+
 import com.mnao.mfp.common.controller.MfpKPIControllerBase;
 import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.common.dto.CommonResponse;
 import com.mnao.mfp.common.service.AbstractService;
 import com.mnao.mfp.common.util.AppConstants;
-import com.mnao.mfp.list.dao.*;
-import com.mnao.mfp.list.emp.AllEmployeesCache;
+import com.mnao.mfp.list.cache.AllDealersCache;
+import com.mnao.mfp.list.cache.AllEmployeesCache;
+import com.mnao.mfp.list.cache.CheckDealerChanges;
+import com.mnao.mfp.list.cache.CheckEmployeeChanges;
+import com.mnao.mfp.list.dao.ListDistrict;
+import com.mnao.mfp.list.dao.ListMarket;
+import com.mnao.mfp.list.dao.ListPersonnel;
+import com.mnao.mfp.list.dao.ListRegion;
+import com.mnao.mfp.list.dao.ListZone;
 import com.mnao.mfp.list.service.ListService;
 import com.mnao.mfp.list.service.MMAListService;
 import com.mnao.mfp.user.dao.MFPUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.text.ParseException;
-import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -28,7 +41,12 @@ public class ListController extends MfpKPIControllerBase {
     //
     @Autowired
     AllEmployeesCache allEmployeesCache;
-
+    @Autowired
+    AllDealersCache allDealersCache;
+    @Autowired
+    CheckEmployeeChanges checkEmployeeChanges;
+    @Autowired
+    CheckDealerChanges checkDealerChanges;
     //
     @PostMapping("/ListDealers")
     public CommonResponse<List<DealerInfo>> listDealers(@RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
@@ -45,6 +63,7 @@ public class ListController extends MfpKPIControllerBase {
         } catch (InstantiationException | IllegalAccessException | ParseException e) {
             log.error("ERROR retrieving list of Dealers:", e);
         }
+        checkDealerChanges.checkDealerChanges(retRows);
         return AbstractService.httpPostSuccess(retRows, "Success");
     }
 
@@ -73,6 +92,7 @@ public class ListController extends MfpKPIControllerBase {
             } catch (InstantiationException | IllegalAccessException | ParseException e) {
                 log.error("ERROR retrieving list of Dealers:", e);
             }
+            checkDealerChanges.checkDealerChanges(retRows);
             return AbstractService.httpPostSuccess(retRows, "Success");
         }
     }
@@ -184,6 +204,7 @@ public class ListController extends MfpKPIControllerBase {
         } catch (InstantiationException | IllegalAccessException | ParseException e) {
             log.error("ERROR retrieving list of Employees:", e);
         }
+        checkEmployeeChanges.checkEmpChanges(retRows);
         return AbstractService.httpPostSuccess(retRows, "Success");
     }
 
@@ -204,11 +225,12 @@ public class ListController extends MfpKPIControllerBase {
             DealerInfo dlrInfo = getDealerInfo(null, dlrCd);
             if (dlrInfo != null) {
                 retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(), dlrInfo.getZoneCd(),
-                        dlrInfo.getDistrictCd());
+                        dlrInfo.getDistrictCd(), dlrInfo.getRgnCd());
             }
         } catch (InstantiationException | IllegalAccessException | ParseException e) {
             log.error("ERROR retrieving list of Employees:", e);
         }
+        checkEmployeeChanges.checkEmpChanges(retRows);
         return AbstractService.httpPostSuccess(retRows, "Success");
     }
 
@@ -216,7 +238,8 @@ public class ListController extends MfpKPIControllerBase {
     @PostMapping("/GetDealerInfo")
     public CommonResponse<DealerInfo> getDealerInfo(@RequestParam(required = true, value = "dlrCd") String dlrCd,
                                                     @SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-        DealerInfo dlrInfo = getDealerInfo(mfpUser, dlrCd);
+//        DealerInfo dlrInfo = getDealerInfo(mfpUser, dlrCd);
+        DealerInfo dlrInfo = allDealersCache.getDealerInfo(dlrCd);
         return AbstractService.httpPostSuccess(dlrInfo, "Success");
     }
 
