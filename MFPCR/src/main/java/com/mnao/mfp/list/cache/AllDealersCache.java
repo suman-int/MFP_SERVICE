@@ -20,7 +20,7 @@ import com.mnao.mfp.common.controller.MfpKPIControllerBase;
 import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.common.util.AppConstants;
-import com.mnao.mfp.list.service.MMAListService;
+import com.mnao.mfp.list.service.ListService;
 import com.mnao.mfp.sync.RealTimeSyncDlr;
 
 @Service
@@ -77,6 +77,9 @@ public class AllDealersCache extends MfpKPIControllerBase {
 		boolean rv = false;
 		List<DealerInfo> newDealers = new ArrayList<>();
 		List<DealerInfo> modifiedDealers = new ArrayList<>();
+		if (allDealersList.size() == 0 ) {
+			loadAllDealers();
+		}
 		dInfos.forEach(d -> {
 			DealerInfoChange dc = isDomainChanged(d);
 			if( dc == DealerInfoChange.MODIFIED )
@@ -112,8 +115,8 @@ public class AllDealersCache extends MfpKPIControllerBase {
 	}
 	//
 	private void loadAllDealers() {
-		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_DEALERS_UDB);
-		MMAListService<DealerInfo> service = new MMAListService<DealerInfo>();
+		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS);
+		ListService<DealerInfo> service = new ListService<DealerInfo>();
 		List<DealerInfo> retRows = null;
 		DealerFilter df = new DealerFilter();
 		allDealersList.clear();

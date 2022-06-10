@@ -20,15 +20,19 @@ public class CRSyncScheduler {
 	//
 	@Value("${dlr.sync.schedule.cron}")
 	private String CronSetting;
+	@Value("${dlr.sync.on.startup}")
+	private boolean syncOnStartup;
 	//
 	@Autowired
 	private CRSyncDealers crSync;
+
 	//
 	@PostConstruct
 	public void init() {
 		showNextSyncTime();
-		//For TEST only
-		execDLRSync();
+		// For TEST only
+		if (syncOnStartup)
+			execDLRSync();
 	}
 
 	private void showNextSyncTime() {

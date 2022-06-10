@@ -49,40 +49,32 @@ public class DealerInfo extends MetricData {
 
 	@Override
 	public void setResultSetRow(ResultSet rs) throws SQLException {
-		dlrCd = rs.getString(1);
-		dbaNm = rs.getString(2);
-		statusCd = rs.getString(3);
-		statusDt = rs.getString(4);
-		rgnCd = rs.getString(5);
-		cityNm = rs.getString(6);
-		zip1Cd = rs.getString(7);
-		cntyCd = rs.getString(8);
-		stCd = rs.getString(9);
-		mdaCd = rs.getString(10);
-		soaNm = rs.getString(11);
-		apptDt = rs.getString(12);
-		termDt = rs.getString(13);
-		prevDLrCd = rs.getString(14);
-		nxtDlrCd = rs.getString(15);
-		timeZoneCd = rs.getString(16);
-		soaCd = rs.getString(17);
-		usedCarFl = rs.getString(18);
-		cntryCd = rs.getString(19);
-		zip2Cd = rs.getString(20);
-		dlrInactvDt = rs.getString(21);
-		svcOnlyFl = rs.getString(22);
-		svcOnlyDt = rs.getString(23);
-		mdaNm = rs.getString(24);
-		lat = rs.getString(25);
-		lon = rs.getString(26);
-		zoneCd = rs.getString(27);
-		districtCd = rs.getString(28);
-		dealerStrtEnd = rs.getString(29);
-		dealerEffEnd = rs.getString(20);
-		facilityType = rs.getString(31);
-		showroomType = rs.getString(32);
-		rgnNm = rs.getString(33);
-		dealershipFlag = rs.getString(34);
+		this.dbaNm = rs.getString(1);
+		this.statusCd = rs.getString(2);
+		this.statusDt = rs.getString(3);
+		this.rgnCd = rs.getString(4);
+		this.cityNm = rs.getString(5);
+		this.zip1Cd = rs.getString(6);
+		this.cntyCd = rs.getString(7);
+		this.stCd = rs.getString(8);
+		this.mdaCd = rs.getString(9);
+		this.soaNm = rs.getString(10);
+		this.apptDt = rs.getString(11);
+		this.termDt = rs.getString(12);
+		this.prevDLrCd = rs.getString(13);
+		this.nxtDlrCd = rs.getString(14);
+		this.timeZoneCd = rs.getString(15);
+		this.soaCd = rs.getString(16);
+		this.usedCarFl = rs.getString(17);
+		this.cntryCd = rs.getString(18);
+		this.zip2Cd = rs.getString(19);
+		this.dlrInactvDt = rs.getString(20);
+		this.svcOnlyFl = rs.getString(21);
+		this.svcOnlyDt = rs.getString(22);
+		this.zoneCd = rs.getString(23);
+		this.districtCd = rs.getString(24);
+		this.facilityType = rs.getString(25);
+		this.dlrCd = rs.getString(26);
 	}
 
 	public void copy(DealerInfo src) {

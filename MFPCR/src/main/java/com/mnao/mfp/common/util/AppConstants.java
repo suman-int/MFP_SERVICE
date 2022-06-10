@@ -65,7 +65,7 @@ public class AppConstants {
 	public static final String SQL_RTSYNC_DEALERS_INSERT = "RTSYNC_DEALERS_INSERT.sql";
 	public static final String SQL_RTSYNC_DEALERS_UPDATE = "RTSYNC_DEALERS_UPDATE.sql";
 	//
-	public static final String SQL_LIST_DEALERS = "LIST_DEALERS.sql";
+	public static final String SQL_LIST_DEALERS = "LIST_DEALERS_V2.sql";
 	public static final String SQL_LIST_DEALERS_LIKE = "LIST_DEALERS_LIKE.sql";
 	public static final String SQL_LIST_DEALERS_BY_MARKET = "LIST_DEALERS.sql";
 	public static final String SQL_LIST_DISTRICTS = "LIST_DISTRICTS.sql";
