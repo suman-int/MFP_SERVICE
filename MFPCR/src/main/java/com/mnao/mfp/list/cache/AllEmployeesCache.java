@@ -65,13 +65,6 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 	 */
 	public boolean checkDomaniChanged(List<ListPersonnel> emps) {
 		boolean rv = false;
-//		for(ListPersonnel lp : emps) {
-//			if( isDomainChanged(lp)) {
-//				allEmployeesList.clear();
-//				rv = true;
-//				break;
-//			}
-//		}
 		rv = emps.stream().anyMatch(e -> isDomainChanged(e));
 		if( rv )
 			allEmployeesList.clear();

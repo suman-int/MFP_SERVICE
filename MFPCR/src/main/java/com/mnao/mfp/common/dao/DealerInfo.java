@@ -2,10 +2,6 @@ package com.mnao.mfp.common.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.mnao.mfp.cr.entity.ContactReportInfo;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -87,6 +83,43 @@ public class DealerInfo extends MetricData {
 		showroomType = rs.getString(32);
 		rgnNm = rs.getString(33);
 		dealershipFlag = rs.getString(34);
+	}
+
+	public void copy(DealerInfo src) {
+		this.dlrCd = src.dlrCd;
+		this.dbaNm = src.dbaNm;
+		this.statusCd = src.statusCd;
+		this.statusDt = src.statusDt;
+		this.rgnCd = src.rgnCd;
+		this.cityNm = src.cityNm;
+		this.zip1Cd = src.zip1Cd;
+		this.cntyCd = src.cntyCd;
+		this.stCd = src.stCd;
+		this.mdaCd = src.mdaCd;
+		this.soaNm = src.soaNm;
+		this.apptDt = src.apptDt;
+		this.termDt = src.termDt;
+		this.prevDLrCd = src.prevDLrCd;
+		this.nxtDlrCd = src.nxtDlrCd;
+		this.timeZoneCd = src.timeZoneCd;
+		this.soaCd = src.soaCd;
+		this.usedCarFl = src.usedCarFl;
+		this.cntryCd = src.cntryCd;
+		this.zip2Cd = src.zip2Cd;
+		this.dlrInactvDt = src.dlrInactvDt;
+		this.svcOnlyFl = src.svcOnlyFl;
+		this.svcOnlyDt = src.svcOnlyDt;
+		this.mdaNm = src.mdaNm;
+		this.lat = src.lat;
+		this.lon = src.lon;
+		this.zoneCd = src.zoneCd;
+		this.districtCd = src.districtCd;
+		this.dealerStrtEnd = src.dealerStrtEnd;
+		this.dealerEffEnd = src.dealerEffEnd;
+		this.facilityType = src.facilityType;
+		this.showroomType = src.showroomType;
+		this.rgnNm = src.rgnNm;
+		this.dealershipFlag = src.dealershipFlag;
 	}
 
 }

@@ -143,7 +143,6 @@ public class SyncDLR {
 			log.debug("Inserting " + ctr + " rows into DEALERS_STAGE.");
 			int[] rins = ps.executeBatch();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			log.error("", e);
 		}
 	}

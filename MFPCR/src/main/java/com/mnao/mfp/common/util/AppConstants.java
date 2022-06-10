@@ -62,6 +62,8 @@ public class AppConstants {
 	//
 	public static final String SQL_UNIQUE_DEALERS = "UNQ_DEALERS_UDB.sql";
 	public static final String SQL_MERGE_UPDATE_DEALERS = "DEALERS_UDB_MERGE_UPDATE.sql";
+	public static final String SQL_RTSYNC_DEALERS_INSERT = "RTSYNC_DEALERS_INSERT.sql";
+	public static final String SQL_RTSYNC_DEALERS_UPDATE = "RTSYNC_DEALERS_UPDATE.sql";
 	//
 	public static final String SQL_LIST_DEALERS = "LIST_DEALERS.sql";
 	public static final String SQL_LIST_DEALERS_LIKE = "LIST_DEALERS_LIKE.sql";
