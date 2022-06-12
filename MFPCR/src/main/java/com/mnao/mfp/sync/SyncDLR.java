@@ -154,7 +154,7 @@ public class SyncDLR extends SyncBase {
 				ps.addBatch();
 				ctr++;
 			}
-			mfpSyncStatus.addMessage("Inserted " + ctr + " rows from into DEALERS_STAGE.");
+			mfpSyncStatus.addMessage("Inserted " + ctr + " rows from " + mfpconn.getSchema() + " into DEALERS_STAGE.");
 			log.debug("Inserting " + ctr + " rows into DEALERS_STAGE.");
 			int[] rins = ps.executeBatch();
 		} catch (SQLException e) {
