@@ -54,8 +54,8 @@ public class ListController extends MfpKPIControllerBase {
                                                         @RequestParam(value = "districtCd", defaultValue = "") String districtCd,
                                                         @RequestParam(value = "mdaCd", defaultValue = "") String mdaCd,
                                                         @SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-        String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS);
-        ListService<DealerInfo> service = new ListService<DealerInfo>();
+        String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_UDB);
+        MMAListService<DealerInfo> service = new MMAListService<DealerInfo>();
         List<DealerInfo> retRows = null;
         DealerFilter df = new DealerFilter(mfpUser, null, rgnCd, zoneCd, districtCd, mdaCd);
         try {
@@ -79,8 +79,8 @@ public class ListController extends MfpKPIControllerBase {
         if (like == null || like.trim().length() == 0) {
             return listDealers(rgnCd, zoneCd, districtCd, mdaCd, mfpUser);
         } else {
-            String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_LIKE);
-            ListService<DealerInfo> service = new ListService<DealerInfo>();
+            String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_LIKE_UDB);
+            MMAListService<DealerInfo> service = new MMAListService<DealerInfo>();
             List<DealerInfo> retRows = null;
             DealerFilter df = new DealerFilter(mfpUser, null, rgnCd, zoneCd, districtCd, mdaCd);
             if (like.length() > 30)

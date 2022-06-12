@@ -64,9 +64,12 @@ public class AppConstants {
 	public static final String SQL_MERGE_UPDATE_DEALERS = "DEALERS_UDB_MERGE_UPDATE.sql";
 	public static final String SQL_RTSYNC_DEALERS_INSERT = "RTSYNC_DEALERS_INSERT.sql";
 	public static final String SQL_RTSYNC_DEALERS_UPDATE = "RTSYNC_DEALERS_UPDATE.sql";
+	public static final String SQL_INSERT_SYNC_STATUS = "DEALERS_SYNC_STATUS_INSERT.sql";
 	//
 	public static final String SQL_LIST_DEALERS = "LIST_DEALERS_V2.sql";
 	public static final String SQL_LIST_DEALERS_LIKE = "LIST_DEALERS_LIKE.sql";
+	public static final String SQL_LIST_DEALERS_UDB = "LIST_DEALERS_UDB.sql";
+	public static final String SQL_LIST_DEALERS_LIKE_UDB = "LIST_DEALERS_LIKE_UDB.sql";
 	public static final String SQL_LIST_DEALERS_BY_MARKET = "LIST_DEALERS.sql";
 	public static final String SQL_LIST_DISTRICTS = "LIST_DISTRICTS.sql";
 	public static final String SQL_LIST_MARKETS = "LIST_MARKETS.sql";

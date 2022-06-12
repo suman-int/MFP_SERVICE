@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -16,15 +17,17 @@ import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.MFPDatabase;
 import com.mnao.mfp.common.util.MFPDatabase.DB;
 import com.mnao.mfp.common.util.Utils;
+import com.mnao.mfp.sync.dto.MfpSyncStatus;
+import com.mnao.mfp.sync.dto.MfpSyncStatus.SyncTypes;
 
-public class RealTimeSyncDlr implements Runnable{
+public class RealTimeSyncDlr extends SyncBase implements Runnable {
 	//
 	private static final Logger log = LoggerFactory.getLogger(RealTimeSyncDlr.class);
 	//
 	private static final int ACQUIRE_LOCK_TIMEOUT = 15;
 	//
-	List<DealerInfo> newDealers;
-	List<DealerInfo> modifiedDealers;
+	private List<DealerInfo> newDealers;
+	private List<DealerInfo> modifiedDealers;
 
 	//
 	public RealTimeSyncDlr(List<DealerInfo> newDealers, List<DealerInfo> modifiedDealers) {
@@ -32,14 +35,19 @@ public class RealTimeSyncDlr implements Runnable{
 		this.newDealers = newDealers;
 		this.modifiedDealers = modifiedDealers;
 	}
+
 	//
 	@Override
 	public void run() {
 		startSync();
 	}
+
 	//
 	public void startSync() {
+		MfpSyncStatus mfpSyncStatus = new MfpSyncStatus(SyncTypes.DLRRT);
+		;
 		Instant start = Instant.now();
+		mfpSyncStatus.setStartTime(new Timestamp(start.toEpochMilli()));
 		MFPDatabase mfpdb = new MFPDatabase(DB.mfp);
 		try (Connection mfpconn = mfpdb.getConnection()) {
 			if (!setLocks(mfpdb, mfpconn)) {
@@ -47,13 +55,17 @@ public class RealTimeSyncDlr implements Runnable{
 				// Implies that another node is running
 				return;
 			}
-			doSync(mfpdb, mfpconn);
+			int rsynced = doSync(mfpdb, mfpconn, mfpSyncStatus);
 			releaseLocks(mfpconn);
 			Instant end = Instant.now();
 			Duration timeElapsed = Duration.between(start, end);
+			mfpSyncStatus.setEndTime(new Timestamp(end.toEpochMilli()));
+			mfpSyncStatus.setRowsSynced(rsynced);
 			log.info("Time taken to Sync Dealers in Real Time : " + timeElapsed.toMillis() + " milliseconds.");
 		} catch (SQLException e1) {
 			log.error("", e1);
+		} finally {
+			insertMfpStatus(mfpSyncStatus);
 		}
 	}
 
@@ -90,33 +102,58 @@ public class RealTimeSyncDlr implements Runnable{
 		return rv;
 	}
 
-	private void doSync(MFPDatabase mfpdb, Connection mfpconn) {
+	private int doSync(MFPDatabase mfpdb, Connection mfpconn, MfpSyncStatus mfpSyncStatus) {
+		String msg = "";
+		int rsynced = 0;
 		String sqlFolderName = Utils.getAppProperty(AppConstants.LOCATION_SQLFILES);
 		if (!sqlFolderName.endsWith("/"))
 			sqlFolderName += "/";
 		if (newDealers != null && newDealers.size() > 0) {
-			String sqlName = sqlFolderName + AppConstants.SYNC_SCRIPTS_FOLDER + "/" + AppConstants.SQL_RTSYNC_DEALERS_INSERT;
+			rsynced += newDealers.size();
+			String sqlName = sqlFolderName + AppConstants.SYNC_SCRIPTS_FOLDER + "/"
+					+ AppConstants.SQL_RTSYNC_DEALERS_INSERT;
 			String inSQL = Utils.readTextFromFile(sqlName);
-			int rcnt = updateBatch(mfpdb, mfpconn, inSQL, newDealers);
+			int rcnt = updateBatch(mfpdb, mfpconn, inSQL, newDealers, mfpSyncStatus);
+			msg += "INSERTED: " + rcnt + " rows.";
 			log.info("" + rcnt + " new Dealers inserted into MFP_DB");
 		}
+		msg += "|";
 		if (modifiedDealers != null && modifiedDealers.size() > 0) {
-			String sqlName = sqlFolderName + AppConstants.SYNC_SCRIPTS_FOLDER + "/" + AppConstants.SQL_RTSYNC_DEALERS_UPDATE;
+			rsynced += modifiedDealers.size();
+			String sqlName = sqlFolderName + AppConstants.SYNC_SCRIPTS_FOLDER + "/"
+					+ AppConstants.SQL_RTSYNC_DEALERS_UPDATE;
 			String inSQL = Utils.readTextFromFile(sqlName);
-			int rcnt = updateBatch(mfpdb, mfpconn, inSQL, modifiedDealers);
+			int rcnt = updateBatch(mfpdb, mfpconn, inSQL, modifiedDealers, mfpSyncStatus);
+			msg += "UPDATED: " + rcnt + " rows. ";
 			log.info("" + rcnt + " modified Dealers updated in MFP_DB");
 		}
+		mfpSyncStatus.setMessages(msg);
+		return rsynced;
 	}
 
-	private int updateBatch(MFPDatabase mfpdb, Connection mfpconn, String inSQL, List<DealerInfo> dlrInfos) {
+	private int updateBatch(MFPDatabase mfpdb, Connection mfpconn, String inSQL, List<DealerInfo> dlrInfos,
+			MfpSyncStatus mfpSyncStatus) {
 		int rcnt = 0;
+		StringBuilder sb = new StringBuilder();
+		String rem = mfpSyncStatus.getRemarks();
+		if (rem == null)
+			rem = "";
+		else
+			rem = " | ";
+		sb.append(rem);
+		inSQL = Utils.replaceSchemaName(mfpconn, inSQL);
 		try (PreparedStatement ps = mfpconn.prepareStatement(inSQL)) {
 			for (DealerInfo dlr : dlrInfos) {
+				if (rcnt > 0) {
+					sb.append(", ");
+				}
 				setStatementParameterValues(ps, dlr);
 				ps.addBatch();
+				sb.append(dlr.getDlrCd());
 				rcnt++;
 			}
 			int[] cnt = ps.executeBatch();
+			mfpSyncStatus.setRemarks(sb.toString());
 		} catch (SQLException e) {
 			log.error("ERROR Inserting/Updating in Batch into DEALERS:", e);
 		}
@@ -150,12 +187,6 @@ public class RealTimeSyncDlr implements Runnable{
 		setStringValue(ps, 24, dlrInfo.getDistrictCd());
 		setStringValue(ps, 25, dlrInfo.getFacilityType());
 		setStringValue(ps, 26, dlrInfo.getDlrCd());
-	}
-
-	private void setStringValue(PreparedStatement ps, int idx, String value) throws SQLException {
-		if (value == null)
-			value = "";
-		ps.setString(idx, value);
 	}
 
 }
