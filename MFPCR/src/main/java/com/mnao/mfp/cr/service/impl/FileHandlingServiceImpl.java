@@ -1,5 +1,32 @@
 package com.mnao.mfp.cr.service.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.IsActiveEnum;
 import com.mnao.mfp.common.util.NullCheck;
@@ -9,27 +36,6 @@ import com.mnao.mfp.cr.entity.ContactReportAttachment;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactReportAttachmentRepository;
 import com.mnao.mfp.cr.service.FileHandlingService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.transaction.Transactional;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 public class FileHandlingServiceImpl implements FileHandlingService {
@@ -147,7 +153,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
         List<ContactReportAttachment> attachments = report.getAttachment();
         String contactReportId = Long.toString(report.getContactReportId());
         String responsetext = "Files moved successfully";
-        ContactReportAttachment flaggedAttachment = null;
+        String failedSaveAttachments = "";
         if (attachments == null)
             return responsetext;
         for (ContactReportAttachment attachment : attachments) {
@@ -161,14 +167,13 @@ public class FileHandlingServiceImpl implements FileHandlingService {
                     attachmentRepository.save(attachment);
                 } else {
                     flag = false;
-                    flaggedAttachment = attachment;
-                    break;
+                    failedSaveAttachments += attachment.getAttachmentName() + " ";
                 }
             }
 
         }
         if (!flag) {
-            responsetext = "Failed to Transfer Attachment  with attachment id= " + flaggedAttachment.getAttachmentId();
+            responsetext = "Failed to Transfer Attachment  with attachment id(s)= " + failedSaveAttachments;
         }
         return responsetext;
     }
