@@ -70,6 +70,7 @@ public class SyncDLR extends SyncBase {
 			mfpSyncStatus.setEndTime(new Timestamp(end.toEpochMilli()));
 			log.info("Time taken to Sync Dealers : " + timeElapsed.toMillis() + " milliseconds.");
 		} catch (SQLException e1) {
+			mfpSyncStatus.addException(e1.toString());
 			log.error("", e1);
 		} finally {
 			insertMfpStatus(mfpSyncStatus);
@@ -93,6 +94,7 @@ public class SyncDLR extends SyncBase {
 				mergeUpdateDealersFromStage(mfpdb, mfpconn, mergeSQL);
 			}
 		} catch (SQLException e) {
+			mfpSyncStatus.addException(e.toString());
 			log.error("", e);
 		}
 	}
@@ -158,6 +160,7 @@ public class SyncDLR extends SyncBase {
 			log.debug("Inserting " + ctr + " rows into DEALERS_STAGE.");
 			int[] rins = ps.executeBatch();
 		} catch (SQLException e) {
+			mfpSyncStatus.addException(e.toString());
 			log.error("", e);
 		}
 	}
@@ -185,7 +188,6 @@ public class SyncDLR extends SyncBase {
 			insSql += valList;
 			insSql += " )";
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			log.error("", e);
 		}
 		return insSql;
@@ -202,6 +204,7 @@ public class SyncDLR extends SyncBase {
 			rs.close();
 			mfpSyncStatus.addMessage("Retrieved Last Update Date: " + dt );
 		} catch (SQLException e) {
+			mfpSyncStatus.addException(e.toString());
 			log.error("", e);
 		}
 		return dt;

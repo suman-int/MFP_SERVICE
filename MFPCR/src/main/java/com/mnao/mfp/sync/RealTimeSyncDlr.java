@@ -63,6 +63,7 @@ public class RealTimeSyncDlr extends SyncBase implements Runnable {
 			mfpSyncStatus.setRowsSynced(rsynced);
 			log.info("Time taken to Sync Dealers in Real Time : " + timeElapsed.toMillis() + " milliseconds.");
 		} catch (SQLException e1) {
+			mfpSyncStatus.addException(e1.toString());
 			log.error("", e1);
 		} finally {
 			insertMfpStatus(mfpSyncStatus);
@@ -155,6 +156,7 @@ public class RealTimeSyncDlr extends SyncBase implements Runnable {
 			int[] cnt = ps.executeBatch();
 			mfpSyncStatus.setRemarks(sb.toString());
 		} catch (SQLException e) {
+			mfpSyncStatus.addException(e.toString());
 			log.error("ERROR Inserting/Updating in Batch into DEALERS:", e);
 		}
 		return rcnt;

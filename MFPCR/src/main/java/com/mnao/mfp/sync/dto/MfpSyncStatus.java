@@ -33,4 +33,10 @@ public class MfpSyncStatus {
 		else
 			this.messages += "|" + msg;
 	}
+	public void addException(String excpt) {
+		if( this.messages == null )
+			this.messages = excpt;
+		else
+			this.messages += "|" + excpt;
+	}
 }

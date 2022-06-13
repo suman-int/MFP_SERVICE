@@ -10,10 +10,10 @@ import javax.mail.MessagingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.mnao.mfp.MFPContactReportsApplication;
 import com.mnao.mfp.common.controller.MfpKPIControllerBase;
 import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.dao.DealerInfo;
@@ -22,6 +22,7 @@ import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.email.EMazdamailsender;
+import com.mnao.mfp.list.cache.AllDealersCache;
 import com.mnao.mfp.list.service.MMAListService;
 import com.mnao.mfp.pdf.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.user.dao.MFPUser;
@@ -34,7 +35,9 @@ public class EmailService extends MfpKPIControllerBase {
 	//
 	@Value("${spring.profiles.active}")
 	private String activeProfile;
-	
+    @Autowired
+    AllDealersCache allDealersCache;
+
 	
 	public String sendEmailNotification(ContactReportInfo report, int origCRStatus, MFPUser mfpUser)
 			throws MessagingException {
@@ -45,7 +48,8 @@ public class EmailService extends MfpKPIControllerBase {
 		List<String> ccAddresses = new ArrayList<String>();
 		List<String> bccAddresses = new ArrayList<String>();
 		//
-		DealerInfo dInfo = getDealerInfo(mfpUser, report.getDlrCd());
+		//DealerInfo dInfo = getDealerInfo(mfpUser, report.getDlrCd());
+        DealerInfo dInfo = allDealersCache.getDealerInfo(report.getDlrCd());
 		String authorID = report.getContactAuthor();
 		UserDetailsService uds = new UserDetailsService();
 		MFPUser authorUser = uds.getMFPUser(authorID);

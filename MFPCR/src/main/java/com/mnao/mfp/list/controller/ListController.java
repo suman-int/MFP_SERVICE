@@ -196,8 +196,9 @@ public class ListController extends MfpKPIControllerBase {
         List<ListPersonnel> retRows = null;
         DealerFilter df = new DealerFilter(null, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
         try {
-            DealerInfo dlrInfo = getDealerInfo(null, dlrCd);
-            if (dlrInfo != null) {
+            //DealerInfo dlrInfo = getDealerInfo(null, dlrCd);
+            DealerInfo dlrInfo = allDealersCache.getDealerInfo(dlrCd);
+           if (dlrInfo != null) {
                 retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(),
                         dlrInfo.getZoneCd());
             }
@@ -222,7 +223,8 @@ public class ListController extends MfpKPIControllerBase {
         List<ListPersonnel> retRows = null;
         DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
         try {
-            DealerInfo dlrInfo = getDealerInfo(null, dlrCd);
+            //DealerInfo dlrInfo = getDealerInfo(null, dlrCd);
+            DealerInfo dlrInfo = allDealersCache.getDealerInfo(dlrCd);
             if (dlrInfo != null) {
                 retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(), dlrInfo.getZoneCd(),
                         dlrInfo.getDistrictCd(), dlrInfo.getRgnCd());
