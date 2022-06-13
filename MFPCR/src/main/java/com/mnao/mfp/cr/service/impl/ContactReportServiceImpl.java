@@ -431,8 +431,8 @@ public class ContactReportServiceImpl implements ContactReportService {
 	}
 
 	private static int compareByUpdatedDate(ContactReportInfo cr, ContactReportInfo cr2) {
-		return new NullCheck<>(cr2).with(ContactReportInfo::getUpdatedDt).orElse(cr2.getCreatedDt())
-				.compareTo(new NullCheck<>(cr).with(ContactReportInfo::getUpdatedDt).orElse(cr.getCreatedDt()));
+		return new NullCheck<>(cr2).with(ContactReportInfo::getContactDt).orElse(cr2.getCreatedDt())
+				.compareTo(new NullCheck<>(cr).with(ContactReportInfo::getContactDt).orElse(cr.getCreatedDt()));
 	}
 
 }
