@@ -69,7 +69,7 @@ public class AllDealersCache extends MfpKPIControllerBase {
 	}
 	//
 	public DealerInfo getDealerInfo(String dlrCd) {
-		DealerInfo dInfo = getAllDealers().get(dlrCd);
+		DealerInfo dInfo = getAllDealers().get(dlrCd.trim());
 		return dInfo;
 	}
 	//

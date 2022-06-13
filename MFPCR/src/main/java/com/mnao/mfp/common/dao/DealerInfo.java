@@ -8,44 +8,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class DealerInfo extends MetricData {
-	String dlrCd,
-	dbaNm,
-	statusCd,
-	statusDt,
-	rgnCd,
-	cityNm,
-	zip1Cd,
-	cntyCd,
-	stCd,
-	mdaCd,
-	soaNm,
-	apptDt,
-	termDt,
-	prevDLrCd,
-	nxtDlrCd,
-	timeZoneCd,
-	soaCd,
-	usedCarFl,
-	cntryCd,
-	zip2Cd,
-	dlrInactvDt,
-	svcOnlyFl,
-	svcOnlyDt,
-	mdaNm,
-	lat,
-	lon,
-	zoneCd,
-	districtCd,
-	dealerStrtEnd,
-	dealerEffEnd,
-	facilityType,
-	showroomType,
-	rgnNm,
-	dealershipFlag;
+	String dlrCd, dbaNm, statusCd, statusDt, rgnCd, cityNm, zip1Cd, cntyCd, stCd, mdaCd, soaNm, apptDt, termDt,
+			prevDLrCd, nxtDlrCd, timeZoneCd, soaCd, usedCarFl, cntryCd, zip2Cd, dlrInactvDt, svcOnlyFl, svcOnlyDt,
+			mdaNm, lat, lon, zoneCd, districtCd, dealerStrtEnd, dealerEffEnd, facilityType, showroomType, rgnNm,
+			dealershipFlag;
 
 	@Override
 	public void setResultSetRow(ResultSet rs) throws SQLException {
@@ -75,6 +46,32 @@ public class DealerInfo extends MetricData {
 		this.districtCd = rs.getString(24);
 		this.facilityType = rs.getString(25);
 		this.dlrCd = rs.getString(26);
+		this.dbaNm = (this.dbaNm != null) ? this.dbaNm.trim() : "";
+		this.statusCd = (this.statusCd != null) ? this.statusCd.trim() : "";
+		this.statusDt = (this.statusDt != null) ? this.statusDt.trim() : "";
+		this.rgnCd = (this.rgnCd != null) ? this.rgnCd.trim() : "";
+		this.cityNm = (this.cityNm != null) ? this.cityNm.trim() : "";
+		this.zip1Cd = (this.zip1Cd != null) ? this.zip1Cd.trim() : "";
+		this.cntyCd = (this.cntyCd != null) ? this.cntyCd.trim() : "";
+		this.stCd = (this.stCd != null) ? this.stCd.trim() : "";
+		this.mdaCd = (this.mdaCd != null) ? this.mdaCd.trim() : "";
+		this.soaNm = (this.soaNm != null) ? this.soaNm.trim() : "";
+		this.apptDt = (this.apptDt != null) ? this.apptDt.trim() : "";
+		this.termDt = (this.termDt != null) ? this.termDt.trim() : "";
+		this.prevDLrCd = (this.prevDLrCd != null) ? this.prevDLrCd.trim() : "";
+		this.nxtDlrCd = (this.nxtDlrCd != null) ? this.nxtDlrCd.trim() : "";
+		this.timeZoneCd = (this.timeZoneCd != null) ? this.timeZoneCd.trim() : "";
+		this.soaCd = (this.soaCd != null) ? this.soaCd.trim() : "";
+		this.usedCarFl = (this.usedCarFl != null) ? this.usedCarFl.trim() : "";
+		this.cntryCd = (this.cntryCd != null) ? this.cntryCd.trim() : "";
+		this.zip2Cd = (this.zip2Cd != null) ? this.zip2Cd.trim() : "";
+		this.dlrInactvDt = (this.dlrInactvDt != null) ? this.dlrInactvDt.trim() : "";
+		this.svcOnlyFl = (this.svcOnlyFl != null) ? this.svcOnlyFl.trim() : "";
+		this.svcOnlyDt = (this.svcOnlyDt != null) ? this.svcOnlyDt.trim() : "";
+		this.zoneCd = (this.zoneCd != null) ? this.zoneCd.trim() : "";
+		this.districtCd = (this.districtCd != null) ? this.districtCd.trim() : "";
+		this.facilityType = (this.facilityType != null) ? this.facilityType.trim() : "";
+		this.dlrCd = (this.dlrCd != null) ? this.dlrCd.trim() : "";
 	}
 
 	public void copy(DealerInfo src) {

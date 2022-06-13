@@ -1,6 +1,5 @@
 package com.mnao.mfp.common.controller;
 
-import java.io.File;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -103,7 +102,7 @@ public abstract class MfpKPIControllerBase {
 		JsonMapper mapper = new JsonMapper();
 		mapper.setSerializationInclusion(Include.NON_NULL);
 		try {
-			kpiQuerySpecs = (ArrayList<KPIQuerySpecs>) mapper.readValue(jsonConfig,
+			kpiQuerySpecs = mapper.readValue(jsonConfig,
 					new TypeReference<ArrayList<KPIQuerySpecs>>() {
 					});
 			for (KPIQuerySpecs ks : kpiQuerySpecs) {

@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Calendar;
@@ -21,25 +22,31 @@ import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.MFPDatabase;
 import com.mnao.mfp.common.util.MFPDatabase.DB;
 import com.mnao.mfp.common.util.Utils;
+import com.mnao.mfp.sync.dto.MfpSyncStatus;
+import com.mnao.mfp.sync.dto.MfpSyncStatus.SyncTypes;
 
-public class SyncDLR {
+public class SyncDLR extends SyncBase {
 	//
 	private static final Logger log = LoggerFactory.getLogger(SyncDLR.class);
 	//
 	private static final int ACQUIRE_LOCK_TIMEOUT = 15;
 
 	public void startSync() {
+		MfpSyncStatus mfpSyncStatus = new MfpSyncStatus(SyncTypes.DLRBATCH);
+		;
 		Instant start = Instant.now();
+		mfpSyncStatus.setStartTime(new Timestamp(start.toEpochMilli()));
 		MFPDatabase srcdb = new MFPDatabase(DB.mma);
 		MFPDatabase mfpdb = new MFPDatabase(DB.mfp);
 		try (Connection mfpconn = mfpdb.getConnection()) {
-			if (!setLocks(mfpdb, mfpconn)) {
+			if (!setLocks(mfpdb, mfpconn, mfpSyncStatus)) {
 				// Unable to acquire lock.
 				// Implies that another node is running
+				mfpSyncStatus.addMessage("FAILED to lock DEALERS_STAGE. Aborting.");
 				return;
 			}
 			int minDays = Integer.parseInt(Utils.getAppProperty(AppConstants.DLR_SYNC_MIN_INTERVAL, "0"));
-			Date lastUpdt = getLastUpdateDate(mfpdb, mfpconn, "DEALERS_STAGE", "W_UPDT_DT");
+			Date lastUpdt = getLastUpdateDate(mfpdb, mfpconn, "DEALERS_STAGE", "W_UPDT_DT", mfpSyncStatus);
 			if (lastUpdt == null) {
 				lastUpdt = new Date(0);
 			}
@@ -52,21 +59,26 @@ public class SyncDLR {
 				// with a standard clock
 				// Although in this case there would be no records to update,
 				// still avoid the DB IO
+				mfpSyncStatus.addMessage("Time is less than minimum difference configured: " + minDays + " ms.");
 				releaseLocks(mfpconn);
 				return;
 			}
-			doSync(srcdb, mfpdb, mfpconn, lastUpdt);
+			doSync(srcdb, mfpdb, mfpconn, lastUpdt, mfpSyncStatus);
 			releaseLocks(mfpconn);
-			//your code
 			Instant end = Instant.now();
 			Duration timeElapsed = Duration.between(start, end);
-			log.info("Time taken to Sync Dealers : "+ timeElapsed.toMillis() +" milliseconds.");
+			mfpSyncStatus.setEndTime(new Timestamp(end.toEpochMilli()));
+			log.info("Time taken to Sync Dealers : " + timeElapsed.toMillis() + " milliseconds.");
 		} catch (SQLException e1) {
+			mfpSyncStatus.addException(e1.toString());
 			log.error("", e1);
+		} finally {
+			insertMfpStatus(mfpSyncStatus);
 		}
+
 	}
 
-	private void doSync(MFPDatabase srcdb, MFPDatabase mfpdb, Connection mfpconn, Date lastUpdt) {
+	private void doSync(MFPDatabase srcdb, MFPDatabase mfpdb, Connection mfpconn, Date lastUpdt, MfpSyncStatus mfpSyncStatus) {
 		String sqlFolderName = Utils.getAppProperty(AppConstants.LOCATION_SQLFILES);
 		if (!sqlFolderName.endsWith("/"))
 			sqlFolderName += "/";
@@ -77,10 +89,12 @@ public class SyncDLR {
 		try (Connection srcConn = srcdb.getConnection();
 				CachedRowSet crs = srcdb.executeQueryCRS(srcConn, inSQL, lastUpdt.toString())) {
 			if (crs.size() > 0) {
-				insertRecordsToStage(mfpdb, mfpconn, crs);
+				mfpSyncStatus.addMessage("Retrieved " + crs.size() + " rows from source.");
+				insertRecordsToStage(mfpdb, mfpconn, crs, mfpSyncStatus);
 				mergeUpdateDealersFromStage(mfpdb, mfpconn, mergeSQL);
 			}
 		} catch (SQLException e) {
+			mfpSyncStatus.addException(e.toString());
 			log.error("", e);
 		}
 	}
@@ -98,7 +112,7 @@ public class SyncDLR {
 		return rv;
 	}
 
-	private boolean setLocks(MFPDatabase mfpdb, Connection mfpconn) {
+	private boolean setLocks(MFPDatabase mfpdb, Connection mfpconn, MfpSyncStatus mfpSyncStatus) {
 		boolean rv = false;
 		try {
 			mfpconn.setAutoCommit(false);
@@ -110,6 +124,7 @@ public class SyncDLR {
 				stmt.execute(sql);
 				rv = true;
 			} catch (com.ibm.db2.jcc.am.SqlTimeoutException e) {
+				mfpSyncStatus.addMessage("SYNC DEALERS process is already running. Skipping sync process in this instance.");
 				log.debug("SYNC DEALERS process is already running. Skipping sync process in this instance.");
 			}
 		} catch (SQLException e) {
@@ -124,9 +139,10 @@ public class SyncDLR {
 			log.debug("Successfully merged DEALERS from DEALERS_STAGE.");
 	}
 
-	private void insertRecordsToStage(MFPDatabase db, Connection mfpconn, RowSet rs) {
+	private void insertRecordsToStage(MFPDatabase db, Connection mfpconn, RowSet rs, MfpSyncStatus mfpSyncStatus) {
 		db.execute(mfpconn, "DELETE FROM $SCHEMA$DEALERS_STAGE");
 		String insSql = getInsertStatement(rs);
+		insSql = Utils.replaceSchemaName(mfpconn, insSql);
 		try (PreparedStatement ps = mfpconn.prepareStatement(insSql)) {
 			ResultSetMetaData rsMeta = rs.getMetaData();
 			int ctr = 0;
@@ -140,9 +156,11 @@ public class SyncDLR {
 				ps.addBatch();
 				ctr++;
 			}
+			mfpSyncStatus.addMessage("Inserted " + ctr + " rows from " + mfpconn.getSchema() + " into DEALERS_STAGE.");
 			log.debug("Inserting " + ctr + " rows into DEALERS_STAGE.");
 			int[] rins = ps.executeBatch();
 		} catch (SQLException e) {
+			mfpSyncStatus.addException(e.toString());
 			log.error("", e);
 		}
 	}
@@ -164,19 +182,18 @@ public class SyncDLR {
 				colList += colName;
 				valList += "?";
 			}
-			insSql = "INSERT INTO DEALERS_STAGE (";
+			insSql = "INSERT INTO $SCHEMA$DEALERS_STAGE (";
 			insSql += colList;
 			insSql += " ) VALUES (";
 			insSql += valList;
 			insSql += " )";
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			log.error("", e);
 		}
 		return insSql;
 	}
 
-	private Date getLastUpdateDate(MFPDatabase db, Connection mfpconn, String tbl, String col) {
+	private Date getLastUpdateDate(MFPDatabase db, Connection mfpconn, String tbl, String col, MfpSyncStatus mfpSyncStatus) {
 		Date dt = null;
 		String sql = "SELECT MAX(" + col + ") FROM $SCHEMA$" + tbl;
 		try (RowSet rs = db.executeQueryCRS(mfpconn, sql, (String[]) null)) {
@@ -185,7 +202,9 @@ public class SyncDLR {
 				break;
 			}
 			rs.close();
+			mfpSyncStatus.addMessage("Retrieved Last Update Date: " + dt );
 		} catch (SQLException e) {
+			mfpSyncStatus.addException(e.toString());
 			log.error("", e);
 		}
 		return dt;

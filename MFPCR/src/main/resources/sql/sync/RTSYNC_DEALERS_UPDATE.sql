@@ -24,5 +24,5 @@
 		SVC_ONLY_DT = ?,
 		ZONE_CD = ?,
 		DISTRICT_CD = ?,
-		FACILITY_TYPE = ?,
+		FACILITY_TYPE = ?
 WHERE   DLR_CD = ?

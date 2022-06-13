@@ -71,7 +71,7 @@ public class Utils {
 		}
 		return appProps;
 	}
-	
+
 //	public static Properties getWslProperties() {
 //		if (appProps.size() > 0) {
 //			try (InputStream is = Utils.class.getResourceAsStream(AppConstants.WSL_PROPS_FILE)) {
