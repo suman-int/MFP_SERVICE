@@ -381,11 +381,32 @@ public class ContactReportServiceImpl implements ContactReportService {
 
 	@Override
 	@Transactional
-	public void deleteReportById(long contactReportId) {
+	public String deleteReportById(long contactReportId, MFPUser mfpUser) throws Exception {
 		final int contactStatus = ContactReportEnum.DRAFT.getStatusCode(); // contactStatus 0 makes sure that the report
-		// is still a draft
-		contactInfoRepository.deleteByContactReportIdAndContactStatusAndIsActive(contactReportId, contactStatus,
-				IsActiveEnum.YES.getValue());
+		String submission = "We have ran into some issues, please try again!";
+		ContactReportInfo reportInfo = contactInfoRepository.getById(contactReportId);
+		if (!mfpUser.getUserid().trim().equalsIgnoreCase(reportInfo.getContactAuthor())) {
+			ListPersonnel lemp = allEmployeesCache.getByWSLCd(mfpUser.getUserid());
+			if (!lemp.isCorporatePerson()) {
+				if (!mfpUser.getEmployeeNumber().trim()
+						.equalsIgnoreCase(reportInfo.getContactReviewer().trim())) {
+					throw new Exception("You are not authorized to modify this report.");
+				}
+			}
+		}
+		if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
+				|| reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()
+				|| reportInfo.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
+			reportInfo.setContactStatus(ContactReportEnum.CANCELLED.getStatusCode());
+			List<ContactReportDealerPersonnel> existingDealerPersonel = reportInfo.getDealerPersonnels();
+			existingDealerPersonel.forEach(val -> val.setIsActive(IsActiveEnum.NO.getValue()));
+			contactReportDealerPersonnelRepository.saveAll(existingDealerPersonel);
+			reportInfo.setIsActive(IsActiveEnum.NO.getValue());
+			contactInfoRepository.save(reportInfo);
+			submission = "Report removed successfully";
+			
+		}
+		return submission;
 	}
 
 	@Override

@@ -68,8 +68,14 @@ public class ReportController {
     }
 
     @PostMapping(value = "deleteReportById")
-    public void deleteReportById(@RequestBody long contactReportId) {
-        contactReportService.deleteReportById(contactReportId);
+    public CommonResponse<String> deleteReportById(@RequestBody long contactReportId,
+    		@SessionAttribute(name = "mfpUser") MFPUser mfpUser, HttpServletRequest request) {
+        try {
+        	String status = contactReportService.deleteReportById(contactReportId, mfpUser);
+        	return AbstractService.httpPostSuccess(status, "Success");
+        } catch (Exception e) {
+        	return AbstractService.httpPostError(e);
+		}
     }
 
     @PostMapping(value = "deleteAttachmentById/{attachmentId}")

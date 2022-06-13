@@ -15,7 +15,7 @@ public interface ContactReportService {
 
     ContactReportDto findByContactReportId(long contactReportId);
 
-    void deleteReportById(long contactReportId);
+    String deleteReportById(long contactReportId, MFPUser mfpUser) throws Exception;
 
     List<DealersByIssue> getAllDealersByIssue();
 
