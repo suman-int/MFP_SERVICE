@@ -1,6 +1,25 @@
 package com.mnao.mfp.cr.service.impl;
 
-import com.mnao.mfp.MFPContactReportsApplication;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import javax.mail.MessagingException;
+import javax.transaction.Transactional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.IsActiveEnum;
 import com.mnao.mfp.common.util.NullCheck;
@@ -18,22 +37,8 @@ import com.mnao.mfp.cr.service.ContactReportService;
 import com.mnao.mfp.cr.service.EmailService;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.list.cache.AllEmployeesCache;
-import com.mnao.mfp.list.dao.ListEmployee;
 import com.mnao.mfp.list.dao.ListPersonnel;
 import com.mnao.mfp.user.dao.MFPUser;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
-import javax.mail.MessagingException;
-import javax.transaction.Transactional;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Service
 public class ContactReportServiceImpl implements ContactReportService {
@@ -56,6 +61,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 	@Autowired
 	private AllEmployeesCache allEmployeesCache;
 
+	@Override
 	public List<DealersByIssue> getAllDealersByIssue() {
 		return contactInfoRepository.findAll().stream().map(contactReportInfo -> {
 			DealersByIssue dealersByIssue = new DealersByIssue();
@@ -69,6 +75,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 	/**
 	 *
 	 */
+	@Override
 	public String submitReportDataV2(ContactReportInfoDto report, MFPUser mfpUser, String currURL) throws Exception {
 		String submission = "Unable to save contact report";
 		if (report == null)
@@ -176,7 +183,10 @@ public class ContactReportServiceImpl implements ContactReportService {
 			}
 			//
 			ContactReportInfo info = contactInfoRepository.save(reportInfo);
-			if (report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
+//			if (report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
+			if (report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()
+					|| report.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()
+					|| report.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
 				fileHandlingService.copyToPermanentLocation(info);
 			}
 
@@ -275,6 +285,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 		}
 	}
 
+	@Override
 	public ContactReportDto findByContactReportId(long contactReportId) {
 		ContactReportDto contactReportDto = new ContactReportDto();
 		ContactReportInfo crInfo = contactInfoRepository.findByContactReportIdAndIsActive(contactReportId,
@@ -307,6 +318,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 
 	}
 
+	@Override
 	public Map<String, List<ContactReportInfoDto>> getMyContactReport(MFPUser mfpUser, boolean showUsersDraft) {
 		String userId = mfpUser.getUserid();
 		String empCd = mfpUser.getEmployeeNumber();
@@ -367,6 +379,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 
 	}
 
+	@Override
 	@Transactional
 	public void deleteReportById(long contactReportId) {
 		final int contactStatus = ContactReportEnum.DRAFT.getStatusCode(); // contactStatus 0 makes sure that the report
