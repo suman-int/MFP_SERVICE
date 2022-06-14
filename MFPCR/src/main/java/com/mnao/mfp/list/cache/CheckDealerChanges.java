@@ -72,6 +72,8 @@ public class CheckDealerChanges {
 	}
 	//
 	public void checkDealerChanges(List<DealerInfo> dealers) {
-		checkDlrChangesExecutor.execute(new CheckDlrDomainChanges(dealers));
+		if (dealers != null && dealers.size() > 0) {
+			checkDlrChangesExecutor.execute(new CheckDlrDomainChanges(dealers));
+		}
 	}
 }
