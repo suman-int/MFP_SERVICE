@@ -69,6 +69,8 @@ public class CheckEmployeeChanges {
 	}
 	//
 	public void checkEmpChanges(List<ListPersonnel> checkEmps) {
-		checkEmpChangesExecutor.execute(new CheckEmpDomainChanges(checkEmps));
+		if (checkEmps != null && checkEmps.size() > 0) {
+			checkEmpChangesExecutor.execute(new CheckEmpDomainChanges(checkEmps));
+		}
 	}
 }
