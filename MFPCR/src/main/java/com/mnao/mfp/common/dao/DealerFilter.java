@@ -1,6 +1,8 @@
 package com.mnao.mfp.common.dao;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +30,13 @@ public class DealerFilter {
 	private String mdaCd;
 	private MFPUser mfpUser;
 
+	public class FilterSet {
+		public Set<String> dealersSet;
+		public Set<String> rgnSet;
+		public Set<String> zoneSet;
+		public Set<String> districtSet;
+		public Set<String> marketSet;
+	}
 	public DealerFilter() {
 
 	}
@@ -92,7 +101,45 @@ public class DealerFilter {
 		}
 	}
 
-
+	public FilterSet getFilterSet() {
+		FilterSet fs = new FilterSet();
+		Domain dom = null;
+		if (mfpUser != null) {
+			setupUserFilters();
+			dom = mfpUser.getDomain();
+		}
+		if ((mdaCd != null) && mdaCd.trim().length() > 0) {
+			fs.marketSet = new HashSet<>();
+			fs.marketSet.add(mdaCd)
+		} else {
+			if (rgnMulti) {
+				fs.rgnSet = new HashSet<>();
+				fs.rgnSet.addAll(dom.getRegions());
+			} else if ((rgnCd != null) && rgnCd.trim().length() > 0) {
+				fs.rgnSet = new HashSet<>();
+				fs.rgnSet.add(rgnCd);
+			}
+			if (zoneMulti) {
+				fs.zoneSet = new HashSet<>();
+				fs.zoneSet.addAll(dom.getZones());
+			} else if ((zoneCd != null) && zoneCd.trim().length() > 0) {
+				fs.zoneSet = new HashSet<>();
+				fs.zoneSet.add(zoneCd);
+			}
+			if (districtMulti) {
+				fs.districtSet = new HashSet<>();
+				fs.districtSet.addAll(dom.getDistricts());
+			} else if ((districtCd != null) && districtCd.trim().length() > 0) {
+				fs.districtSet = new HashSet<>();
+				fs.districtSet.add(districtCd);
+			}
+		}
+		if ((dlrCd != null) && dlrCd.trim().length() > 0) {
+			fs.dealersSet = new HashSet<>();
+			fs.dealersSet.add(dlrCd);
+		}
+		return fs;
+	}
 
 	public String getWhereCondition(String tabAlias) {
 		StringBuilder sb = new StringBuilder();
