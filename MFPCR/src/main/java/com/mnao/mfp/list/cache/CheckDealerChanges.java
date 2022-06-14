@@ -29,6 +29,7 @@ public class CheckDealerChanges {
 	//
 	@Autowired
 	AllDealersCache allDealersCache;
+
 	//
 	public class CheckDlrDomainChanges implements Runnable {
 		private List<DealerInfo> checkDealers;
@@ -46,9 +47,11 @@ public class CheckDealerChanges {
 			allDealersCache.checkDealerChanges(checkDealers);
 			Instant end = Instant.now();
 			Duration timeElapsed = Duration.between(start, end);
-			log.info("Time taken to check for Domain Change of " + checkDealers.size() + " Dealers : "+ timeElapsed.toMillis() +" milliseconds.");
+			log.info("Time taken to check for Domain Change of " + checkDealers.size() + " Dealers : "
+					+ timeElapsed.toMillis() + " milliseconds.");
 		}
 	}
+
 	//
 	@PostConstruct
 	private void initialize() throws Exception {
@@ -56,6 +59,7 @@ public class CheckDealerChanges {
 			this.checkDlrChangesExecutor = Executors.newFixedThreadPool(threadPoolSize);
 		}
 	}
+
 	//
 	@PreDestroy
 	private void cleanUp() throws Exception {
@@ -70,8 +74,11 @@ public class CheckDealerChanges {
 			}
 		}
 	}
+
 	//
 	public void checkDealerChanges(List<DealerInfo> dealers) {
-		checkDlrChangesExecutor.execute(new CheckDlrDomainChanges(dealers));
+		if (dealers != null && dealers.size() > 0) {
+			checkDlrChangesExecutor.execute(new CheckDlrDomainChanges(dealers));
+		}
 	}
 }

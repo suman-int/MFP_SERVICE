@@ -27,25 +27,30 @@ public class CheckEmployeeChanges {
 	private int threadPoolSize;
 	private ExecutorService checkEmpChangesExecutor;
 	//
-	@Autowired AllEmployeesCache allEmployeesCache;
+	@Autowired
+	AllEmployeesCache allEmployeesCache;
+
 	//
 	public class CheckEmpDomainChanges implements Runnable {
 		private List<ListPersonnel> checkEmps;
+
 		//
 		public CheckEmpDomainChanges(List<ListPersonnel> checkEmps) {
 			super();
 			this.checkEmps = checkEmps;
 		}
-		
+
 		@Override
 		public void run() {
 			Instant start = Instant.now();
 			allEmployeesCache.checkDomaniChanged(checkEmps);
 			Instant end = Instant.now();
 			Duration timeElapsed = Duration.between(start, end);
-			log.info("Time taken to check Domain Change of " + checkEmps.size() + " Employees : "+ timeElapsed.toMillis() +" milliseconds.");
+			log.info("Time taken to check Domain Change of " + checkEmps.size() + " Employees : "
+					+ timeElapsed.toMillis() + " milliseconds.");
+		}
 	}
-	}
+
 	//
 	@PostConstruct
 	private void initialize() throws Exception {
@@ -67,8 +72,11 @@ public class CheckEmployeeChanges {
 			}
 		}
 	}
+
 	//
 	public void checkEmpChanges(List<ListPersonnel> checkEmps) {
-		checkEmpChangesExecutor.execute(new CheckEmpDomainChanges(checkEmps));
+		if (checkEmps != null && checkEmps.size() > 0) {
+			checkEmpChangesExecutor.execute(new CheckEmpDomainChanges(checkEmps));
+		}
 	}
 }
