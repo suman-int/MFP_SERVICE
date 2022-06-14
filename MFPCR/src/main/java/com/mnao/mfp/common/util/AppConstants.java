@@ -38,6 +38,7 @@ public class AppConstants {
 	public static final String AUTH_COOKIE = "MFPUSRTOK";
 	public static final String AUTH_HEADER = "MFPWSLUSRTOK";
 	public static final String EMP_USE_DB_RGN_ZONE_DSTR = "emp.use.db.rgn.zone.dstr";
+	public static final String USE_JWT_TOKEN_AUTH = "use.jwt.token.auth";
 	public static final String TABLE_QUERY_CONFIG = "TableQueryConfig.json";
 	public static final String KPI_QUERY_CONFIG = "KPIQueryConfig.json";
 	public static final String LOCATION_SQLFILES = "location.sqlfiles";

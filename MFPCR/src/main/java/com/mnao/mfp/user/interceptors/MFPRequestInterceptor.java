@@ -29,19 +29,31 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 	private static final String USERID_REQUEST_HEADER = "IV-USER";
 	private static final String AUTH_REQUEST_URI = "Authorize";
 	private final boolean useDBDomain;
+	private final boolean useSecJWT;
 	private JwtTokenUtil jwtTokenUtil = null;
 	private AllEmployeesCache allEmployeesCache = null;
 	private UserDetailsService uds = null;
 
 	//
 	public MFPRequestInterceptor() {
-		String useDB = Utils.getAppProperty(AppConstants.EMP_USE_DB_RGN_ZONE_DSTR, "false");
-		useDBDomain = useDB.equalsIgnoreCase("true");
+		String propStr = Utils.getAppProperty(AppConstants.EMP_USE_DB_RGN_ZONE_DSTR, "false");
+		useDBDomain = propStr.equalsIgnoreCase("true");
 		log.debug("Interceptor Created. Use DB for USer Domain: {}", useDBDomain);
+		propStr = Utils.getAppProperty(AppConstants.USE_JWT_TOKEN_AUTH, "true");
+		useSecJWT = propStr.equalsIgnoreCase("true");
+		log.debug("Using JWT Token for authentication: {}", useSecJWT);
 	}
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object arg2) throws Exception {
+		if (useSecJWT)
+			return preHandleJWT(request, response, arg2);
+		else
+			return preHandlePlain(request, response, arg2);
+	}
+
+	public boolean preHandlePlain(HttpServletRequest request, HttpServletResponse response, Object arg2)
+			throws Exception {
 		boolean rv = true;
 		final String requestURI = request.getRequestURI();
 		log.debug("URI: " + request.getRequestURI());
@@ -66,7 +78,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 			rv = false;
 		} else {
 			MFPUser u = uds.getMFPUser(userID);
-			if (u == null ) {
+			if (u == null) {
 				response.sendError(403, "FORBIDDEN");
 				log.error("Unauthorised (Forbidden) Access");
 				rv = false;
@@ -87,8 +99,9 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 		}
 		return rv;
 	}
-	
-	public boolean preHandleJWT(HttpServletRequest request, HttpServletResponse response, Object arg2) throws Exception {
+
+	public boolean preHandleJWT(HttpServletRequest request, HttpServletResponse response, Object arg2)
+			throws Exception {
 		if (jwtTokenUtil == null || allEmployeesCache == null) {
 			ServletContext servletContext = request.getServletContext();
 			WebApplicationContext wac = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
