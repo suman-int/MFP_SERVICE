@@ -164,7 +164,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
                 if (moveFiles(sourcePath, destinationPath)) {
                     attachment.setAttachmentPath(destinationPath);
                     attachment.setStatus(AppConstants.StatusSubmit);
-                    attachmentRepository.save(attachment);
+//                    attachmentRepository.save(attachment); // DO NOT SAVE - it will get automatically saved with CR
                 } else {
                     flag = false;
                     failedSaveAttachments += attachment.getAttachmentName() + " ";
