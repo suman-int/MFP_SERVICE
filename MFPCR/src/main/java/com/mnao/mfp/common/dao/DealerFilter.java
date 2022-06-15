@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.util.CollectionUtils;
 
 import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.user.dao.Domain;
 import com.mnao.mfp.user.dao.MFPUser;
+
+import lombok.Getter;
 
 @Getter
 public class DealerFilter {
@@ -110,7 +110,7 @@ public class DealerFilter {
 		}
 		if ((mdaCd != null) && mdaCd.trim().length() > 0) {
 			fs.marketSet = new HashSet<>();
-			fs.marketSet.add(mdaCd)
+			fs.marketSet.add(mdaCd);
 		} else {
 			if (rgnMulti) {
 				fs.rgnSet = new HashSet<>();
