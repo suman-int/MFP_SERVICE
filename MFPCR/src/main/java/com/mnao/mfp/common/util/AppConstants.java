@@ -120,13 +120,16 @@ public class AppConstants {
 			"CPO/Remarketing", "CX360 Record Health", "CX360 Survey Health", "Dealer Financials", "Dealer Loyalty",
 			"Dealer Risk Assessment", "Inventory & Ordering", "Lead Management", "Marketing", "MBEP Training", "MCVP",
 			"MCVP Vehicle Expiring", "Other", "Owner Loyalty", "RDR information", "Registration Market Share",
-			"Retail Sales", "Sales Customer Experience (MBEP 2.1 Index)", "SPI", "Training");
+			"Retail Sales", "Sales Customer Experience (MBEP 2.1 Index)", "SPI", "Training", "MBEP Performance",
+			"New Employee Orientation/Training");
 	public static final List<String> SERVICE_TOPIC_LIST = Arrays.asList("Accessory Business", "Annual Business Plan",
 			"Co-op Service", "CX360 Record Health", "CX360 Survey Health", "Dealer Financials",
 			"Dealer Risk Assessment", "FIRFT", "Marketing", "MBEP Training", "MCVP", "MCVP Vehicle Expiring",
 			"Missed Recall Tiers", "MPC (PartsEye) Utilization", "Other", "Parts Purchase Loyalty", "Parts Sales",
 			"Recalls", "Repair Orders", "Service Customer Experience (MBEP 2.1 Index)", "Service Retention/FYSL",
-			"Shop Capacity", "Training", "X-Time Service Scheduling");
+			"Shop Capacity", "Training", "X-Time Service Scheduling","MBEP Performance","Digital Service Utilization",
+			"Digital Service Performance","New Employee Orientation/Training","Parts Inventory Management",
+			"Warranty Performance");
 	public static final List<String> OTHER_TOPIC_LIST = Arrays.asList("Dealer Dev Deficiencies Identified",
 			"Dealer Staffing", "Facility", "NDAC Engagement", "Network Activity", "Other", "UMX");
 

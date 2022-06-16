@@ -3,6 +3,7 @@ package com.mnao.mfp.cr.service.impl;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -416,15 +417,21 @@ public class ContactReportServiceImpl implements ContactReportService {
 		List<ContactReportTopicDto> topicList = new ArrayList<>();
 		contactTypeList.forEach(val -> {
 			if ("sales".equalsIgnoreCase(val)) {
-				topicList.add(ContactReportTopicDto.builder().groupName("Sales").topics(AppConstants.SALES_TOPIC_LIST)
+				List<String> salesList = AppConstants.SALES_TOPIC_LIST;
+				Collections.sort(salesList);
+				topicList.add(ContactReportTopicDto.builder().groupName("Sales").topics(salesList)
 						.build());
 			}
 			if ("service".equalsIgnoreCase(val)) {
+				List<String> serviceList = AppConstants.SERVICE_TOPIC_LIST;
+				Collections.sort(serviceList);
 				topicList.add(ContactReportTopicDto.builder().groupName("After Sales")
-						.topics(AppConstants.SERVICE_TOPIC_LIST).build());
+						.topics(serviceList).build());
 			}
 			if ("other".equalsIgnoreCase(val)) {
-				topicList.add(ContactReportTopicDto.builder().groupName("Network").topics(AppConstants.OTHER_TOPIC_LIST)
+				List<String> otherList = AppConstants.OTHER_TOPIC_LIST;
+				Collections.sort(otherList);
+				topicList.add(ContactReportTopicDto.builder().groupName("Network").topics(otherList)
 						.build());
 			}
 		});
