@@ -27,7 +27,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 
 	private static final Logger log = LoggerFactory.getLogger(MFPRequestInterceptor.class);
 	private static final String USERID_REQUEST_HEADER = "IV-USER";
-	private static final String AUTH_REQUEST_URI = "Authorize";
+	private static final String AUTH_REQUEST_URI = "/Auth/";
 	private final boolean useDBDomain;
 	private final boolean useSecJWT;
 	private JwtTokenUtil jwtTokenUtil = null;
@@ -160,7 +160,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 				/*
 				 * 1. Authorization Request 2. Invalid token
 				 */
-				if (requestURI.endsWith(AUTH_REQUEST_URI)) {
+				if (requestURI.startsWith(AUTH_REQUEST_URI)) {
 					rv = true;
 				} else if (!validateJwtToken(requestTokenHeader == null ? tok : requestTokenHeader, u)) {
 					response.sendError(401, "UNAUTHORISED");
