@@ -40,14 +40,14 @@ public class JwtAuthController {
 	
 
 	@RequestMapping(value = "/AuthorizeUser", method = { RequestMethod.GET, RequestMethod.POST })
-	public JwtUerTokenResponse authorizeUser(@SessionAttribute(name = "mfpUser") MFPUser mfpUser, HttpServletResponse response) {
+	public JwtUserTokenResponse authorizeUser(@SessionAttribute(name = "mfpUser") MFPUser mfpUser, HttpServletResponse response) {
 		String token = jwtTokenUtil.generateToken(mfpUser);
 		Cookie ck = new Cookie(AppConstants.AUTH_COOKIE, token);
 		ck.setMaxAge(5 * 60 * 60);
 		ck.setPath("/");
 		ck.setHttpOnly(true);
 		response.addCookie(ck);
-		return new JwtUerTokenResponse(token, mfpUser);
+		return new JwtUserTokenResponse(token, mfpUser);
 	}
 
 }
