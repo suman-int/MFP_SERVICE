@@ -210,8 +210,8 @@ public class ListController extends MfpKPIControllerBase {
     }
 
     //
-    @PostMapping("/ListCorporateEmployees")
-    public CommonResponse<List<ListPersonnel>> listCorporateEmployees(
+    @PostMapping("/ListCorporateEmployeesFiltered")
+    public CommonResponse<List<ListPersonnel>> listCorporateEmployeesFiltered(
             @RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
             @RequestParam(value = "zoneCd", defaultValue = "") String zoneCd,
             @RequestParam(value = "districtCd", defaultValue = "") String districtCd,
@@ -235,7 +235,34 @@ public class ListController extends MfpKPIControllerBase {
         checkEmployeeChanges.checkEmpChanges(retRows);
         return AbstractService.httpPostSuccess(retRows, "Success");
     }
-
+    //
+    //
+    @PostMapping("/ListCorporateEmployees")
+    public CommonResponse<List<ListPersonnel>> listCorporateEmployeesAll(
+            @RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
+            @RequestParam(value = "zoneCd", defaultValue = "") String zoneCd,
+            @RequestParam(value = "districtCd", defaultValue = "") String districtCd,
+            @RequestParam(value = "mdaCd", defaultValue = "") String mdaCd,
+            @RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
+            @SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
+        String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
+        MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
+        List<ListPersonnel> retRows = null;
+        DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
+        try {
+            //DealerInfo dlrInfo = getDealerInfo(null, dlrCd);
+            DealerInfo dlrInfo = allDealersCache.getDealerInfo(dlrCd);
+            if (dlrInfo != null) {
+                retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(), dlrInfo.getZoneCd(),
+                        dlrInfo.getDistrictCd(), dlrInfo.getRgnCd());
+                log.info("Returning {} Employee Information", retRows.size());
+            }
+        } catch (InstantiationException | IllegalAccessException | ParseException e) {
+            log.error("ERROR retrieving list of Employees:", e);
+        }
+        checkEmployeeChanges.checkEmpChanges(retRows);
+        return AbstractService.httpPostSuccess(retRows, "Success");
+    }
     //
     @PostMapping("/GetDealerInfo")
     public CommonResponse<DealerInfo> getDealerInfo(@RequestParam(required = true, value = "dlrCd") String dlrCd,
