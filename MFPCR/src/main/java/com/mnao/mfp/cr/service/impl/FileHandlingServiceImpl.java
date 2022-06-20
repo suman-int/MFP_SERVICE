@@ -39,7 +39,7 @@ import com.mnao.mfp.cr.service.FileHandlingService;
 
 @Service
 public class FileHandlingServiceImpl implements FileHandlingService {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger log = LoggerFactory.getLogger(FileHandlingServiceImpl.class);
     private static final String TEMP_LOC_PREFIX = "_TEMP_";
     private static final String SESSION_UPLOADED_FILES = "AttachmentUpload";
 
@@ -94,7 +94,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 
             return fileName;
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
         }
         return fileName;
     }
@@ -107,7 +107,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
             URI uri = new URI(fpath);
             fpath = uri.getPath();
         } catch (URISyntaxException e) {
-            logger.error("URI Syntax Exception Error ", e);
+            log.error("URI Syntax Exception Error ", e);
         }
         checkCreatePath(fpath);
         fpath += String.format(AppConstants.file_storage_format, attachment.getAttachmentId(), dealerCode,
@@ -123,7 +123,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
             URI uri = new URI(fpath);
             fpath = uri.getPath();
         } catch (URISyntaxException e) {
-            logger.error("URI Syntax Exception Error ", e);
+            log.error("URI Syntax Exception Error ", e);
         }
         checkCreatePath(fpath);
         fpath += fileName;
@@ -152,19 +152,22 @@ public class FileHandlingServiceImpl implements FileHandlingService {
         boolean flag = true;
         List<ContactReportAttachment> attachments = report.getAttachment();
         String contactReportId = Long.toString(report.getContactReportId());
+        log.info("Saving attachments for CR {}", contactReportId);
         String responsetext = "Files moved successfully";
         String failedSaveAttachments = "";
         if (attachments == null)
             return responsetext;
         for (ContactReportAttachment attachment : attachments) {
             String sourcePath = getTemporaryFilePath(attachment.getAttachmentPath());
+            log.info("Aattachment Temp path {}", sourcePath);
             if (Paths.get(sourcePath).toFile().exists()) {
             	String destinationPath = getStorageFilePath(attachment, contactReportId);
+                log.info("Aattachment Dest path {}", destinationPath);
                 attachment.setContactReport(report);
                 if (moveFiles(sourcePath, destinationPath)) {
                     attachment.setAttachmentPath(destinationPath);
                     attachment.setStatus(AppConstants.StatusSubmit);
-//                    attachmentRepository.save(attachment); // DO NOT SAVE - it will get automatically saved with CR
+ //                   attachmentRepository.save(attachment); // DO NOT SAVE - it will get automatically saved with CR
                 } else {
                     flag = false;
                     failedSaveAttachments += attachment.getAttachmentName() + " ";
@@ -180,12 +183,13 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 
     private boolean moveFiles(String sourcePath, String destinationPath) {
         boolean flag = false;
+        log.info("Moving file From {} to {}", sourcePath, destinationPath);
         try {
             Files.move(Paths.get(sourcePath), Paths.get(destinationPath));
-            logger.info("File renamed and moved successfully");
+            log.info("File renamed and moved successfully");
             flag = true;
         } catch (Exception e) {
-            logger.error("Exception occurred", e);
+            log.error("Exception occurred", e);
         }
         return flag;
     }
@@ -239,6 +243,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
         if (currentFileName.startsWith("_TEMP")) {
         	filePath = Paths.get(getTemporaryFilePath(currentFileName));
         }
+        log.info("Returning file {} ", filePath.toString());
         return downloadResource(filePath);
 
     }
@@ -249,10 +254,10 @@ public class FileHandlingServiceImpl implements FileHandlingService {
             if (resource.exists()) {
                 return resource;
             } else {
-                logger.warn("No such file : {}", filePath);
+                log.warn("No such file : {}", filePath);
             }
         } catch (MalformedURLException ex) {
-            logger.error("No such file :", ex);
+            log.error("No such file :", ex);
         }
         return null;
     }
@@ -263,7 +268,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
             try {
                 Files.createDirectories(folder.toPath());
             } catch (IOException e) {
-                logger.error("FAILED TO CREATE FOLDER" + locPath, e);
+                log.error("FAILED TO CREATE FOLDER" + locPath, e);
             }
         }
     }

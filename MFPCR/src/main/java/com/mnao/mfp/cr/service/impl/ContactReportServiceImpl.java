@@ -183,15 +183,16 @@ public class ContactReportServiceImpl implements ContactReportService {
 				}
 			}
 			//
-//			ContactReportInfo info = contactInfoRepository.save(reportInfo);
+			ContactReportInfo info = contactInfoRepository.save(reportInfo);
 //			if (report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
 			if (reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()
 					|| reportInfo.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()
 					|| reportInfo.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
 				fileHandlingService.copyToPermanentLocation(reportInfo);
+				info = contactInfoRepository.save(reportInfo);
 			}
 //
-			ContactReportInfo info = contactInfoRepository.save(reportInfo);
+//			ContactReportInfo info = contactInfoRepository.save(reportInfo);
 //
 			submission = "Saved Success";
 			if (info.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()
