@@ -202,6 +202,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
         if (attachment != null) {
             if (attachment.getStatus() == 0 && attachment.getContactReport().getContactStatus() == 0) {
                 attachment.setStatus(AppConstants.StatusDeleted);
+                attachment.setIsActive(IsActiveEnum.NO.getValue());
                 attachmentRepository.save(attachment);
                 response = "File deletion successful";
             } else {
