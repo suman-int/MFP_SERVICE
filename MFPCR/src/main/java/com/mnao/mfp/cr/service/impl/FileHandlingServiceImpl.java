@@ -244,12 +244,13 @@ public class FileHandlingServiceImpl implements FileHandlingService {
         if (currentFileName.startsWith("_TEMP")) {
         	filePath = Paths.get(getTemporaryFilePath(currentFileName));
         }
+        filePath = checkCorrect(attachment, filePath);
         log.info("Returning file {} ", filePath.toString());
         return downloadResource(filePath);
 
     }
 
-    public Resource downloadResource(Path filePath) {
+	public Resource downloadResource(Path filePath) {
         try {
             Resource resource = new UrlResource(filePath.toUri());
             if (resource.exists()) {
@@ -273,4 +274,11 @@ public class FileHandlingServiceImpl implements FileHandlingService {
             }
         }
     }
+
+    private Path checkCorrect(ContactReportAttachment attachment, Path filePath) {
+		String fnm = attachment.getAttachmentName();
+		Path folder = filePath.getParent();
+		return filePath;
+	}
+
 }
