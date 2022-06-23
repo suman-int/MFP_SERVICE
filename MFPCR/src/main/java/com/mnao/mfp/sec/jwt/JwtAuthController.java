@@ -35,6 +35,7 @@ public class JwtAuthController {
 		ck.setPath("/");
 		ck.setHttpOnly(true);
 		response.addCookie(ck);
+		log.info("Returning from /Authorize:" + token);
 		return new JwtResponse(token);
 	}
 	
@@ -47,6 +48,7 @@ public class JwtAuthController {
 		ck.setPath("/");
 		ck.setHttpOnly(true);
 		response.addCookie(ck);
+		log.info("Returning from /AuthorizeUser:" + token);
 		return new JwtUserTokenResponse(token, mfpUser);
 	}
 

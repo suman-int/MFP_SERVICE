@@ -20,7 +20,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,7 +29,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.mnao.mfp.common.service.AppPropertiesService;
 import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.user.dao.MFPUser;
 
@@ -75,11 +73,11 @@ public class UserDetailsService {
 		//
 		if (mfpUsers == null) {
 			mfpUsers = new HashMap<String, String>();
-			if (staticJsonFile != null && staticJsonFile.trim().length() > 0) {
-				Map<String, String> staticJsons = loadStaticJson(staticJsonFile);
-				if (staticJsons != null)
-					mfpUsers.putAll(staticJsons);
-			}
+//			if (staticJsonFile != null && staticJsonFile.trim().length() > 0) {
+//				Map<String, String> staticJsons = loadStaticJson(staticJsonFile);
+//				if (staticJsons != null)
+//					mfpUsers.putAll(staticJsons);
+//			}
 		}
 	}
 
@@ -104,6 +102,7 @@ public class UserDetailsService {
 			mfpUsers.put(userID, userInfoJson);
 			mfpUser = processUserInfoJson(userInfoJson);
 		}
+		log.debug("Returning from getMFPUser: EMP {}, WSLID {}", mfpUser.getEmployeeNumber(), mfpUser.getUserid());
 		return mfpUser;
 	}
 
@@ -199,6 +198,7 @@ public class UserDetailsService {
 		} catch (Exception e) {
 			log.error("", e);
 		}
+		log.info("Returning from fetchUserDetails (WSLServiceInvocation): " + rv);
 		return rv;
 	}
 
