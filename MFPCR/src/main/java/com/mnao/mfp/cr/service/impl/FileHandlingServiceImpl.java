@@ -39,7 +39,6 @@ import com.mnao.mfp.cr.entity.ContactReportAttachment;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactReportAttachmentRepository;
 import com.mnao.mfp.cr.service.FileHandlingService;
-import com.mnao.mfp.cr.util.ContactReportEnum;
 
 @Service
 public class FileHandlingServiceImpl implements FileHandlingService {
@@ -135,7 +134,11 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 	}
 
 	private String getTemporaryFileName(MultipartFile file) {
-		return TEMP_LOC_PREFIX + UUID.randomUUID() + "__" + file.getOriginalFilename();
+		return getTemporaryFileName(file.getOriginalFilename());
+	}
+
+	private String getTemporaryFileName(String fileName) {
+		return TEMP_LOC_PREFIX + UUID.randomUUID() + "__" + fileName;
 	}
 
 	private void updateSavedFiles(List<ContactReportAttachment> savedFiles, ContactReportAttachment attachment) {
@@ -287,33 +290,72 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 			return filePath;
 		}
 		String fnm = attachment.getAttachmentName();
-		String prmFpath =  getPathStr(Utils.getAppProperty("permanent.file.storage.location"));
+		String prmFpath = getPathStr(Utils.getAppProperty("permanent.file.storage.location"));
 		String tmpFpath = getPathStr(Utils.getAppProperty("temp.file.storage.location"));
 		Optional<Path> foundPath = null;
-		if (attachment.getStatus() == ContactReportEnum.DRAFT.getStatusCode()) {
+		if (attachment.getAttachmentId() == 0) {
 			foundPath = findFile(fnm, Paths.get(tmpFpath));
-			if( ! foundPath.isPresent() ) {
+			if (!foundPath.isPresent()) {
 				foundPath = findFile(fnm, Paths.get(prmFpath));
 			}
 		} else {
 			foundPath = findFile(fnm, Paths.get(prmFpath));
-			if( ! foundPath.isPresent() ) {
+			if (!foundPath.isPresent()) {
 				foundPath = findFile(fnm, Paths.get(tmpFpath));
 			}
 		}
 		if (foundPath.isPresent()) {
 			Path fpath = foundPath.get();
-			doDBCorrection(attachment, fpath);
+			try {
+				doDBCorrection(attachment, fpath);
+				return fpath;
+			} catch (IOException e) {
+				log.error("ERROR Correcting attachment storage: ", e);
+			}
 		}
 		return filePath;
 	}
 
-	private void doDBCorrection(ContactReportAttachment attachment, Path fpath) {
-		String prmFpath =  getPathStr(Utils.getAppProperty("permanent.file.storage.location"));
+	private void doDBCorrection(ContactReportAttachment attachment, Path fpath) throws IOException {
+		String prmFpath = getPathStr(Utils.getAppProperty("permanent.file.storage.location"));
 		String tmpFpath = getPathStr(Utils.getAppProperty("temp.file.storage.location"));
 		boolean foundInTmp = fpath.startsWith(tmpFpath);
-		
-		
+		if (attachment.getAttachmentId() == 0) {
+			// The Contact Report has not been saved yet
+			if (foundInTmp) {
+				// Just update the filename. DO NOT UPDATE DB.
+				// It will automatically get updated when
+				// saving CR
+				attachment.setAttachmentPath(fpath.getFileName().toString());
+			} else {
+				// COPY file from storage to tmp
+				// DO NOT MOVE
+				String tgtFName = getTemporaryFileName(fpath.getFileName().toString());
+				String tgtPath = getTemporaryFilePath(tgtFName);
+				Files.copy(fpath, Paths.get(tgtPath), StandardCopyOption.REPLACE_EXISTING);
+				attachment.setAttachmentPath(tgtFName);
+			}
+		} else {
+			// Contact Report has been saved and
+			// both Contact Report ID and attachment ID has been generated
+			if (foundInTmp) {
+				// COPY file from tmp to storage
+				// DO NOT MOVE
+				// Update attachmentPath
+				Path srcPath = fpath;
+				String crID = Long.toString(attachment.getContactReport().getContactReportId());
+				String tgtPath = getStorageFilePath( attachment, crID);
+				Files.copy(srcPath, Paths.get(tgtPath), StandardCopyOption.REPLACE_EXISTING);
+				attachment.setAttachmentPath(tgtPath);
+			}
+			else {
+				//Update attachmentPath
+				attachment.setAttachmentPath(fpath.toString());
+			}
+			// Update DB
+			attachmentRepository.save(attachment);
+		}
+
 	}
 
 	private Optional<Path> findFile(String fnm, Path folder) {
