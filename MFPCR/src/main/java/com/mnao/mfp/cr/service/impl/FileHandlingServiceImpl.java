@@ -302,13 +302,17 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 			}
 		}
 		if (foundPath.isPresent()) {
-			doDBCorrection(attachment, foundPath);
+			Path fpath = foundPath.get();
+			doDBCorrection(attachment, fpath);
 		}
 		return filePath;
 	}
 
-	private void doDBCorrection(ContactReportAttachment attachment, Optional<Path> foundPath) {
-		// TODO Auto-generated method stub
+	private void doDBCorrection(ContactReportAttachment attachment, Path fpath) {
+		String prmFpath =  getPathStr(Utils.getAppProperty("permanent.file.storage.location"));
+		String tmpFpath = getPathStr(Utils.getAppProperty("temp.file.storage.location"));
+		boolean foundInTmp = fpath.startsWith(tmpFpath);
+		
 		
 	}
 
