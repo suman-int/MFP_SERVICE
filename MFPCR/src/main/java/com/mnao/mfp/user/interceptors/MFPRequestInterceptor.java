@@ -97,6 +97,11 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 				session.setAttribute("mfpUser", u);
 			}
 		}
+		if( rv ) {
+			log.info("RETURNING TRUE");
+		} else {
+			log.info("RETURNING FALSE");
+		}
 		return rv;
 	}
 
@@ -162,14 +167,23 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 				 */
 				if (requestURI.startsWith(AUTH_REQUEST_URI)) {
 					rv = true;
+					log.info("Forwarding to: " + requestURI);
 				} else if (!validateJwtToken(requestTokenHeader == null ? tok : requestTokenHeader, u)) {
 					response.sendError(401, "UNAUTHORISED");
 					log.error("Unauthorised Access");
 					rv = false;
 				}
+				else {
+					rv = true;
+					log.info("Forwarding to: " + requestURI);
+				}
 			}
 		}
-
+		if( rv ) {
+			log.info("RETURNING TRUE");
+		} else {
+			log.info("RETURNING FALSE");
+		}
 		return rv;
 	}
 
