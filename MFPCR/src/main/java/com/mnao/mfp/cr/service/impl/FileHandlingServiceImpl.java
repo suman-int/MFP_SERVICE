@@ -36,7 +36,6 @@ import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.cr.dto.ContactInfoAttachmentDto;
 import com.mnao.mfp.cr.entity.ContactReportAttachment;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
-import com.mnao.mfp.cr.repository.ContactInfoRepository;
 import com.mnao.mfp.cr.repository.ContactReportAttachmentRepository;
 import com.mnao.mfp.cr.service.FileHandlingService;
 
@@ -45,12 +44,9 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 	private static final Logger log = LoggerFactory.getLogger(FileHandlingServiceImpl.class);
 	private static final String TEMP_LOC_PREFIX = "_TEMP_";
 	private static final String SESSION_UPLOADED_FILES = "AttachmentUpload";
-
+	//
 	@Autowired
 	ContactReportAttachmentRepository attachmentRepository;
-
-	@Autowired
-	private ContactInfoRepository contactInfoRepository;
 
 	@Override
 	public List<ContactInfoAttachmentDto> doUpload(MultipartFile[] files, HttpServletRequest request) {
@@ -168,23 +164,24 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 		if (attachments == null)
 			return responsetext;
 		for (ContactReportAttachment attachment : attachments) {
-			String sourcePath = getTemporaryFilePath(attachment.getAttachmentPath());
-			log.info("Aattachment Temp path {}", sourcePath);
-			if (Paths.get(sourcePath).toFile().exists()) {
-				String destinationPath = getStorageFilePath(attachment, contactReportId);
-				log.info("Aattachment Dest path {}", destinationPath);
-				attachment.setContactReport(report);
-				if (moveFiles(sourcePath, destinationPath)) {
-					attachment.setAttachmentPath(destinationPath);
-					attachment.setStatus(AppConstants.StatusSubmit);
-					// attachmentRepository.save(attachment); // DO NOT SAVE - it will get
-					// automatically saved with CR
-				} else {
-					flag = false;
-					failedSaveAttachments += attachment.getAttachmentName() + " ";
+			if (attachment.getAttachmentPath().startsWith("_TEMP")) {
+				String sourcePath = getTemporaryFilePath(attachment.getAttachmentPath());
+				log.info("Aattachment Temp path {}", sourcePath);
+				if (Paths.get(sourcePath).toFile().exists()) {
+					String destinationPath = getStorageFilePath(attachment, contactReportId);
+					log.info("Aattachment Dest path {}", destinationPath);
+					attachment.setContactReport(report);
+					if (moveFiles(sourcePath, destinationPath)) {
+						attachment.setAttachmentPath(destinationPath);
+						attachment.setStatus(AppConstants.StatusSubmit);
+						// attachmentRepository.save(attachment); // DO NOT SAVE - it will get
+						// automatically saved with CR
+					} else {
+						flag = false;
+						failedSaveAttachments += attachment.getAttachmentName() + " ";
+					}
 				}
 			}
-
 		}
 		if (!flag) {
 			responsetext = "Failed to Transfer Attachment  with attachment id(s)= " + failedSaveAttachments;
@@ -198,6 +195,19 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 		try {
 			Files.move(Paths.get(sourcePath), Paths.get(destinationPath));
 			log.info("File renamed and moved successfully");
+			flag = true;
+		} catch (Exception e) {
+			log.error("Exception occurred", e);
+		}
+		return flag;
+	}
+
+	private boolean copyFile(String sourcePath, String destinationPath) {
+		boolean flag = false;
+		log.info("Copying file From {} to {}", sourcePath, destinationPath);
+		try {
+			Files.copy(Paths.get(sourcePath), Paths.get(destinationPath));
+			log.info("File copied successfully");
 			flag = true;
 		} catch (Exception e) {
 			log.error("Exception occurred", e);
@@ -289,12 +299,18 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 	}
 
 	private Path checkCorrect(ContactReportAttachment attachment, Path filePath) {
-		if (Files.exists(filePath)) {
-			return filePath;
-		}
 		String fnm = attachment.getAttachmentName();
 		String prmFpath = getPathStr(Utils.getAppProperty("permanent.file.storage.location"));
 		String tmpFpath = getPathStr(Utils.getAppProperty("temp.file.storage.location"));
+		if (Files.exists(filePath)) {
+			Path copiedPath = checkFileNameCopy(attachment, filePath);
+//			if (!copiedPath.equals(filePath)) {
+			if (!pathsEqual(copiedPath, filePath)) {
+				attachment.setAttachmentPath(copiedPath.toString());
+				updateAttachmentRecord(attachment);
+			}
+			return copiedPath;
+		}
 		Optional<Path> foundPath = null;
 		if (attachment.getAttachmentId() == 0) {
 			foundPath = findFile(fnm, Paths.get(tmpFpath));
@@ -310,8 +326,8 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 		if (foundPath.isPresent()) {
 			Path fpath = foundPath.get();
 			try {
-				doDBCorrection(attachment, fpath);
-				return fpath;
+				Path correctedPath = doDBCorrection(attachment, fpath);
+				return correctedPath;
 			} catch (IOException e) {
 				log.error("ERROR Correcting attachment storage: ", e);
 			}
@@ -319,10 +335,41 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 		return filePath;
 	}
 
-	private void doDBCorrection(ContactReportAttachment attachment, Path fpath) throws IOException {
+	private boolean pathsEqual(Path copiedPath, Path filePath) {
+		boolean rv = true;
+		if (copiedPath.getNameCount() != filePath.getNameCount()) {
+			rv = false;
+		} else {
+			for (int i = 0; i < copiedPath.getNameCount(); i++) {
+				if (!copiedPath.getName(i).toString().equalsIgnoreCase(filePath.getName(i).toString())) {
+					rv = false;
+					break;
+				}
+			}
+		}
+		return rv;
+	}
+
+	private Path checkFileNameCopy(ContactReportAttachment attachment, Path filePath) {
+		if (attachment.getAttachmentId() != 0) {
+			String crID = Long.toString(attachment.getContactReport().getContactReportId());
+			String tgtFile = String.format(AppConstants.file_storage_format, attachment.getAttachmentId(), crID,
+					attachment.getAttachmentName());
+			String tgtPath = getStorageFilePath(attachment, crID);
+			if (!tgtFile.equalsIgnoreCase(filePath.getFileName().toString())) {
+				if (copyFile(filePath.toString(), tgtPath)) {
+					return Paths.get(tgtPath);
+				}
+			}
+		}
+		return filePath;
+	}
+
+	private Path doDBCorrection(ContactReportAttachment attachment, Path fpath) throws IOException {
 		String prmFpath = getPathStr(Utils.getAppProperty("permanent.file.storage.location"));
 		String tmpFpath = getPathStr(Utils.getAppProperty("temp.file.storage.location"));
 		boolean foundInTmp = fpath.startsWith(tmpFpath);
+		Path retPath = fpath;
 		if (attachment.getAttachmentId() == 0) {
 			// The Contact Report has not been saved yet
 			if (foundInTmp) {
@@ -330,13 +377,16 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 				// It will automatically get updated when
 				// saving CR
 				attachment.setAttachmentPath(fpath.getFileName().toString());
+				retPath = fpath;
 			} else {
 				// COPY file from storage to tmp
 				// DO NOT MOVE
 				String tgtFName = getTemporaryFileName(fpath.getFileName().toString());
-				String tgtPath = getTemporaryFilePath(tgtFName);
-				Files.copy(fpath, Paths.get(tgtPath), StandardCopyOption.REPLACE_EXISTING);
+				String tgtPathName = getTemporaryFilePath(tgtFName);
+				Path tgtPath = Paths.get(tgtPathName);
+				Files.copy(fpath, tgtPath, StandardCopyOption.REPLACE_EXISTING);
 				attachment.setAttachmentPath(tgtFName);
+				retPath = tgtPath;
 			}
 		} else {
 			// Contact Report has been saved and
@@ -347,23 +397,33 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 				// Update attachmentPath
 				Path srcPath = fpath;
 				String crID = Long.toString(attachment.getContactReport().getContactReportId());
-				String tgtPath = getStorageFilePath( attachment, crID);
-				Files.copy(srcPath, Paths.get(tgtPath), StandardCopyOption.REPLACE_EXISTING);
-				attachment.setAttachmentPath(tgtPath);
-			}
-			else {
-				//Update attachmentPath
-				attachment.setAttachmentPath(fpath.toString());
+				String tgtPathName = getStorageFilePath(attachment, crID);
+				Path tgtPath = Paths.get(tgtPathName);
+				Files.copy(srcPath, tgtPath, StandardCopyOption.REPLACE_EXISTING);
+				attachment.setAttachmentPath(tgtPathName);
+				retPath = tgtPath;
+			} else {
+				Path copiedPath = checkFileNameCopy(attachment, fpath);
+				// Update attachmentPath
+				attachment.setAttachmentPath(copiedPath.toString());
+				retPath = copiedPath;
 			}
 			// Update DB
-			attachmentRepository.save(attachment);
+			updateAttachmentRecord(attachment);
 		}
+		return retPath;
+	}
 
+	private boolean updateAttachmentRecord(ContactReportAttachment attachment) {
+		boolean rv = false;
+		attachment.setStatus(attachment.getStatus() | AppConstants.StatusDBUpdated);
+		attachmentRepository.save(attachment);
+		return rv;
 	}
 
 	private Optional<Path> findFile(String fnm, Path folder) {
 		try (Stream<Path> allFiles = Files.list(folder)) {
-			return allFiles.filter(fp -> fp.getFileName().toString().equalsIgnoreCase(fnm)).findFirst();
+			return allFiles.filter(fp -> fp.getFileName().toString().endsWith(fnm)).findFirst();
 		} catch (IOException e) {
 			log.error("ERROR retrieving list of files from " + folder.toString(), e);
 		}

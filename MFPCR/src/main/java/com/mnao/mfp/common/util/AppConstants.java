@@ -111,6 +111,7 @@ public class AppConstants {
 	public static final int StatusSubmit = 1;
 	public static final int StatusDeleted = 2;
 	public static final int StatusDraft = 0;
+	public static final int StatusDBUpdated = 4;
 	public static final String file_storage_format = "%s_%s_%s";
 	public static final String LOCALDATE_FORMAT = "yyyy-MM-dd";
 	public static final String DISPLAYDATE_FORMAT = "MM-dd-yyyy";
