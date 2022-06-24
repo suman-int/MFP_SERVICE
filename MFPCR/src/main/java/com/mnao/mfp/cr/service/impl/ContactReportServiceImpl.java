@@ -171,6 +171,10 @@ public class ContactReportServiceImpl implements ContactReportService {
 					.collect(Collectors.toList()));
 			addRemoveDealerPersonnel(report, reportInfo);
 			duplicateAttachmentChecker(report.getAttachment());
+			/**
+			 * CHECK FOR LAST UPDATE TS AS RECORD MAY HAVE BEEN UPDATED WHILE CORRECTING
+			 * ATTACHMENT LOCATION OR DELETION - SANDIP 24-JUN-2022
+			 **/
 
 			// Need to check for Additions and Deletions here as well
 			if (!CollectionUtils.isEmpty(report.getAttachment())) {
@@ -392,8 +396,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 		if (!mfpUser.getUserid().trim().equalsIgnoreCase(reportInfo.getContactAuthor())) {
 			ListPersonnel lemp = allEmployeesCache.getByWSLCd(mfpUser.getUserid());
 			if (!lemp.isCorporatePerson()) {
-				if (!mfpUser.getEmployeeNumber().trim()
-						.equalsIgnoreCase(reportInfo.getContactReviewer().trim())) {
+				if (!mfpUser.getEmployeeNumber().trim().equalsIgnoreCase(reportInfo.getContactReviewer().trim())) {
 					throw new Exception("You are not authorized to modify this report.");
 				}
 			}
@@ -408,7 +411,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 			reportInfo.setIsActive(IsActiveEnum.NO.getValue());
 			contactInfoRepository.save(reportInfo);
 			submission = "Report removed successfully";
-			
+
 		}
 		return submission;
 	}
@@ -420,20 +423,17 @@ public class ContactReportServiceImpl implements ContactReportService {
 			if ("sales".equalsIgnoreCase(val)) {
 				List<String> salesList = AppConstants.SALES_TOPIC_LIST;
 				Collections.sort(salesList);
-				topicList.add(ContactReportTopicDto.builder().groupName("Sales").topics(salesList)
-						.build());
+				topicList.add(ContactReportTopicDto.builder().groupName("Sales").topics(salesList).build());
 			}
 			if ("service".equalsIgnoreCase(val)) {
 				List<String> serviceList = AppConstants.SERVICE_TOPIC_LIST;
 				Collections.sort(serviceList);
-				topicList.add(ContactReportTopicDto.builder().groupName("After Sales")
-						.topics(serviceList).build());
+				topicList.add(ContactReportTopicDto.builder().groupName("After Sales").topics(serviceList).build());
 			}
 			if ("other".equalsIgnoreCase(val)) {
 				List<String> otherList = AppConstants.OTHER_TOPIC_LIST;
 				Collections.sort(otherList);
-				topicList.add(ContactReportTopicDto.builder().groupName("Network").topics(otherList)
-						.build());
+				topicList.add(ContactReportTopicDto.builder().groupName("Network").topics(otherList).build());
 			}
 		});
 		return topicList;
@@ -443,7 +443,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 	private static int compareByUpdatedDate(ContactReportInfo cr, ContactReportInfo cr2) {
 		int rv = new NullCheck<>(cr2).with(ContactReportInfo::getContactDt).orElse(cr2.getCreatedDt())
 				.compareTo(new NullCheck<>(cr).with(ContactReportInfo::getContactDt).orElse(cr.getCreatedDt()));
-		if( rv == 0 ) {
+		if (rv == 0) {
 			rv = new NullCheck<>(cr2).with(ContactReportInfo::getDlrCd).orElse("00000")
 					.compareTo(new NullCheck<>(cr).with(ContactReportInfo::getDlrCd).orElse("00000"));
 		}

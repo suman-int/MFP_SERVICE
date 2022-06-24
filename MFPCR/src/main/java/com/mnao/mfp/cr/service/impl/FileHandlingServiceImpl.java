@@ -7,7 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,6 +36,7 @@ import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.cr.dto.ContactInfoAttachmentDto;
 import com.mnao.mfp.cr.entity.ContactReportAttachment;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
+import com.mnao.mfp.cr.repository.ContactInfoRepository;
 import com.mnao.mfp.cr.repository.ContactReportAttachmentRepository;
 import com.mnao.mfp.cr.service.FileHandlingService;
 
@@ -48,6 +48,9 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 
 	@Autowired
 	ContactReportAttachmentRepository attachmentRepository;
+
+	@Autowired
+	private ContactInfoRepository contactInfoRepository;
 
 	@Override
 	public List<ContactInfoAttachmentDto> doUpload(MultipartFile[] files, HttpServletRequest request) {
@@ -286,7 +289,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 	}
 
 	private Path checkCorrect(ContactReportAttachment attachment, Path filePath) {
-		if (Files.exists(filePath, new LinkOption[0])) {
+		if (Files.exists(filePath)) {
 			return filePath;
 		}
 		String fnm = attachment.getAttachmentName();
