@@ -52,6 +52,12 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 			return preHandlePlain(request, response, arg2);
 	}
 
+	@Override
+	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
+			throws Exception {
+		log.info("COMPLETED REQUEST: " + request.getRequestURI());
+		HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
+	}
 	public boolean preHandlePlain(HttpServletRequest request, HttpServletResponse response, Object arg2)
 			throws Exception {
 		boolean rv = true;
