@@ -172,37 +172,17 @@ public class ContactReportServiceImpl implements ContactReportService {
 			addRemoveDealerPersonnel(report, reportInfo);
 			duplicateAttachmentChecker(report.getAttachment());
 			/**
-			 * CHECK FOR Status AS ATT RECORD MAY HAVE BEEN UPDATED WHILE CORRECTING
+			 * CHECK FOR Status AS ATTCH RECORD MAY HAVE BEEN UPDATED WHILE CORRECTING
 			 * ATTACHMENT LOCATION OR DELETION - SANDIP 24-JUN-2022
 			 **/
 			processAttachments(report, reportInfo);
-			//
-//			// Need to check for Additions and Deletions here as well
-//			if (!CollectionUtils.isEmpty(report.getAttachment())) {
-//				reportInfo.setAttachment(report.getAttachment());
-//			} else {
-//				List<ContactReportAttachment> existingAttachments = reportInfo.getAttachment();
-//				if (!CollectionUtils.isEmpty(existingAttachments)) {
-//					existingAttachments.forEach(att -> att.setIsActive(IsActiveEnum.NO.getValue()));
-//					reportInfo.setAttachment(existingAttachments);
-//				}
-//			}
 			//
 			ContactReportInfo info = contactInfoRepository.save(reportInfo);
 			if (info.getAttachment() != null && info.getAttachment().size() > 0) {
 				fileHandlingService.copyToPermanentLocation(reportInfo);
 				info = contactInfoRepository.save(reportInfo);
 			}
-//			if (report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
-//			if (reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()
-//					|| reportInfo.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()
-//					|| reportInfo.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
-//				fileHandlingService.copyToPermanentLocation(reportInfo);
-//				info = contactInfoRepository.save(reportInfo);
-//			}
-//
-//			ContactReportInfo info = contactInfoRepository.save(reportInfo);
-//
+			//
 			submission = "Saved Success";
 			if (info.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()
 					|| info.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()
@@ -224,17 +204,27 @@ public class ContactReportServiceImpl implements ContactReportService {
 		return submission;
 	}
 
-	private void processAttachments(ContactReportInfoDto report, ContactReportInfo reportInfo) {
-		List<ContactReportAttachment> finalAtts = new ArrayList<>();
-		if ((!CollectionUtils.isEmpty(report.getAttachment())) &&
-				(!CollectionUtils.isEmpty(reportInfo.getAttachment())) ) {
-			Map<Long, ContactReportAttachment> existingAtts = new HashMap<>();
-			Map<Long, ContactReportAttachment> newAtts = new HashMap<>();
-			reportInfo.getAttachment().forEach(att -> existingAtts.put(att.getAttachmentId(), att));
-			report.getAttachment().forEach(att -> newAtts.put(att.getAttachmentId(), att));
-			for (ContactReportAttachment newAtt : report.getAttachment()) {
-				if (existingAtts.containsKey(newAtt.getAttachmentId())) {
-					ContactReportAttachment exAtt = existingAtts.get(newAtt.getAttachmentId());
+	private void processAttachments(ContactReportInfoDto reportDto, ContactReportInfo reportDb) {
+		final List<ContactReportAttachment> finalAtts = new ArrayList<>();
+		if ((!CollectionUtils.isEmpty(reportDto.getAttachment()))
+				&& (!CollectionUtils.isEmpty(reportDb.getAttachment()))) {
+			Map<Long, ContactReportAttachment> dbAtts = new HashMap<>();
+			Map<Long, ContactReportAttachment> uiAtts = new HashMap<>();
+			reportDb.getAttachment().forEach(att -> {
+				if (att.getIsActive().equalsIgnoreCase(IsActiveEnum.YES.getValue()))
+					dbAtts.put(att.getAttachmentId(), att);
+				else
+					finalAtts.add(att);
+			});
+			reportDto.getAttachment().forEach(att -> {
+				if (att.getAttachmentId() == 0)
+					finalAtts.add(att);
+				else
+					uiAtts.put(att.getAttachmentId(), att);
+			});
+			for (ContactReportAttachment newAtt : uiAtts.values()) {
+				if (dbAtts.containsKey(newAtt.getAttachmentId())) {
+					ContactReportAttachment exAtt = dbAtts.get(newAtt.getAttachmentId());
 					ContactReportAttachment fAtt = null;
 					if ((exAtt.getStatus() & AppConstants.StatusDBUpdated) == AppConstants.StatusDBUpdated)
 						fAtt = exAtt;
@@ -248,26 +238,25 @@ public class ContactReportServiceImpl implements ContactReportService {
 				}
 			}
 			// DELETED Attachments
-			for( ContactReportAttachment  existingAtt : reportInfo.getAttachment() ) {
-				if( ! newAtts.containsKey(existingAtt.getAttachmentId()) ) {
+			for (ContactReportAttachment existingAtt : dbAtts.values()) {
+				if (!uiAtts.containsKey(existingAtt.getAttachmentId())) {
 					existingAtt.setIsActive(IsActiveEnum.NO.getValue());
 					finalAtts.add(existingAtt);
 				}
 			}
-		}
-		else {
-			if (!CollectionUtils.isEmpty(report.getAttachment())) {
-				finalAtts = report.getAttachment();
+		} else {
+			if (!CollectionUtils.isEmpty(reportDto.getAttachment())) {
+				finalAtts.addAll(reportDto.getAttachment());
 			} else {
-				List<ContactReportAttachment> existingAttachments = reportInfo.getAttachment();
+				List<ContactReportAttachment> existingAttachments = reportDb.getAttachment();
 				if (!CollectionUtils.isEmpty(existingAttachments)) {
 					existingAttachments.forEach(att -> att.setIsActive(IsActiveEnum.NO.getValue()));
-					finalAtts = existingAttachments;
+					finalAtts.addAll(existingAttachments);
 				}
 			}
-			
+
 		}
-		reportInfo.setAttachment(finalAtts);
+		reportDb.setAttachment(finalAtts);
 	}
 
 	private void addRemoveDealerPersonnel(ContactReportInfoDto report, ContactReportInfo reportInfo) {
