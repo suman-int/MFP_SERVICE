@@ -171,29 +171,18 @@ public class ContactReportServiceImpl implements ContactReportService {
 					.collect(Collectors.toList()));
 			addRemoveDealerPersonnel(report, reportInfo);
 			duplicateAttachmentChecker(report.getAttachment());
-
-			// Need to check for Additions and Deletions here as well
-			if (!CollectionUtils.isEmpty(report.getAttachment())) {
-				reportInfo.setAttachment(report.getAttachment());
-			} else {
-				List<ContactReportAttachment> existingAttachments = reportInfo.getAttachment();
-				if (!CollectionUtils.isEmpty(existingAttachments)) {
-					existingAttachments.forEach(att -> att.setIsActive(IsActiveEnum.NO.getValue()));
-					reportInfo.setAttachment(existingAttachments);
-				}
-			}
+			/**
+			 * CHECK FOR Status AS ATTCH RECORD MAY HAVE BEEN UPDATED WHILE CORRECTING
+			 * ATTACHMENT LOCATION OR DELETION - SANDIP 24-JUN-2022
+			 **/
+			processAttachments(report, reportInfo);
 			//
 			ContactReportInfo info = contactInfoRepository.save(reportInfo);
-//			if (report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
-			if (reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()
-					|| reportInfo.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()
-					|| reportInfo.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
+			if (info.getAttachment() != null && info.getAttachment().size() > 0) {
 				fileHandlingService.copyToPermanentLocation(reportInfo);
 				info = contactInfoRepository.save(reportInfo);
 			}
-//
-//			ContactReportInfo info = contactInfoRepository.save(reportInfo);
-//
+			//
 			submission = "Saved Success";
 			if (info.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()
 					|| info.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()
@@ -213,6 +202,61 @@ public class ContactReportServiceImpl implements ContactReportService {
 			throw new Exception(submission);
 		}
 		return submission;
+	}
+
+	private void processAttachments(ContactReportInfoDto reportDto, ContactReportInfo reportDb) {
+		final List<ContactReportAttachment> finalAtts = new ArrayList<>();
+		if ((!CollectionUtils.isEmpty(reportDto.getAttachment()))
+				&& (!CollectionUtils.isEmpty(reportDb.getAttachment()))) {
+			Map<Long, ContactReportAttachment> dbAtts = new HashMap<>();
+			Map<Long, ContactReportAttachment> uiAtts = new HashMap<>();
+			reportDb.getAttachment().forEach(att -> {
+				if (att.getIsActive().equalsIgnoreCase(IsActiveEnum.YES.getValue()))
+					dbAtts.put(att.getAttachmentId(), att);
+				else
+					finalAtts.add(att);
+			});
+			reportDto.getAttachment().forEach(att -> {
+				if (att.getAttachmentId() == 0)
+					finalAtts.add(att);
+				else
+					uiAtts.put(att.getAttachmentId(), att);
+			});
+			for (ContactReportAttachment newAtt : uiAtts.values()) {
+				if (dbAtts.containsKey(newAtt.getAttachmentId())) {
+					ContactReportAttachment exAtt = dbAtts.get(newAtt.getAttachmentId());
+					ContactReportAttachment fAtt = null;
+					if ((exAtt.getStatus() & AppConstants.StatusDBUpdated) == AppConstants.StatusDBUpdated)
+						fAtt = exAtt;
+					else
+						fAtt = newAtt;
+					if ((fAtt.getStatus() & AppConstants.StatusDBUpdated) == AppConstants.StatusDBUpdated)
+						fAtt.setStatus(fAtt.getStatus() ^ AppConstants.StatusDBUpdated);
+					finalAtts.add(fAtt);
+				} else {
+					finalAtts.add(newAtt);
+				}
+			}
+			// DELETED Attachments
+			for (ContactReportAttachment existingAtt : dbAtts.values()) {
+				if (!uiAtts.containsKey(existingAtt.getAttachmentId())) {
+					existingAtt.setIsActive(IsActiveEnum.NO.getValue());
+					finalAtts.add(existingAtt);
+				}
+			}
+		} else {
+			if (!CollectionUtils.isEmpty(reportDto.getAttachment())) {
+				finalAtts.addAll(reportDto.getAttachment());
+			} else {
+				List<ContactReportAttachment> existingAttachments = reportDb.getAttachment();
+				if (!CollectionUtils.isEmpty(existingAttachments)) {
+					existingAttachments.forEach(att -> att.setIsActive(IsActiveEnum.NO.getValue()));
+					finalAtts.addAll(existingAttachments);
+				}
+			}
+
+		}
+		reportDb.setAttachment(finalAtts);
 	}
 
 	private void addRemoveDealerPersonnel(ContactReportInfoDto report, ContactReportInfo reportInfo) {
@@ -392,8 +436,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 		if (!mfpUser.getUserid().trim().equalsIgnoreCase(reportInfo.getContactAuthor())) {
 			ListPersonnel lemp = allEmployeesCache.getByWSLCd(mfpUser.getUserid());
 			if (!lemp.isCorporatePerson()) {
-				if (!mfpUser.getEmployeeNumber().trim()
-						.equalsIgnoreCase(reportInfo.getContactReviewer().trim())) {
+				if (!mfpUser.getEmployeeNumber().trim().equalsIgnoreCase(reportInfo.getContactReviewer().trim())) {
 					throw new Exception("You are not authorized to modify this report.");
 				}
 			}
@@ -408,7 +451,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 			reportInfo.setIsActive(IsActiveEnum.NO.getValue());
 			contactInfoRepository.save(reportInfo);
 			submission = "Report removed successfully";
-			
+
 		}
 		return submission;
 	}
@@ -420,20 +463,17 @@ public class ContactReportServiceImpl implements ContactReportService {
 			if ("sales".equalsIgnoreCase(val)) {
 				List<String> salesList = AppConstants.SALES_TOPIC_LIST;
 				Collections.sort(salesList);
-				topicList.add(ContactReportTopicDto.builder().groupName("Sales").topics(salesList)
-						.build());
+				topicList.add(ContactReportTopicDto.builder().groupName("Sales").topics(salesList).build());
 			}
 			if ("service".equalsIgnoreCase(val)) {
 				List<String> serviceList = AppConstants.SERVICE_TOPIC_LIST;
 				Collections.sort(serviceList);
-				topicList.add(ContactReportTopicDto.builder().groupName("After Sales")
-						.topics(serviceList).build());
+				topicList.add(ContactReportTopicDto.builder().groupName("After Sales").topics(serviceList).build());
 			}
 			if ("other".equalsIgnoreCase(val)) {
 				List<String> otherList = AppConstants.OTHER_TOPIC_LIST;
 				Collections.sort(otherList);
-				topicList.add(ContactReportTopicDto.builder().groupName("Network").topics(otherList)
-						.build());
+				topicList.add(ContactReportTopicDto.builder().groupName("Network").topics(otherList).build());
 			}
 		});
 		return topicList;
@@ -443,7 +483,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 	private static int compareByUpdatedDate(ContactReportInfo cr, ContactReportInfo cr2) {
 		int rv = new NullCheck<>(cr2).with(ContactReportInfo::getContactDt).orElse(cr2.getCreatedDt())
 				.compareTo(new NullCheck<>(cr).with(ContactReportInfo::getContactDt).orElse(cr.getCreatedDt()));
-		if( rv == 0 ) {
+		if (rv == 0) {
 			rv = new NullCheck<>(cr2).with(ContactReportInfo::getDlrCd).orElse("00000")
 					.compareTo(new NullCheck<>(cr).with(ContactReportInfo::getDlrCd).orElse("00000"));
 		}
