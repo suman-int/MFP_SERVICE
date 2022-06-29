@@ -164,21 +164,23 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 		if (attachments == null)
 			return responsetext;
 		for (ContactReportAttachment attachment : attachments) {
-			if (attachment.getAttachmentPath().startsWith("_TEMP")) {
-				String sourcePath = getTemporaryFilePath(attachment.getAttachmentPath());
-				log.info("Aattachment Temp path {}", sourcePath);
-				if (Paths.get(sourcePath).toFile().exists()) {
-					String destinationPath = getStorageFilePath(attachment, contactReportId);
-					log.info("Aattachment Dest path {}", destinationPath);
-					attachment.setContactReport(report);
-					if (moveFiles(sourcePath, destinationPath)) {
-						attachment.setAttachmentPath(destinationPath);
-						attachment.setStatus(AppConstants.StatusSubmit);
-						// attachmentRepository.save(attachment); // DO NOT SAVE - it will get
-						// automatically saved with CR
-					} else {
-						flag = false;
-						failedSaveAttachments += attachment.getAttachmentName() + " ";
+			if (attachment.getIsActive().equalsIgnoreCase(IsActiveEnum.YES.getValue())) {
+				if (attachment.getAttachmentPath().startsWith("_TEMP")) {
+					String sourcePath = getTemporaryFilePath(attachment.getAttachmentPath());
+					log.info("Aattachment Temp path {}", sourcePath);
+					if (Paths.get(sourcePath).toFile().exists()) {
+						String destinationPath = getStorageFilePath(attachment, contactReportId);
+						log.info("Aattachment Dest path {}", destinationPath);
+						attachment.setContactReport(report);
+						if (moveFiles(sourcePath, destinationPath)) {
+							attachment.setAttachmentPath(destinationPath);
+							attachment.setStatus(AppConstants.StatusSubmit);
+							// attachmentRepository.save(attachment); // DO NOT SAVE - it will get
+							// automatically saved with CR
+						} else {
+							flag = false;
+							failedSaveAttachments += attachment.getAttachmentName() + " ";
+						}
 					}
 				}
 			}

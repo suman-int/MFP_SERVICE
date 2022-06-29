@@ -30,6 +30,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 	private static final String AUTH_REQUEST_URI = "/Auth/";
 	private final boolean useDBDomain;
 	private final boolean useSecJWT;
+	private final boolean useSecJWTCookie;
 	private JwtTokenUtil jwtTokenUtil = null;
 	private AllEmployeesCache allEmployeesCache = null;
 	private UserDetailsService uds = null;
@@ -41,7 +42,9 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 		log.debug("Interceptor Created. Use DB for USer Domain: {}", useDBDomain);
 		propStr = Utils.getAppProperty(AppConstants.USE_JWT_TOKEN_AUTH, "true");
 		useSecJWT = propStr.equalsIgnoreCase("true");
-		log.debug("Using JWT Token for authentication: {}", useSecJWT);
+		propStr = Utils.getAppProperty(AppConstants.USE_JWT_TOKEN_AUTH_COOKIE, "true");
+		useSecJWTCookie = propStr.equalsIgnoreCase("true");
+		log.debug("Using JWT Token for authentication: {} use cookie: {}", useSecJWT, useSecJWTCookie);
 	}
 
 	@Override
@@ -58,6 +61,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 		log.info("COMPLETED REQUEST: " + request.getRequestURI());
 		HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
 	}
+
 	public boolean preHandlePlain(HttpServletRequest request, HttpServletResponse response, Object arg2)
 			throws Exception {
 		boolean rv = true;
@@ -103,7 +107,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 				session.setAttribute("mfpUser", u);
 			}
 		}
-		if( rv ) {
+		if (rv) {
 			log.info("RETURNING TRUE");
 		} else {
 			log.info("RETURNING FALSE");
@@ -124,18 +128,20 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 		final String requestURI = request.getRequestURI();
 		log.debug("URI: " + request.getRequestURI());
 		log.debug("AUTH_HEADER: " + request.getHeader(AppConstants.AUTH_HEADER));
-		Cookie[] cks = request.getCookies();
-		String tok = null;
-		if (cks != null) {
-			for (Cookie ck : cks) {
-				if (AppConstants.AUTH_COOKIE.equalsIgnoreCase(ck.getName())) {
-					tok = ck.getValue();
-					break;
+		String tokInCookie = null;
+		if (useSecJWTCookie) {
+			Cookie[] cks = request.getCookies();
+			if (cks != null) {
+				for (Cookie ck : cks) {
+					if (AppConstants.AUTH_COOKIE.equalsIgnoreCase(ck.getName())) {
+						tokInCookie = ck.getValue();
+						break;
+					}
 				}
 			}
+			log.debug("Cookie MFPUSRTOK: " + tokInCookie);
 		}
 		log.debug("USERID_REQUEST_HEADER: " + request.getHeader(USERID_REQUEST_HEADER));
-		log.debug("Cokie MFPUSRTOK: " + tok);
 		if (requestURI.equals("/error")) {
 			return false;
 		}
@@ -174,18 +180,21 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 				if (requestURI.startsWith(AUTH_REQUEST_URI)) {
 					rv = true;
 					log.info("Forwarding to: " + requestURI);
-				} else if (!validateJwtToken(requestTokenHeader == null ? tok : requestTokenHeader, u)) {
+				} else if ( useSecJWTCookie && (tokInCookie != null ) && (!validateJwtToken(tokInCookie, u)) ) {
 					response.sendError(401, "UNAUTHORISED");
 					log.error("Unauthorised Access");
 					rv = false;
-				}
-				else {
+				} else if ((requestTokenHeader != null) && (!validateJwtToken(requestTokenHeader, u))) {
+					response.sendError(401, "UNAUTHORISED");
+					log.error("Unauthorised Access");
+					rv = false;
+				} else {
 					rv = true;
 					log.info("Forwarding to: " + requestURI);
 				}
 			}
 		}
-		if( rv ) {
+		if (rv) {
 			log.info("RETURNING TRUE");
 		} else {
 			log.info("RETURNING FALSE");
