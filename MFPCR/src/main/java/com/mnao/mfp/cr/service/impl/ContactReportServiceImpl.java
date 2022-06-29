@@ -179,8 +179,8 @@ public class ContactReportServiceImpl implements ContactReportService {
 			//
 			ContactReportInfo info = contactInfoRepository.save(reportInfo);
 			if (info.getAttachment() != null && info.getAttachment().size() > 0) {
-				fileHandlingService.copyToPermanentLocation(reportInfo);
-				info = contactInfoRepository.save(reportInfo);
+				fileHandlingService.copyToPermanentLocation(info);
+				info = contactInfoRepository.save(info);
 			}
 			//
 			submission = "Saved Success";
