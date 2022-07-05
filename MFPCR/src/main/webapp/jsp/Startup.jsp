@@ -47,6 +47,10 @@
 			document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
 		}
 	}
+	//
+	function doReload() {
+		location.reload();
+	}
 </script>
 </head>
 <body>
@@ -56,7 +60,7 @@
 		<br> <br>
 		<input type="button" id="redirect" value="Click to proceed" onClick="doRedirect()" />
 		<br> <br>
-		<input type="button" id="clearCookies" value="Clear all cookies" onClick="deleteAllCookies()" />
+		<input type="button" id="reload" value="document.reload()" onClick="doReload()" />
 	</div>
 </body>
 </html>
