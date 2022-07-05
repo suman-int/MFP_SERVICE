@@ -1,8 +1,6 @@
 package com.mnao.mfp;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
@@ -11,15 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import com.mnao.mfp.common.controller.MFPCommonUserController;
 
 @ServletComponentScan
 @SpringBootApplication
 @EnableScheduling
-public class MFPContactReportsApplication {
+public class MFPContactReportsApplication extends SpringBootServletInitializer {
 	//
 	private static final Logger log = LoggerFactory.getLogger(MFPContactReportsApplication.class);
 	//
@@ -27,6 +25,11 @@ public class MFPContactReportsApplication {
 		checkWarnEnv();
 		SpringApplication.run(MFPContactReportsApplication.class, args);
 	}
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(MFPContactReportsApplication.class);
+    }
+
 
 	private static void checkWarnEnv() {
 		String prof = getActiveProfile();
