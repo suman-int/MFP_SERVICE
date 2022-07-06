@@ -1,7 +1,6 @@
 package com.mnao.mfp.user.interceptors;
 
 import javax.servlet.ServletContext;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -129,18 +128,18 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 		log.debug("URI: " + request.getRequestURI());
 		log.debug("AUTH_HEADER: " + request.getHeader(AppConstants.AUTH_HEADER));
 		String tokInCookie = null;
-		if (useSecJWTCookie) {
-			Cookie[] cks = request.getCookies();
-			if (cks != null) {
-				for (Cookie ck : cks) {
-					if (AppConstants.AUTH_COOKIE.equalsIgnoreCase(ck.getName())) {
-						tokInCookie = ck.getValue();
-						break;
-					}
-				}
-			}
-			log.debug("Cookie MFPUSRTOK: " + tokInCookie);
-		}
+//		if (useSecJWTCookie) {
+//			Cookie[] cks = request.getCookies();
+//			if (cks != null) {
+//				for (Cookie ck : cks) {
+//					if (AppConstants.AUTH_COOKIE.equalsIgnoreCase(ck.getName())) {
+//						tokInCookie = ck.getValue();
+//						break;
+//					}
+//				}
+//			}
+//			log.debug("Cookie MFPUSRTOK: " + tokInCookie);
+//		}
 		log.debug("USERID_REQUEST_HEADER: " + request.getHeader(USERID_REQUEST_HEADER));
 		if (requestURI.equals("/error")) {
 			return false;
@@ -180,7 +179,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 				if (requestURI.startsWith(AUTH_REQUEST_URI)) {
 					rv = true;
 					log.info("Forwarding to: " + requestURI);
-				} else if ( useSecJWTCookie && (tokInCookie != null ) && (!validateJwtToken(tokInCookie, u)) ) {
+				} else if ( !validateJwtToken(tokInCookie, u) ) {
 					response.sendError(401, "UNAUTHORISED");
 					log.error("Unauthorised Access");
 					rv = false;

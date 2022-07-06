@@ -1,6 +1,5 @@
 package com.mnao.mfp.sec.jwt;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -36,13 +35,13 @@ public class JwtAuthController {
 		String token = jwtTokenUtil.generateToken(mfpUser);
 		boolean useCookie = Utils.getAppProperty(AppConstants.USE_JWT_TOKEN_AUTH_COOKIE, "true")
 				.equalsIgnoreCase("true");
-		if (useCookie) {
-			Cookie ck = new Cookie(AppConstants.AUTH_COOKIE, token);
-			ck.setMaxAge(5 * 60 * 60);
-			ck.setPath("/");
-			ck.setHttpOnly(true);
-			response.addCookie(ck);
-		}
+//		if (useCookie) {
+//			Cookie ck = new Cookie(AppConstants.AUTH_COOKIE, token);
+//			ck.setMaxAge(5 * 60 * 60);
+//			ck.setPath("/");
+//			ck.setHttpOnly(true);
+//			response.addCookie(ck);
+//		}
 		log.info("Returning from /Authorize:" + token);
 		return new JwtResponse(token);
 	}
@@ -53,13 +52,13 @@ public class JwtAuthController {
 		String token = jwtTokenUtil.generateToken(mfpUser);
 		boolean useCookie = Utils.getAppProperty(AppConstants.USE_JWT_TOKEN_AUTH_COOKIE, "true")
 				.equalsIgnoreCase("true");
-		if (useCookie) {
-			Cookie ck = new Cookie(AppConstants.AUTH_COOKIE, token);
-			ck.setMaxAge(5 * 60 * 60);
-			ck.setPath("/");
-			ck.setHttpOnly(true);
-			response.addCookie(ck);
-		}
+//		if (useCookie) {
+//			Cookie ck = new Cookie(AppConstants.AUTH_COOKIE, token);
+//			ck.setMaxAge(5 * 60 * 60);
+//			ck.setPath("/");
+//			ck.setHttpOnly(true);
+//			response.addCookie(ck);
+//		}
 		log.info("Returning from /AuthorizeUser:" + token);
 		return new JwtUserTokenResponse(token, mfpUser);
 	}
