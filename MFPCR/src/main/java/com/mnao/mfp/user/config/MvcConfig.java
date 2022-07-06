@@ -6,17 +6,20 @@ import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.servlet.view.JstlView;
 
-import com.mnao.mfp.MFPContactReportsApplication;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.user.interceptors.MFPRequestInterceptor;
 
@@ -28,7 +31,12 @@ public class MvcConfig implements WebMvcConfigurer {
 	//
 	@Autowired
 	ApplicationContext mfpContext;
-
+	//
+	@Value("${spring.mvc.view.prefix}")
+	private String viewPrefix;
+	@Value("${spring.mvc.view.suffix}")
+	private String viewSuffix;
+	//
 	@Override
 	public void addInterceptors(final InterceptorRegistry registry) {
 		registry.addInterceptor(new MFPRequestInterceptor());
@@ -48,4 +56,16 @@ public class MvcConfig implements WebMvcConfigurer {
 		log.debug("new corsFilter() ...");
 		return new CorsFilter(source);
 	}
+	
+	  @Bean
+	  public ViewResolver viewResolver() {
+	    InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+	    viewResolver.setViewClass(JstlView.class);
+//	    viewResolver.setPrefix("/pages/");
+//	    viewResolver.setSuffix(".jsp");
+	    viewResolver.setPrefix(viewPrefix);
+	    viewResolver.setSuffix(viewSuffix);
+	    return viewResolver;
+	  }
+
 }
