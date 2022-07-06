@@ -62,7 +62,6 @@
 			}
 		}
 	}
-
 	function doReload() {
 		document.reload();
 	}
