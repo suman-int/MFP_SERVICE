@@ -63,6 +63,10 @@
 		}
 	}
 	//
+	function doReload() {
+		document.reload();
+	}
+	//
 	if (document.readyState === "complete"
 			|| (document.readyState !== "loading" && !document.documentElement.doScroll)) {
 		callbackOnReady();
@@ -76,11 +80,16 @@
 	<h1>Welcome to Contact Reports,
 		${mfpUser.getFirstName()}&nbsp;${mfpUser.getLastName()}</h1>
 	<div id="mainDiv">
-		<input type="text" style="min-width: 400px" id="txtUrl" /> <br>
-		<br> <input type="button" id="redirect" value="Click to proceed"
-			onClick="doRedirect()" /> <br> <br> <input type="button"
-			id="clearCookies" value="Clear all cookies"
-			onClick="deleteAllCookies()" />
+		<input type="text" style="min-width: 400px" id="txtUrl" />
+		<br>
+		<br> 
+		<input type="button" id="redirect" value="Click to proceed"
+			onClick="doRedirect()" /> 
+		<br> 
+		<br> 
+		<input type="button"
+			id="reload" value="document.reload()"
+			onClick="doReload()" />
 	</div>
 </body>
 </html>
