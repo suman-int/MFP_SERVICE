@@ -179,11 +179,8 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 				if (requestURI.startsWith(AUTH_REQUEST_URI)) {
 					rv = true;
 					log.info("Forwarding to: " + requestURI);
-				} else if ( !validateJwtToken(tokInCookie, u) ) {
-					response.sendError(401, "UNAUTHORISED");
-					log.error("Unauthorised Access");
-					rv = false;
-				} else if ((requestTokenHeader != null) && (!validateJwtToken(requestTokenHeader, u))) {
+				} 
+				else if ((requestTokenHeader != null) && (!validateJwtToken(requestTokenHeader, u))) {
 					response.sendError(401, "UNAUTHORISED");
 					log.error("Unauthorised Access");
 					rv = false;
