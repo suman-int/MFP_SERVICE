@@ -45,6 +45,7 @@
 		var txt = document.getElementById("txtUrl");
 		var tgt = txt.value;
 		if (tgt && tgt.trim().length > 0) {
+			deleteAllCookies();
 			location.replace(tgt);
 		}
 	}
