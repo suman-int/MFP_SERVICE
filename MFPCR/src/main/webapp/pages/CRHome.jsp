@@ -66,7 +66,7 @@
 	}
 	//
 	function doReload() {
-		document.reload();
+		location.reload();
 	}
 	//
 	if (document.readyState === "complete"
