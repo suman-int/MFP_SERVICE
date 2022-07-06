@@ -19,6 +19,17 @@
 		}
 		var txt = document.getElementById("txtUrl");
 		txt.value = crUrl;
+		// Look at arguments
+		const queryString = window.location.search;
+		console.log(queryString);
+		const urlParams = new URLSearchParams(queryString);
+		if( urlParams.has('waitms')) {
+			const wms = urlParams.get('waitms')
+			console.log("Reloading in " + wms + " ms.");
+			if( wms > 0 ) {
+				setTimeout(doRedirect(), wms);
+			}
+		}
 	};
 
 	if (document.readyState === "complete"
