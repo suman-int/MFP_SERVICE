@@ -152,9 +152,9 @@ public class EmailService extends MfpKPIControllerBase {
 		sb.append(bodyStr);
 		sb.append("<br><br>");
 		String refUrl = Utils.getAppProperty(AppConstants.VIEW_CONTACT_REPORT_URL);
-		if (!refUrl.endsWith("/%d"))
-			refUrl += "/%d";
-		refUrl = String.format(refUrl, report.getContactReportId());
+//		if (!refUrl.endsWith("/%d"))
+//			refUrl += "/%d";
+		refUrl = refUrl + report.getContactReportId();
 		sb.append("<a href=\"" + refUrl + "\">");
 		sb.append(dealerName);
 		sb.append(" - ");
