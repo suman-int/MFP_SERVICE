@@ -92,6 +92,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 					if (!lemp.isCorporatePerson()) {
 						if (!mfpUser.getEmployeeNumber().trim()
 								.equalsIgnoreCase(reportInfo.getContactReviewer().trim())) {
+							submission = "You are not authorized to modify this report.";
 							throw new Exception("You are not authorized to modify this report.");
 						}
 					}
@@ -198,7 +199,8 @@ public class ContactReportServiceImpl implements ContactReportService {
 			}
 		} catch (Exception e) {
 			log.error("", e);
-			submission = "Failed to save Contact Report. " + e.getMessage();
+			String emsg = e.getMessage();
+			submission += " Failed to save Contact Report. " + ((emsg == null) ? "" : emsg);
 			throw new Exception(submission);
 		}
 		return submission;
