@@ -11,16 +11,14 @@ import org.springframework.stereotype.Service;
 
 import com.lowagie.text.DocumentException;
 import com.mnao.mfp.common.datafilters.FilterCriteria;
-import com.mnao.mfp.common.util.AppConstants;
-import com.mnao.mfp.common.util.Utils;
-import com.mnao.mfp.sync.CRSyncDealers.RunSyncTask;
-import com.mnao.mfp.sync.CRSyncDealers.TimeOutTask;
 import com.mnao.mfp.user.dao.MFPUser;
 
 @Service
 public class BackgroundExecService {
 
 	private static final Logger log = LoggerFactory.getLogger(BackgroundExecService.class);
+	
+	private static final long TIMEOUT_MS = 60 * 60 * 1000 ;
 
 	public enum ExportType {
 		UNKOWN, PDF, EXCEL
@@ -73,13 +71,13 @@ public class BackgroundExecService {
 		}
 	}
 	
-	public void startBackgroundExport() {
-			Thread thread = new Thread(new RunSyncTask());
+	public void startBackgroundExport(FilterCriteria filter, MFPUser mfpUser, ExportType exportType) {
+			Thread thread = new Thread(new RunGenerateBulkExport(filter, mfpUser, exportType));
 			thread.start();
 
 			Timer timer = new Timer();
 			TimeOutTask timeOutTask = new TimeOutTask(thread, timer);
-			timer.schedule(timeOutTask, timeoutms);
+			timer.schedule(timeOutTask, TIMEOUT_MS);
 	}
 
 
