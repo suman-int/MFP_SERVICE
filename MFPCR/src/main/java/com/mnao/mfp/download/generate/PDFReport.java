@@ -1,4 +1,4 @@
-package com.mnao.mfp.pdf.generate;
+package com.mnao.mfp.download.generate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

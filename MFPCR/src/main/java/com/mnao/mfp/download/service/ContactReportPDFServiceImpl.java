@@ -1,29 +1,4 @@
-package com.mnao.mfp.pdf.service;
-
-import com.lowagie.text.DocumentException;
-import com.mnao.mfp.common.datafilters.FilterCriteria;
-import com.mnao.mfp.common.util.IsActiveEnum;
-import com.mnao.mfp.cr.entity.ContactReportInfo;
-import com.mnao.mfp.cr.repository.ContactInfoRepository;
-import com.mnao.mfp.cr.service.ContactReportSummaryService;
-import com.mnao.mfp.cr.service.impl.ContactInfoServiceImpl;
-import com.mnao.mfp.cr.util.ContactReportEnum;
-import com.mnao.mfp.cr.util.DataOperationFilter;
-import com.mnao.mfp.pdf.util.PdfGenerateUtil;
-import com.mnao.mfp.user.dao.MFPUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
-import javax.servlet.http.HttpServletRequest;
+package com.mnao.mfp.download.service;
 
 import static com.mnao.mfp.common.util.Utils.isNotNullOrEmpty;
 
@@ -39,6 +14,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import com.lowagie.text.DocumentException;
+import com.mnao.mfp.common.datafilters.FilterCriteria;
+import com.mnao.mfp.common.util.IsActiveEnum;
+import com.mnao.mfp.cr.entity.ContactReportInfo;
+import com.mnao.mfp.cr.repository.ContactInfoRepository;
+import com.mnao.mfp.cr.util.ContactReportEnum;
+import com.mnao.mfp.cr.util.DataOperationFilter;
+import com.mnao.mfp.download.util.PdfGenerateUtil;
+import com.mnao.mfp.user.dao.MFPUser;
 
 @Service
 public class ContactReportPDFServiceImpl implements ContactReportPDFService {
@@ -63,6 +62,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 	@Override
 	public ResponseEntity<Resource> createBulkPdfByFilterCriteria(FilterCriteria filter, MFPUser mfpUser,
 			HttpServletRequest request) throws DocumentException, FileNotFoundException, IOException {
+		// TO GO TO BACKGROUND
 		List<ContactReportInfo> contactReports = contactInfoRepository.findByIsActive(IsActiveEnum.YES.getValue());
 		contactReports = contactReports.stream()
 				.filter(cr -> cr.getContactStatus() != ContactReportEnum.DRAFT.getStatusCode())
@@ -101,7 +101,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 			}
 		});
 		Path outputPath = neoService.getTmpFilePath(mfpUser, "contact_report_", "_FINAL_BULK_", ".pdf");
-		neoService.doMerge(multiplePdf, new FileOutputStream(outputPath.toFile()));
+		PdfNeoService.doMerge(multiplePdf, new FileOutputStream(outputPath.toFile()));
 //		PDFService service = new PDFService();
 //		Resource pdfRes = service.createBulkPDFResource(mfpUser, contactReports);
 		Resource pdfRes = new UrlResource(outputPath.toUri());
@@ -124,6 +124,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 		}
 	}
 
+	// TO GO TO BACKGROUND
 	@Override
 	public ResponseEntity<Resource> createBulkExcelReportByFilterCriteria(FilterCriteria filter, MFPUser mfpUser,
 			HttpServletRequest request) {

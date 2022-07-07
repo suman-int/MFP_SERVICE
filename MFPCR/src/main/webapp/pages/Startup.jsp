@@ -16,12 +16,17 @@
 			var pthPrefix = pth.substr(0,6)
 			crUrl = location.protocol + "//" + hst + pthPrefix + "mfpwebui";
 		}
-		var txt = document.getElementById("txtUrl");
-		txt.value = crUrl;
 		// Look at arguments
 		const queryString = window.location.search;
 		console.log(queryString);
 		const urlParams = new URLSearchParams(queryString);
+		if( urlParams.has('viewCR')) {
+			var viewCR = urlParams.get('viewCR')
+			viewCR = viewCR.replace(/_/g, '/');
+			crUrl += '/' + viewCR;
+		}
+		var txt = document.getElementById("txtUrl");
+		txt.value = crUrl;
 		if( urlParams.has('waitms')) {
 			const wms = urlParams.get('waitms')
 			autoReload(wms);

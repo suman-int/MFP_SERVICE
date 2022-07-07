@@ -1,4 +1,4 @@
-package com.mnao.mfp.pdf.dao;
+package com.mnao.mfp.download.dao;
 
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;

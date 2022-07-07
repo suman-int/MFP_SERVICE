@@ -1,4 +1,4 @@
-package com.mnao.mfp.pdf.generate;
+package com.mnao.mfp.download.generate;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -20,10 +20,10 @@ import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.util.ContactReportEnum;
+import com.mnao.mfp.download.dao.DealerEmployeeInfo;
+import com.mnao.mfp.download.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.list.cache.AllEmployeesCache;
 import com.mnao.mfp.list.dao.ListPersonnel;
-import com.mnao.mfp.pdf.dao.DealerEmployeeInfo;
-import com.mnao.mfp.pdf.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.user.dao.MFPUser;
 
 public class PDFCRMain {
