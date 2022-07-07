@@ -199,8 +199,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 			}
 		} catch (Exception e) {
 			log.error("", e);
-			String emsg = e.getMessage();
-			submission += " Failed to save Contact Report. " + ((emsg == null) ? "" : emsg);
+			submission = "Failed to save Contact Report." ;
 			throw new Exception(submission);
 		}
 		return submission;
