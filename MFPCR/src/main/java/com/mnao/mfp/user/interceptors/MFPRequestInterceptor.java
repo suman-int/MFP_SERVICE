@@ -127,7 +127,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 		final String requestURI = request.getRequestURI();
 		log.debug("URI: " + request.getRequestURI());
 		log.debug("AUTH_HEADER: " + request.getHeader(AppConstants.AUTH_HEADER));
-		String tokInCookie = null;
+//		String tokInCookie = null;
 //		if (useSecJWTCookie) {
 //			Cookie[] cks = request.getCookies();
 //			if (cks != null) {

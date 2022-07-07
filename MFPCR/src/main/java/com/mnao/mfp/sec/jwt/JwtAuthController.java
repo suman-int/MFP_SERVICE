@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.mnao.mfp.common.util.AppConstants;
-import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.user.controller.MFPUserController;
 import com.mnao.mfp.user.dao.MFPUser;
 
@@ -33,8 +31,8 @@ public class JwtAuthController {
 	@RequestMapping(value = "/Authorize", method = { RequestMethod.GET, RequestMethod.POST })
 	public JwtResponse authorize(@SessionAttribute(name = "mfpUser") MFPUser mfpUser, HttpServletResponse response) {
 		String token = jwtTokenUtil.generateToken(mfpUser);
-		boolean useCookie = Utils.getAppProperty(AppConstants.USE_JWT_TOKEN_AUTH_COOKIE, "true")
-				.equalsIgnoreCase("true");
+//		boolean useCookie = Utils.getAppProperty(AppConstants.USE_JWT_TOKEN_AUTH_COOKIE, "true")
+//				.equalsIgnoreCase("true");
 //		if (useCookie) {
 //			Cookie ck = new Cookie(AppConstants.AUTH_COOKIE, token);
 //			ck.setMaxAge(5 * 60 * 60);
@@ -50,8 +48,8 @@ public class JwtAuthController {
 	public JwtUserTokenResponse authorizeUser(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,
 			HttpServletResponse response) {
 		String token = jwtTokenUtil.generateToken(mfpUser);
-		boolean useCookie = Utils.getAppProperty(AppConstants.USE_JWT_TOKEN_AUTH_COOKIE, "true")
-				.equalsIgnoreCase("true");
+//		boolean useCookie = Utils.getAppProperty(AppConstants.USE_JWT_TOKEN_AUTH_COOKIE, "true")
+//				.equalsIgnoreCase("true");
 //		if (useCookie) {
 //			Cookie ck = new Cookie(AppConstants.AUTH_COOKIE, token);
 //			ck.setMaxAge(5 * 60 * 60);
