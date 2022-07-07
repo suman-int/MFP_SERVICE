@@ -62,6 +62,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 	@Override
 	public ResponseEntity<Resource> createBulkPdfByFilterCriteria(FilterCriteria filter, MFPUser mfpUser,
 			HttpServletRequest request) throws DocumentException, FileNotFoundException, IOException {
+		// TO GO TO BACKGROUND
 		List<ContactReportInfo> contactReports = contactInfoRepository.findByIsActive(IsActiveEnum.YES.getValue());
 		contactReports = contactReports.stream()
 				.filter(cr -> cr.getContactStatus() != ContactReportEnum.DRAFT.getStatusCode())
@@ -123,6 +124,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 		}
 	}
 
+	// TO GO TO BACKGROUND
 	@Override
 	public ResponseEntity<Resource> createBulkExcelReportByFilterCriteria(FilterCriteria filter, MFPUser mfpUser,
 			HttpServletRequest request) {
