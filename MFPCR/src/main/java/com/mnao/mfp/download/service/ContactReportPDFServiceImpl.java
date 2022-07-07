@@ -60,6 +60,13 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 	PDFService pdfService;
 
 	@Override
+	public void createBulkPdfByFilterCriteria(FilterCriteria filterCriteria, MFPUser mfpUser)
+			throws DocumentException, FileNotFoundException, IOException {
+		// TODO Auto-generated method stub
+		return ;
+	}
+
+	@Override
 	public ResponseEntity<Resource> createBulkPdfByFilterCriteria(FilterCriteria filter, MFPUser mfpUser,
 			HttpServletRequest request) throws DocumentException, FileNotFoundException, IOException {
 		// TO GO TO BACKGROUND
@@ -124,6 +131,13 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 		}
 	}
 
+	@Override
+	public void createBulkExcelReportByFilterCriteria(FilterCriteria filterCriteria,
+			MFPUser mfpUser) {
+		// TODO Auto-generated method stub
+		return;
+	}
+
 	// TO GO TO BACKGROUND
 	@Override
 	public ResponseEntity<Resource> createBulkExcelReportByFilterCriteria(FilterCriteria filter, MFPUser mfpUser,
@@ -174,4 +188,5 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 		newList.add(report);
 		return generatePdfByReports(newList, mfpUser, request);
 	}
+
 }
