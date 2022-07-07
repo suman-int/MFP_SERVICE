@@ -1,13 +1,13 @@
-package com.mnao.mfp.pdf.controller;
+package com.mnao.mfp.download.controller;
 
 import com.mnao.mfp.common.controller.MfpKPIControllerBase;
 import com.mnao.mfp.common.datafilters.FilterCriteria;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.service.ContactReportSummaryService;
-import com.mnao.mfp.pdf.service.ContactReportPDFService;
-import com.mnao.mfp.pdf.service.PDFService;
 import com.mnao.mfp.cr.service.impl.ContactInfoServiceImpl;
 import com.mnao.mfp.cr.util.FilterCriteriaBuilder;
+import com.mnao.mfp.download.service.ContactReportPDFService;
+import com.mnao.mfp.download.service.PDFService;
 import com.mnao.mfp.user.dao.MFPUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

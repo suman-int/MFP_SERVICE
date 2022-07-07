@@ -1,4 +1,4 @@
-package com.mnao.mfp.pdf.service;
+package com.mnao.mfp.download.service;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -11,8 +11,8 @@ import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;
-import com.mnao.mfp.pdf.dao.DealerEmployeeInfo;
-import com.mnao.mfp.pdf.dao.ReviewerEmployeeInfo;
+import com.mnao.mfp.download.dao.DealerEmployeeInfo;
+import com.mnao.mfp.download.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.user.dao.MFPUser;
 
 public interface PDFService {

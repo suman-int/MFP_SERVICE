@@ -1,4 +1,4 @@
-package com.mnao.mfp.pdf.service;
+package com.mnao.mfp.download.service;
 
 import com.lowagie.text.DocumentException;
 import com.mnao.mfp.common.datafilters.FilterCriteria;

@@ -1,4 +1,4 @@
-package com.mnao.mfp.pdf.service;
+package com.mnao.mfp.download.service;
 
 import com.lowagie.text.DocumentException;
 import com.mnao.mfp.common.datafilters.FilterCriteria;
@@ -9,7 +9,7 @@ import com.mnao.mfp.cr.service.ContactReportSummaryService;
 import com.mnao.mfp.cr.service.impl.ContactInfoServiceImpl;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.cr.util.DataOperationFilter;
-import com.mnao.mfp.pdf.util.PdfGenerateUtil;
+import com.mnao.mfp.download.util.PdfGenerateUtil;
 import com.mnao.mfp.user.dao.MFPUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
