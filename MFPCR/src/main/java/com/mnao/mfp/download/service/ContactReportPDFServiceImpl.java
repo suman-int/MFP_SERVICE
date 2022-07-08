@@ -184,12 +184,14 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 		Path fileName = null;
 		try {
 			fileName = createBulkPdfByFilterCriteria(filterCriteria, mfpUser);
-			emailFileAttachment(mfpUser, fileName);
+			String resp = emailFileAttachment(mfpUser, fileName);
+			log.info(resp);
 		} catch (DocumentException | IOException | MessagingException e) {
 			Path filePath = pdfService.getTmpFilePath(mfpUser, "ERROR_", "PDFConversion", ".txt");
 			try {
 				Files.write(filePath, Arrays.toString(e.getStackTrace()).getBytes(), StandardOpenOption.WRITE);
-				emailFileAttachment(mfpUser, filePath);
+				String resp = emailFileAttachment(mfpUser, filePath);
+				log.info(resp);
 			} catch (IOException | MessagingException e1) {
 				log.error("", e1);
 			}
@@ -205,7 +207,8 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 	public Path emailBulkExcelReportByFilterCriteria(FilterCriteria filterCriteria, MFPUser mfpUser) {
 		Path fileName = createBulkExcelReportByFilterCriteria(filterCriteria, mfpUser);
 		try {
-			emailFileAttachment(mfpUser, fileName);
+			String resp = emailFileAttachment(mfpUser, fileName);
+			log.info(resp);
 		} catch (MessagingException e) {
 			log.error("ERROR sending email to " + mfpUser.getEmail() + " with attachment " + fileName.toString(), e);
 		}
@@ -214,6 +217,9 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 
 	public String emailFileAttachment(MFPUser mfpUser, Path filePath) throws MessagingException {
 		String resp = "OK";
+		if( filePath == null ) {
+			return "NO File Created!";
+		}
 		EMazdamailsender objEMazdamailsender = new EMazdamailsender();
 		objEMazdamailsender.set_mimeType("text/html");
 		String emailFrom = Utils.getAppProperty(AppConstants.REVIEW_MAIL_FROM);
