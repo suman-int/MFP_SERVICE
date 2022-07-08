@@ -28,16 +28,22 @@ package com.mnao.mfp.email;
  *  <B>Change history:</B>
  * 
  */
-import javax.mail.*;
-import javax.mail.internet.*;
-import com.mnao.mfp.list.controller.ListController;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EMazdamail
 {
-	private static final Logger log = LoggerFactory.getLogger(ListController.class);
+	private static final Logger log = LoggerFactory.getLogger(EMazdamail.class);
     
     private java.lang.String _mimeType = "text/plain";
     private String DEFAULT_SMTPHOST = "smtp";

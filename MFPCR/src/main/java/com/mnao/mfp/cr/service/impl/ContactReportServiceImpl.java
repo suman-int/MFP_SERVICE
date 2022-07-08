@@ -13,7 +13,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.mail.MessagingException;
-import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -429,7 +428,6 @@ public class ContactReportServiceImpl implements ContactReportService {
 	}
 
 	@Override
-	@Transactional
 	public String deleteReportById(long contactReportId, MFPUser mfpUser) throws Exception {
 		final int contactStatus = ContactReportEnum.DRAFT.getStatusCode(); // contactStatus 0 makes sure that the report
 		String submission = "We have ran into some issues, please try again!";

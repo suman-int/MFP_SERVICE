@@ -22,13 +22,10 @@ import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.cr.repository.DealerRepository;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.download.dao.DealerEmployeeInfo;
-import com.mnao.mfp.download.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.download.service.PDFService;
 import com.mnao.mfp.list.cache.AllEmployeesCache;
 import com.mnao.mfp.list.dao.ListPersonnel;
-import com.mnao.mfp.sync.SyncDLR;
 import com.mnao.mfp.user.dao.MFPUser;
-import com.mnao.mfp.user.service.UserDetailsService;
 
 @Component
 public class PdfGenerateUtil {
@@ -332,8 +329,21 @@ public class PdfGenerateUtil {
 	}
 
 	private String getAuthorUser(MFPUser mfpUser, String contactAuthor) {
-		UserDetailsService uds = new UserDetailsService();
-		MFPUser musr = uds.getMFPUser(contactAuthor);
+		ListPersonnel auth = allEmpCache.getByWSLCd(contactAuthor);
+		if( auth != null ) {
+			if( (auth.getJobTitleFx() != null) && auth.getJobTitleFx().trim().length() > 0) {
+			return String.format("%s, %s", Utils.getNameString(auth.getFirstNm(), auth.getLastNm()),
+					auth.getJobTitleFx());
+			} else {
+				return String.format("%s", Utils.getNameString(auth.getFirstNm(), auth.getLastNm()));
+			}
+		} else {
+			return getAuthorUserUDS(mfpUser, contactAuthor);
+		}
+	}
+
+	private String getAuthorUserUDS(MFPUser mfpUser, String contactAuthor) {
+		MFPUser musr = pdfService.getUDSUser(contactAuthor);
 		if (new NullCheck<MFPUser>(musr).with(MFPUser::getTitle).isNotNullOrEmpty()) {
 			return String.format("%s, %s", Utils.getNameString(musr.getFirstName(), musr.getLastName()),
 					musr.getTitle());
@@ -341,71 +351,7 @@ public class PdfGenerateUtil {
 			return String.format("%s", Utils.getNameString(musr.getFirstName(), musr.getLastName()));
 		}
 	}
-
 //
-//	private ReviewerEmployeeInfo getReviewerEmployeeInfos(MFPUser mfpUser, String contactReviewer, DealerInfo dInfo) {
-//		ReviewerEmployeeInfo revEmp = null;
-//		if (contactReviewer != null) {
-//			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEES);
-//			MMAListService<ReviewerEmployeeInfo> service = new MMAListService<ReviewerEmployeeInfo>();
-//			List<ReviewerEmployeeInfo> retRows = null;
-//			DealerFilter df = new DealerFilter(mfpUser, null, mfpUser.getRgnCd(), null, null, null);
-//			try {
-//				retRows = service.getListData(sqlName, ReviewerEmployeeInfo.class, df, dInfo.getRgnCd(), dInfo.getZoneCd());
-//			} catch (InstantiationException | IllegalAccessException | ParseException e) {
-//				log.error("ERROR retrieving list of Employees:", e);
-//			}
-//			if ((retRows != null) && retRows.size() > 0) {
-//				revEmp = getReviewerEmployeeInfo(retRows, contactReviewer);
-//			}
-//		}
-//		return revEmp;
-//	}
 //
-//	private ReviewerEmployeeInfo getReviewerEmployeeInfo(List<ReviewerEmployeeInfo> retRows, String contactReviewer) {
-//		for (int i = 0; i < retRows.size(); i++) {
-//			ReviewerEmployeeInfo rei = retRows.get(i);
-//			if (rei.getPrsnIdCd().equals(contactReviewer)) {
-//				return rei;
-//			}
-//		}
-//		return null;
-//	}
-//
-//	private List<DealerEmployeeInfo> getDealerEmployeeInfos(MFPUser mfpUser, String dlrCd,
-//			List<ContactReportDealerPersonnel> dPers) {
-//		List<DealerEmployeeInfo> dEmpInfos = new ArrayList<DealerEmployeeInfo>();
-//		if (dPers != null) {
-//			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALER_EMPLOYEES);
-//			MMAListService<DealerEmployeeInfo> service = new MMAListService<DealerEmployeeInfo>();
-//			List<DealerEmployeeInfo> retRows = null;
-//			DealerFilter df = new DealerFilter(mfpUser, dlrCd, null, null, null, null);
-//			try {
-//				retRows = service.getListData(sqlName, DealerEmployeeInfo.class, df, dlrCd);
-//			} catch (InstantiationException | IllegalAccessException | ParseException e) {
-//				log.error("ERROR retrieving list of Employees:", e);
-//			}
-//			if ((retRows != null) && retRows.size() > 0) {
-//				for (ContactReportDealerPersonnel dp : dPers) {
-//					DealerEmployeeInfo dei = getDealerEmployeeInfo(retRows, dp);
-//					if (dei != null) {
-//						dEmpInfos.add(dei);
-//					}
-//				}
-//			}
-//		}
-//		return dEmpInfos;
-//	}
-//
-//	private DealerEmployeeInfo getDealerEmployeeInfo(List<DealerEmployeeInfo> retRows,
-//			ContactReportDealerPersonnel dp) {
-//		for (int i = 0; i < retRows.size(); i++) {
-//			DealerEmployeeInfo dei = retRows.get(i);
-//			if (dei.getPrsnIdCd().equals(dp.getPersonnelIdCd())) {
-//				return dei;
-//			}
-//		}
-//		return null;
-//	}
 
 }
