@@ -223,8 +223,8 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 		EMazdamailsender objEMazdamailsender = new EMazdamailsender();
 		objEMazdamailsender.set_mimeType("text/html");
 		String emailFrom = Utils.getAppProperty(AppConstants.REVIEW_MAIL_FROM);
-		String subject = "Your requested download.";
-		String body = "Please find attached your requested download:" + filePath.getFileName();
+		String subject = "Your requested download from Dealer Contact Report.";
+		String body = "Please find attached your requested download from Dealer Contact Report: " + filePath.getFileName();
 		String emailTo = mfpUser.getEmail();
 		String[] to = new String[] { emailTo };
 		String[] cc = new String[0];
