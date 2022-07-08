@@ -1,6 +1,5 @@
 package com.mnao.mfp.download.service;
 
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -8,12 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.lowagie.text.DocumentException;
 import com.mnao.mfp.common.datafilters.FilterCriteria;
 import com.mnao.mfp.user.dao.MFPUser;
 
 @Service
+@Transactional
 public class BackgroundExecService {
 
 	private static final Logger log = LoggerFactory.getLogger(BackgroundExecService.class);
@@ -43,12 +44,12 @@ public class BackgroundExecService {
 		public void run() {
 			if (this.exportType == ExportType.PDF) {
 				try {
-					contactReportPDFService.createBulkPdfByFilterCriteria(filter, mfpUser);
-				} catch (DocumentException | IOException e) {
+					contactReportPDFService.emailBulkPdfByFilterCriteria(filter, mfpUser);
+				} catch (DocumentException e) {
 					log.error("ERROR executing Bulk PDF in the Background", e);
 				}
 			} else {
-				contactReportPDFService.createBulkExcelReportByFilterCriteria(filter, mfpUser);
+				contactReportPDFService.emailBulkExcelReportByFilterCriteria(filter, mfpUser);
 			}
 		}
 	}

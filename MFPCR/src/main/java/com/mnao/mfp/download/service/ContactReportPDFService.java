@@ -20,11 +20,15 @@ public interface ContactReportPDFService {
 	Path createBulkPdfByFilterCriteria(FilterCriteria filterCriteria, MFPUser mfpUser)
 			throws DocumentException, FileNotFoundException, IOException;
 
+	void emailBulkPdfByFilterCriteria(FilterCriteria filterCriteria, MFPUser mfpUser);
+
 	ResponseEntity<Resource> createBulkPdfByFilterCriteria(FilterCriteria filterCriteria, MFPUser mfpUser,
 			HttpServletRequest request) throws DocumentException, FileNotFoundException, IOException;
 
 	//Bulk XLSX
 	Path createBulkExcelReportByFilterCriteria(FilterCriteria filterCriteria, MFPUser mfpUser);
+
+	Path emailBulkExcelReportByFilterCriteria(FilterCriteria filterCriteria, MFPUser mfpUser);
 
 	ResponseEntity<Resource> createBulkExcelReportByFilterCriteria(FilterCriteria filterCriteria, MFPUser mfpUser,
 			HttpServletRequest request) throws MalformedURLException;

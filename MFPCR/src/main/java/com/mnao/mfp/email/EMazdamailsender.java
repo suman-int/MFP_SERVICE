@@ -45,10 +45,9 @@ import org.slf4j.LoggerFactory;
 
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.Utils;
-import com.mnao.mfp.list.controller.ListController;
 
 public class EMazdamailsender extends EMazdamail {
-	private static final Logger log = LoggerFactory.getLogger(ListController.class);
+	private static final Logger log = LoggerFactory.getLogger(EMazdamailsender.class);
 
 	/**
 	 * This is the only constructor, it loads the properties through property

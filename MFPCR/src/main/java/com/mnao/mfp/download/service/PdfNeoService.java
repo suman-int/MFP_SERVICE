@@ -17,12 +17,11 @@ import org.springframework.stereotype.Component;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfImportedPage;
 import com.lowagie.text.pdf.PdfReader;
-import com.mnao.mfp.common.dao.MetricData;
+import com.lowagie.text.pdf.PdfWriter;
 import com.mnao.mfp.user.dao.MFPUser;
 
 @Component
@@ -65,7 +64,7 @@ public class PdfNeoService {
 	}
 
 	public Path getTmpFilePath(MFPUser mfpUser, String prefix, String postfix, String extn) {
-		logger.info("getTmpFilePath started with {} and {} and {}", prefix, extn);
+		logger.info("getTmpFilePath started with {} and {} and {}", prefix, postfix, extn);
 		String baseFileName = prefix + postfix;
 		Path tmpFilePath = null;
 		File tmpFile = null;
