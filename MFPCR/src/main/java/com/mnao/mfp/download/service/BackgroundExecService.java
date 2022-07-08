@@ -7,14 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.lowagie.text.DocumentException;
 import com.mnao.mfp.common.datafilters.FilterCriteria;
 import com.mnao.mfp.user.dao.MFPUser;
 
 @Service
-@Transactional
 public class BackgroundExecService {
 
 	private static final Logger log = LoggerFactory.getLogger(BackgroundExecService.class);

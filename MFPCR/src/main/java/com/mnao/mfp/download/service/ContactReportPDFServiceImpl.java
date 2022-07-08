@@ -45,7 +45,7 @@ import com.mnao.mfp.email.EMazdamailsender;
 import com.mnao.mfp.user.dao.MFPUser;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 
 	private static final Logger log = LoggerFactory.getLogger(ContactReportPDFServiceImpl.class);
