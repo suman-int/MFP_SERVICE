@@ -8,7 +8,11 @@ import java.nio.file.Path;
 import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.validation.Valid;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -50,10 +54,20 @@ public class PDFServiceImpl extends MfpKPIControllerBase implements PDFService {
 			"Author", "Title", "Create Date", "Submitted Date", "Reviewed Date", "Status" };
 	private static final int[] xlsColWidths = { 5, 5, 5, 60, 50, 50, 20, 12, 30, 25, 12, 12, 12, 20 };
 
+	private Map<String, MFPUser> udsUsers = new HashMap<>();
+
+	//
+	@Override
 	public Resource createPDFResource(MFPUser mfpUser, ContactReportInfo report) {
 		ArrayList<ContactReportInfo> rpts = new ArrayList<ContactReportInfo>();
 		rpts.add(report);
 		return createBulkPDFResource(mfpUser, rpts);
+	}
+
+	@Override
+	public Path createPDFFile(MFPUser mfpUser, @Valid ContactReportInfo report) {
+		Path filePath = null;
+		return filePath;
 	}
 
 	public Resource createBulkPDFResource(MFPUser mfpUser, List<ContactReportInfo> reports) {
@@ -87,27 +101,35 @@ public class PDFServiceImpl extends MfpKPIControllerBase implements PDFService {
 		return resource;
 	}
 
-	public Resource createXLSFResource(MFPUser mfpUser, List<ContactReportInfo> reports) throws Exception {
-		//
-		//
-		Resource resource = null;
+	@Override
+	public Path createXLSXFile(MFPUser mfpUser, List<ContactReportInfo> contactReports) throws Exception {
+		Path fPath = null;
 		try (HSSFWorkbook wkbk = new HSSFWorkbook()) {
 			HSSFSheet sheet = wkbk.createSheet("Contact Report Summary");
 			int row = 0;
 			row = printXLSHeaders(sheet, row);
-			for (ContactReportInfo report : reports) {
+			for (ContactReportInfo report : contactReports) {
 				row = printXLSRow(sheet, row, mfpUser, report);
 			}
 			// Write the workbook in file system
-			Path filePath = getTmpFilePath(mfpUser, "contact_report_summary_", mfpUser.getUserid(), ".xls");
-			FileOutputStream out = new FileOutputStream(filePath.toFile());
+			fPath = getTmpFilePath(mfpUser, "contact_report_summary_", mfpUser.getUserid(), ".xls");
+			FileOutputStream out = new FileOutputStream(fPath.toFile());
 			wkbk.write(out);
 			out.close();
-			resource = new UrlResource(filePath.toUri());
 		} catch (Exception e) {
 			log.error("", e);
 			throw e;
 		}
+		return fPath;
+	}
+
+	@Override
+	public Resource createXLSXResource(MFPUser mfpUser, List<ContactReportInfo> reports) throws Exception {
+		//
+		//
+		Resource resource = null;
+		Path filePath = createXLSXFile(mfpUser, reports);
+		resource = new UrlResource(filePath.toUri());
 		return resource;
 	}
 
@@ -220,6 +242,7 @@ public class PDFServiceImpl extends MfpKPIControllerBase implements PDFService {
 		return true;
 	}
 
+	@Override
 	public Path getTmpFilePath(MFPUser mfpUser, String prefix, String postfix, String extn) {
 		String baseFileName = prefix + postfix;
 		Path tmpFilePath = null;
@@ -235,8 +258,17 @@ public class PDFServiceImpl extends MfpKPIControllerBase implements PDFService {
 	}
 
 	private MFPUser getAuthorUser(MFPUser mfpUser, String contactAuthor) {
-		UserDetailsService uds = new UserDetailsService();
-		MFPUser musr = uds.getMFPUser(contactAuthor);
+		return getUDSUser(contactAuthor);
+	}
+
+	@Override
+	public MFPUser getUDSUser(String wslid) {
+		MFPUser musr = udsUsers.get(wslid);
+		if (musr == null) {
+			UserDetailsService uds = new UserDetailsService();
+			musr = uds.getMFPUser(wslid);
+			udsUsers.put(wslid, musr);
+		}
 		return musr;
 	}
 

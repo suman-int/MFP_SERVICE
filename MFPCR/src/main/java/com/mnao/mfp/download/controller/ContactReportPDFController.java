@@ -1,33 +1,28 @@
 package com.mnao.mfp.download.controller;
 
-import com.mnao.mfp.common.controller.MfpKPIControllerBase;
-import com.mnao.mfp.common.datafilters.FilterCriteria;
-import com.mnao.mfp.cr.entity.ContactReportInfo;
-import com.mnao.mfp.cr.service.ContactReportSummaryService;
-import com.mnao.mfp.cr.service.impl.ContactInfoServiceImpl;
-import com.mnao.mfp.cr.util.FilterCriteriaBuilder;
-import com.mnao.mfp.download.service.ContactReportPDFService;
-import com.mnao.mfp.download.service.PDFService;
-import com.mnao.mfp.user.dao.MFPUser;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttribute;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
-import java.util.List;
+import com.mnao.mfp.common.controller.MfpKPIControllerBase;
+import com.mnao.mfp.common.datafilters.FilterCriteria;
+import com.mnao.mfp.cr.entity.ContactReportInfo;
+import com.mnao.mfp.cr.service.impl.ContactInfoServiceImpl;
+import com.mnao.mfp.cr.util.FilterCriteriaBuilder;
+import com.mnao.mfp.download.service.ContactReportPDFService;
+import com.mnao.mfp.user.dao.MFPUser;
 
 @RestController
 @RequestMapping(value = "/ContactReport")
@@ -40,8 +35,8 @@ public class ContactReportPDFController extends MfpKPIControllerBase {
 	@Autowired
 	ContactReportPDFService contactReportPDFService;
 	
-	@Autowired
-	PDFService prfService;
+//	@Autowired
+//	PDFService prfService;
 
 	@PostMapping(value = "/downloadPDF")
 	public ResponseEntity<Resource> createPDF(@SessionAttribute(name = "mfpUser") MFPUser mfpUser,

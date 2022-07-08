@@ -22,12 +22,18 @@ public interface PDFService {
 	List<DealerEmployeeInfo> getDealerEmployeeInfos(MFPUser mfpUser, String dlrCd,
 			List<ContactReportDealerPersonnel> dPers);
 
-	Resource createXLSFResource(MFPUser mfpUser, List<ContactReportInfo> contactReports) throws Exception;
+	Resource createXLSXResource(MFPUser mfpUser, List<ContactReportInfo> contactReports) throws Exception;
 
 	Resource createPDFResource(MFPUser mfpUser, @Valid ContactReportInfo report);
+
+	Path createXLSXFile(MFPUser mfpUser, List<ContactReportInfo> contactReports) throws Exception;
+
+	Path createPDFFile(MFPUser mfpUser, @Valid ContactReportInfo report);
 
 	Path getTmpFilePath(MFPUser mfpUser, String string, String string2, String string3);
 
 	ReviewerEmployeeInfo getReviewerEmployeeInfos(MFPUser mfpUser, String contactReviewer, Dealers dInfo);
+	
+	MFPUser getUDSUser(String wslid);
 
 }
