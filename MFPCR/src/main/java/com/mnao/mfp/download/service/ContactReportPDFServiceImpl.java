@@ -217,19 +217,26 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 
 	public String emailFileAttachment(MFPUser mfpUser, Path filePath) throws MessagingException {
 		String resp = "OK";
-		if( filePath == null ) {
-			return "NO File Created!";
-		}
 		EMazdamailsender objEMazdamailsender = new EMazdamailsender();
 		objEMazdamailsender.set_mimeType("text/html");
 		String emailFrom = Utils.getAppProperty(AppConstants.REVIEW_MAIL_FROM);
 		String subject = "Your requested download from Dealer Contact Report.";
-		String body = "Please find attached your requested download from Dealer Contact Report: " + filePath.getFileName();
+		String body = "Please find attached your requested download from Dealer Contact Report: " ;
+		if( filePath == null ) {
+			body += "NO DATA AVAILABLE MATCHING YOUR SELECTION CRITERIA";
+			resp = "NO File Created!";
+		}
+		else {
+			body += filePath.getFileName();
+		}
 		String emailTo = mfpUser.getEmail();
 		String[] to = new String[] { emailTo };
 		String[] cc = new String[0];
 		String[] bcc = new String[0];
-		String[] att = new String[] { filePath.toString() };
+		String[] att = null ;
+		if( filePath != null ) {
+			att = new String[] { filePath.toString() };
+		}
 		objEMazdamailsender.SendMazdaMail(emailFrom, to, cc, bcc, subject, body, att);
 		return resp;
 	}
