@@ -1,10 +1,7 @@
 package com.mnao.mfp.common.service;
 
 import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -14,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import com.mnao.mfp.common.controller.MFPCommonUserController;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.sec.service.MNAOSecurityService;
@@ -42,22 +38,32 @@ public class AppPropertiesService {
 
 	public Properties getAppProperties() {
 		if (appProps.size() == 0) {
+			// Load default properties
 			String mfpProfName = getPropertiesLocation() + "/" + AppConstants.MFP_PROPS_NAME + ".properties";
+			log.debug("Reading AppProperties From:" + mfpProfName);
+			appProps.putAll(loadPropertiesFromFile(mfpProfName));
+			// Merge profile specific properties inappProps
 			String[] prof = env.getActiveProfiles();
 			if (prof != null && prof.length > 0) {
 				mfpProfName = getPropertiesLocation() + "/" + AppConstants.MFP_PROPS_NAME + "-" + prof[0]
 						+ ".properties";
-			}
-			log.debug("Reading AppProperties From:" + mfpProfName);
-			try (InputStream is = Utils.class.getResourceAsStream(mfpProfName)) {
-				appProps.load(is);
-			} catch (Exception e) {
-				log.error("ERROR Reading MFP Properties");
-				log.error("", e);
+				log.debug("Reading AppProperties From:" + mfpProfName);
+				appProps.putAll(loadPropertiesFromFile(mfpProfName));
 			}
 		}
 		updateAppPropsWithEnv();
 		return appProps;
+	}
+
+	private Properties loadPropertiesFromFile(String mfpProfName) {
+		Properties props = new Properties();
+		try (InputStream is = Utils.class.getResourceAsStream(mfpProfName)) {
+			props.load(is);
+		} catch (Exception e) {
+			log.error("ERROR Reading MFP Properties");
+			log.error("", e);
+		}
+		return props;
 	}
 
 	private void updateAppPropsWithEnv() {

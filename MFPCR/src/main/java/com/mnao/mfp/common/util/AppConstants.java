@@ -79,6 +79,7 @@ public class AppConstants {
 	public static final String SQL_LIST_ZONES = "LIST_ZONES.sql";
 	public static final String SQL_LIST_DEALER_EMPLOYEES = "LIST_DEALER_EMPLOYEES.sql";
 	public static final String SQL_LIST_REVIEWER_EMPLOYEES = "LIST_REVIEWER_EMPLOYEES.sql";
+	public static final String SQL_LIST_REVIEWER_REGIONAL_EMPLOYEES = "LIST_REVIEWER_REGIONAL_EMPLOYEES.sql";
 	public static final String SQL_LIST_REVIEWER_EMPLOYEE = "LIST_REVIEWER_EMPLOYEE.sql";
 	public static final String SQL_LIST_CORPORATE_EMPLOYEES = "LIST_CORPORATE_EMPLOYEES_V3.sql";
 	public static final String SQL_LIST_ALL_EMPLOYEES = "LIST_ALL_EMPLOYEES_V3.sql";
@@ -88,6 +89,7 @@ public class AppConstants {
 	public static final String DLR_SYNC_MIN_INTERVAL = "dlr.sync.min.interval.seconds";
 	//
 	public static final String CR_URL_KEY = "MFP_CR_URL";
+	public static final String CR_REVIEWER_JOB_CODES = "cr.reviewer.job.codes";
 	public static final String SMTP_HOST = "cr.email.smtp.host";
 	public static final String DEFAULT_DELIM = "cr.email.default.delim";
 	public static final String REVIEW_MAIL_FROM = "cr.review.request.mail.from";
