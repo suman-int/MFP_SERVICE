@@ -1,6 +1,5 @@
 package com.mnao.mfp.cr.service;
 
-import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,16 +14,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.mnao.mfp.common.controller.MfpKPIControllerBase;
-import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.util.ContactReportEnum;
-import com.mnao.mfp.download.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.email.EMazdamailsender;
 import com.mnao.mfp.list.cache.AllDealersCache;
-import com.mnao.mfp.list.service.MMAListService;
+import com.mnao.mfp.list.cache.AllEmployeesCache;
+import com.mnao.mfp.list.dao.ListPersonnel;
 import com.mnao.mfp.user.dao.MFPUser;
 import com.mnao.mfp.user.service.UserDetailsService;
 
@@ -37,6 +35,8 @@ public class EmailService extends MfpKPIControllerBase {
 	private String activeProfile;
     @Autowired
     AllDealersCache allDealersCache;
+    @Autowired 
+    AllEmployeesCache allEmployeesCache;
 
 	
 	public String sendEmailNotification(ContactReportInfo report, int origCRStatus, MFPUser mfpUser)
@@ -53,7 +53,7 @@ public class EmailService extends MfpKPIControllerBase {
 		String authorID = report.getContactAuthor();
 		UserDetailsService uds = new UserDetailsService();
 		MFPUser authorUser = uds.getMFPUser(authorID);
-		ReviewerEmployeeInfo revEmp = getReviewerEmployeeInfo(mfpUser, report.getContactReviewer(), dInfo);
+		ListPersonnel revEmp = getReviewerEmployeeInfo(mfpUser, report.getContactReviewer(), dInfo);
 		String authorName = getNameStr(authorUser.getFirstName(), authorUser.getLastName());
 		String reviewerName = getNameStr(revEmp.getFirstNm(), revEmp.getLastNm());
 		String dealerName = dInfo.getDbaNm() + " - " + dInfo.getDlrCd();
@@ -164,23 +164,9 @@ public class EmailService extends MfpKPIControllerBase {
 		return sb.toString();
 	}
 
-	private ReviewerEmployeeInfo getReviewerEmployeeInfo(MFPUser mfpUser, String contactReviewer, DealerInfo dInfo) {
-		ReviewerEmployeeInfo revEmp = null;
-		if (contactReviewer != null) {
-			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEE);
-			MMAListService<ReviewerEmployeeInfo> service = new MMAListService<ReviewerEmployeeInfo>();
-			List<ReviewerEmployeeInfo> retRows = null;
-			DealerFilter df = new DealerFilter(mfpUser, null, mfpUser.getRgnCd(), null, null, null);
-			try {
-				retRows = service.getListData(sqlName, ReviewerEmployeeInfo.class, df, dInfo.getRgnCd(),
-						dInfo.getZoneCd(), contactReviewer);
-				if (retRows != null && retRows.size() > 0)
-					revEmp = retRows.get(0);
-			} catch (InstantiationException | IllegalAccessException | ParseException e) {
-				log.error("ERROR retrieving list of Employees:" , e);
-			}
-		}
-		return revEmp;
+	private ListPersonnel getReviewerEmployeeInfo(MFPUser mfpUser, String contactReviewer, DealerInfo dInfo) {
+		ListPersonnel lp = allEmployeesCache.getByPrsnIdCd(contactReviewer);
+		return lp;
 	}
 
 	private String getPlaceholdersReplaced(String fmt, String authorName, String reviewerName, String dealerName) {
