@@ -2,11 +2,18 @@ package com.mnao.mfp.user.config;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.stream.Stream;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRegistration;
+
+import org.apache.catalina.core.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -67,5 +74,22 @@ public class MvcConfig implements WebMvcConfigurer {
 	    viewResolver.setSuffix(viewSuffix);
 	    return viewResolver;
 	  }
+	  @ConditionalOnProperty(name="precompile.startup.jsp")
+	  @Bean
+	  public ServletContextInitializer preCompileJspsAtStartup() {
+	      return servletContext -> {
+	          getDeepResourcePaths(servletContext, viewPrefix).forEach(jspPath -> {
+	              log.info("Registering JSP: {}", jspPath);
+	              ServletRegistration.Dynamic reg = servletContext.addServlet(jspPath, Constants.JSP_SERVLET_CLASS);
+	              reg.setInitParameter("jspFile", jspPath);
+	              reg.setLoadOnStartup(99);
+	              reg.addMapping(jspPath);
+	          });
+	      };
+	  }
 
+	  private static Stream<String> getDeepResourcePaths(ServletContext servletContext, String path) {
+	      return (path.endsWith("/")) ? servletContext.getResourcePaths(path).stream().flatMap(p -> getDeepResourcePaths(servletContext, p))
+	              : Stream.of(path);
+	  }
 }

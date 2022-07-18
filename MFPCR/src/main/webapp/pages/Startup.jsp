@@ -82,7 +82,7 @@
 </head>
 <body>
 	<h1>Welcome to Contact Reports</h1>
-	<div id="mainDiv">
+	<div id="mainDiv" style="display:none">
 		<input type="text" style="min-width: 400px" id="txtUrl" />
 		<br>
 		<br> 
