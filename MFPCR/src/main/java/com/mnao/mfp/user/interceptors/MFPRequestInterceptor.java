@@ -1,5 +1,9 @@
 package com.mnao.mfp.user.interceptors;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +31,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 	private static final Logger log = LoggerFactory.getLogger(MFPRequestInterceptor.class);
 	private static final String USERID_REQUEST_HEADER = "IV-USER";
 	private static final String AUTH_REQUEST_URI = "/Auth/";
+	private static final String LANDING_PAGE_URI = "/LandingPage/";
 	private final boolean useDBDomain;
 	private final boolean useSecJWT;
 	private final boolean useSecJWTCookie;
@@ -176,7 +181,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 				/*
 				 * 1. Authorization Request 2. Invalid token
 				 */
-				if (requestURI.startsWith(AUTH_REQUEST_URI)) {
+				if (requestURI.startsWith(AUTH_REQUEST_URI) || requestURI.startsWith(LANDING_PAGE_URI)) {
 					rv = true;
 					log.info("Forwarding to: " + requestURI);
 				} 
