@@ -221,15 +221,14 @@ public class ListController extends MfpKPIControllerBase {
 	private List<ListPersonnel> getReviewers(String sqlName, String rgnSqlName, MFPUser mfpUser,
 			MMAListService<ListPersonnel> service, DealerFilter df, DealerInfo dlrInfo)
 			throws InstantiationException, IllegalAccessException, ParseException {
-		ListPersonnel empInfo = allEmployeesCache.getByPrsnIdCd(mfpUser.getEmployeeNumber());
 		String reviewerJobCodes = Utils.getAppProperty(AppConstants.CR_REVIEWER_JOB_CODES);
 		String[] jobCodes = reviewerJobCodes.split("[,]");
 		String revStart = "MZ11";
 		List<ListPersonnel> retRows = null;
-		if (empInfo.getLoctnCd().equalsIgnoreCase("MA92")
-				|| " MF11 MG11 ".indexOf(empInfo.getJobCd().toUpperCase()) > 0) {
+		if (mfpUser.getCorporatePerson() || mfpUser.getCorpPerson() || mfpUser.getLoctnCd().equalsIgnoreCase("MA92")
+				|| " MF11 MG11 ".indexOf(mfpUser.getPrimJobCd().toUpperCase()) > 0) {
 			revStart = "MG11";
-		} else if ("MZ11".equalsIgnoreCase(empInfo.getJobCd())) {
+		} else if ("MZ11".equalsIgnoreCase(mfpUser.getPrimJobCd())) {
 			revStart = "MF11";
 		} else {
 			revStart = "MZ11";
