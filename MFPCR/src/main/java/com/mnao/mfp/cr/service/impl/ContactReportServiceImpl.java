@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -76,108 +75,110 @@ public class ContactReportServiceImpl implements ContactReportService {
 	 *
 	 */
 	@Override
-	public String submitReportDataV2(ContactReportInfoDto report, MFPUser mfpUser, String currURL) throws Exception {
+	public String submitReportDataV2(ContactReportInfoDto reportDto, MFPUser mfpUser, String currURL) throws Exception {
 		String submission = "Unable to save contact report";
-		if (report == null)
+		if (reportDto == null)
 			throw new AssertionError();
 		int origCRStatus = -1;
 		try {
-			ContactReportInfo reportInfo = new ContactReportInfo();
+			ContactReportInfo reportDb = new ContactReportInfo();
 			boolean isDealerUpdated = false;
-			if (report.getContactReportId() > 0) {
-				reportInfo = contactInfoRepository.getById(report.getContactReportId());
-				if (!mfpUser.getUserid().trim().equalsIgnoreCase(reportInfo.getContactAuthor())) {
+			if (reportDto.getContactReportId() > 0) {
+				reportDb = contactInfoRepository.getById(reportDto.getContactReportId());
+				if (!mfpUser.getUserid().trim().equalsIgnoreCase(reportDb.getContactAuthor())) {
 					ListPersonnel lemp = allEmployeesCache.getByWSLCd(mfpUser.getUserid());
 					if (!lemp.isCorporatePerson()) {
 						if (!mfpUser.getEmployeeNumber().trim()
-								.equalsIgnoreCase(reportInfo.getContactReviewer().trim())) {
+								.equalsIgnoreCase(reportDb.getContactReviewer().trim())) {
 							submission = "You are not authorized to modify this report.";
 							throw new Exception("You are not authorized to modify this report.");
 						}
 					}
 				}
-				origCRStatus = reportInfo.getContactStatus();
-				if (reportInfo.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
-						&& report.getContactStatus() == ContactReportEnum.CANCELLED.getStatusCode()) {
-					reportInfo.setContactStatus(report.getContactStatus());
-					List<ContactReportDealerPersonnel> existingDealerPersonel = reportInfo.getDealerPersonnels();
+				origCRStatus = reportDb.getContactStatus();
+				if (reportDb.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
+						&& reportDto.getContactStatus() == ContactReportEnum.CANCELLED.getStatusCode()) {
+					reportDb.setContactStatus(reportDto.getContactStatus());
+					List<ContactReportDealerPersonnel> existingDealerPersonel = reportDb.getDealerPersonnels();
 					existingDealerPersonel.forEach(val -> val.setIsActive(IsActiveEnum.NO.getValue()));
 					contactReportDealerPersonnelRepository.saveAll(existingDealerPersonel);
-					reportInfo.setIsActive(IsActiveEnum.NO.getValue());
-					contactInfoRepository.save(reportInfo);
+					reportDb.setIsActive(IsActiveEnum.NO.getValue());
+					contactInfoRepository.save(reportDb);
 					submission = "Report removed successfully";
 					return submission;
-				} else if (report.getDealers() != null) {
-					isDealerUpdated = !reportInfo.getDealers().getDlrCd().trim()
-							.equalsIgnoreCase(report.getDealers().getDlrCd().trim());
+				} else if (reportDto.getDealers() != null) {
+					isDealerUpdated = !reportDb.getDealers().getDlrCd().trim()
+							.equalsIgnoreCase(reportDto.getDealers().getDlrCd().trim());
 				}
 			}
-			if (new NullCheck<>(report).with(ContactReportInfoDto::getContactStatus)
+			if (new NullCheck<>(reportDto).with(ContactReportInfoDto::getContactStatus)
 					.get() == ContactReportEnum.CANCELLED.getStatusCode()) {
-				reportInfo.setContactStatus(report.getContactStatus());
+				reportDb.setContactStatus(reportDto.getContactStatus());
 			} else {
-				if (isDealerUpdated && report.getContactReportId() > 0) {
-					reportInfo.setDealers(null);
+				if (isDealerUpdated && reportDto.getContactReportId() > 0) {
+					reportDb.setDealers(null);
 				}
 				// Update Author only if in DRAFT
-				if (report.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
-						|| report.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
-					reportInfo.setContactAuthor(
-							new NullCheck<>(mfpUser).with(MFPUser::getUserid).orElse(reportInfo.getContactAuthor()));
+				if (reportDto.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
+						|| reportDto.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
+					reportDb.setContactAuthor(
+							new NullCheck<>(mfpUser).with(MFPUser::getUserid).orElse(reportDb.getContactAuthor()));
 				}
-				reportInfo.setContactDt(
-						report.getContactDt() != null ? report.getContactDt() : reportInfo.getContactDt());
-				reportInfo.setContactLocation(report.getContactLocation() != null ? report.getContactLocation()
-						: reportInfo.getContactLocation());
-				reportInfo.setContactReviewer(report.getContactReviewer() != null ? report.getContactReviewer()
-						: reportInfo.getContactReviewer());
+				reportDb.setContactDt(
+						reportDto.getContactDt() != null ? reportDto.getContactDt() : reportDb.getContactDt());
+				reportDb.setContactLocation(reportDto.getContactLocation() != null ? reportDto.getContactLocation()
+						: reportDb.getContactLocation());
+				reportDb.setContactReviewer(reportDto.getContactReviewer() != null ? reportDto.getContactReviewer()
+						: reportDb.getContactReviewer());
 
-				reportInfo.setContactStatus(
-						report.getContactStatus() != null ? report.getContactStatus() : reportInfo.getContactStatus());
-				reportInfo.setContactType(
-						report.getContactType() != null ? report.getContactType() : reportInfo.getContactType());
-				String reps = report.getCorporateReps();
-				reportInfo.setCorporateReps(reps != null ? (reps) : reportInfo.getCorporateReps());
+				reportDb.setContactStatus(
+						reportDto.getContactStatus() != null ? reportDto.getContactStatus() : reportDb.getContactStatus());
+				reportDb.setContactType(
+						reportDto.getContactType() != null ? reportDto.getContactType() : reportDb.getContactType());
+				String reps = reportDto.getCorporateReps();
+				reportDb.setCorporateReps(reps != null ? (reps) : reportDb.getCorporateReps());
 				// Sandip: Does discussion changes and deletes need to be handled?
-				if (!CollectionUtils.isEmpty(report.getDiscussions())) {
-					reportInfo.setDiscussions(report.getDiscussions());
-					reportInfo.setCurrentIssues(report.getDiscussions().stream().map(ContactReportDiscussion::getTopic)
-							.filter(Objects::nonNull).collect(Collectors.joining("|")));
-				}
-				reportInfo.setDlrCd(report.getDlrCd() != null ? report.getDlrCd() : reportInfo.getDlrCd());
+				// 20-Jul-2022 : YES
+				processDiscussions(reportDto, reportDb);
+//				if (!CollectionUtils.isEmpty(report.getDiscussions())) {
+//					reportInfo.setDiscussions(report.getDiscussions());
+//					reportInfo.setCurrentIssues(report.getDiscussions().stream().map(ContactReportDiscussion::getTopic)
+//							.filter(Objects::nonNull).collect(Collectors.joining("|")));
+//				}
+				reportDb.setDlrCd(reportDto.getDlrCd() != null ? reportDto.getDlrCd() : reportDb.getDlrCd());
 
-				reportInfo.setDealers(report.getDealers() != null ? report.getDealers() : reportInfo.getDealers());
+				reportDb.setDealers(reportDto.getDealers() != null ? reportDto.getDealers() : reportDb.getDealers());
 			}
 
 			// Submit and Reviewed Date
-			if (reportInfo.getContactStatus() != origCRStatus) {
-				if (reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
-					reportInfo.setSubmittedDt(LocalDate.now());
-				} else if (reportInfo.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
-					reportInfo.setReviewedDt(LocalDate.now());
-					reportInfo.setReviewedBy(mfpUser.getUserid());
+			if (reportDb.getContactStatus() != origCRStatus) {
+				if (reportDb.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()) {
+					reportDb.setSubmittedDt(LocalDate.now());
+				} else if (reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+					reportDb.setReviewedDt(LocalDate.now());
+					reportDb.setReviewedBy(mfpUser.getUserid());
 				}
 			}
 			// Additional Dealership personnel
-			String addPersonnel = report.getDealerPersonnels().stream().filter(dp -> dp.getPersonnelId() == -999L)
+			String addPersonnel = reportDto.getDealerPersonnels().stream().filter(dp -> dp.getPersonnelId() == -999L)
 					.map(ContactReportDealerPersonnel::getPersonnelIdCd).collect(Collectors.joining("|"));
 			if (!addPersonnel.isEmpty()) {
-				reportInfo.setAddDealerPersonnel(addPersonnel);
+				reportDb.setAddDealerPersonnel(addPersonnel);
 			} else {
-				reportInfo.setAddDealerPersonnel(null);
+				reportDb.setAddDealerPersonnel(null);
 			}
 			// Addition and Deletion of Dealer Personnel
-			report.setDealerPersonnels(report.getDealerPersonnels().stream().filter(dp -> dp.getPersonnelId() != -999L)
+			reportDto.setDealerPersonnels(reportDto.getDealerPersonnels().stream().filter(dp -> dp.getPersonnelId() != -999L)
 					.collect(Collectors.toList()));
-			addRemoveDealerPersonnel(report, reportInfo);
-			duplicateAttachmentChecker(report.getAttachment());
+			addRemoveDealerPersonnel(reportDto, reportDb);
+			duplicateAttachmentChecker(reportDto.getAttachment());
 			/**
 			 * CHECK FOR Status AS ATTCH RECORD MAY HAVE BEEN UPDATED WHILE CORRECTING
 			 * ATTACHMENT LOCATION OR DELETION - SANDIP 24-JUN-2022
 			 **/
-			processAttachments(report, reportInfo);
+			processAttachments(reportDto, reportDb);
 			//
-			ContactReportInfo info = contactInfoRepository.save(reportInfo);
+			ContactReportInfo info = contactInfoRepository.save(reportDb);
 			if (info.getAttachment() != null && info.getAttachment().size() > 0) {
 				fileHandlingService.copyToPermanentLocation(info);
 				info = contactInfoRepository.save(info);
@@ -188,7 +189,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 					|| info.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()
 					|| info.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
 				try {
-					String emailResp = emailService.sendEmailNotification(reportInfo, origCRStatus, mfpUser);
+					String emailResp = emailService.sendEmailNotification(reportDb, origCRStatus, mfpUser);
 					if (!emailResp.startsWith("OK"))
 						submission += "; " + emailResp;
 				} catch (MessagingException ex) {
@@ -198,10 +199,54 @@ public class ContactReportServiceImpl implements ContactReportService {
 			}
 		} catch (Exception e) {
 			log.error("", e);
-			submission = "Failed to save Contact Report." ;
+			submission = "Failed to save Contact Report.";
 			throw new Exception(submission);
 		}
 		return submission;
+	}
+
+	private void processDiscussions(ContactReportInfoDto reportDto, ContactReportInfo reportDb) {
+		final List<ContactReportDiscussion> finalDiscussions = new ArrayList<>();
+		if ((!CollectionUtils.isEmpty(reportDto.getDiscussions()))
+				&& (!CollectionUtils.isEmpty(reportDb.getDiscussions()))) {
+			Map<Long, ContactReportDiscussion> dbDiscs = new HashMap<>();
+			Map<Long, ContactReportDiscussion> uiDiscs = new HashMap<>();
+			reportDb.getDiscussions().forEach(disc -> {
+				if (disc.getIsActive().equalsIgnoreCase(IsActiveEnum.YES.getValue()))
+					dbDiscs.put(disc.getDiscussionId(), disc);
+				else
+					finalDiscussions.add(disc);
+			});
+			reportDto.getDiscussions().forEach(disc -> {
+				if (disc.getDiscussionId() == 0)
+					finalDiscussions.add(disc);
+				else
+					uiDiscs.put(disc.getDiscussionId(), disc);
+			});
+			uiDiscs.values().forEach(uiDisc -> {
+				if (uiDisc.getDiscussionId() == 0) {
+					uiDisc.setIsActive(IsActiveEnum.YES.getValue());
+					finalDiscussions.add(uiDisc);
+				} else if (dbDiscs.containsKey(uiDisc.getDiscussionId())) {
+					ContactReportDiscussion dbDisc = dbDiscs.get(uiDisc.getDiscussionId());
+					dbDisc.setTopic(uiDisc.getTopic());
+					dbDisc.setDiscussion(uiDisc.getDiscussion());
+					dbDisc.setUpdatedBy("ADMIN");
+					dbDisc.setUpdatedDt(LocalDate.now());
+					finalDiscussions.add(dbDisc);
+				}
+			});
+		} else {
+			if (!CollectionUtils.isEmpty(reportDto.getDiscussions())) {
+				finalDiscussions.addAll(reportDto.getDiscussions());
+			} else {
+				finalDiscussions.addAll(reportDb.getDiscussions());
+			}
+			for (ContactReportDiscussion disc : finalDiscussions) {
+				disc.setIsActive(IsActiveEnum.NO.getValue());
+			}
+		}
+		reportDb.setDiscussions(finalDiscussions);
 	}
 
 	private void processAttachments(ContactReportInfoDto reportDto, ContactReportInfo reportDb) {
