@@ -1,9 +1,5 @@
 package com.mnao.mfp.user.interceptors;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -186,7 +182,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 					log.info("Forwarding to: " + requestURI);
 				} 
 				else if ((requestTokenHeader != null) && (!validateJwtToken(requestTokenHeader, u))) {
-					response.sendError(401, "UNAUTHORISED");
+					response.sendError(408, "REQUEST TIMEOUT");
 					log.error("Unauthorised Access");
 					rv = false;
 				} else {
