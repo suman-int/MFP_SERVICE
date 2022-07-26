@@ -212,6 +212,8 @@ public class ContactReportServiceImpl implements ContactReportService {
 			Map<Long, ContactReportDiscussion> dbDiscs = new HashMap<>();
 			Map<Long, ContactReportDiscussion> uiDiscs = new HashMap<>();
 			reportDb.getDiscussions().forEach(disc -> {
+				if( disc.getIsActive() == null )
+					disc.setIsActive(IsActiveEnum.NO.getValue());
 				if (disc.getIsActive().equalsIgnoreCase(IsActiveEnum.YES.getValue()))
 					dbDiscs.put(disc.getDiscussionId(), disc);
 				else
