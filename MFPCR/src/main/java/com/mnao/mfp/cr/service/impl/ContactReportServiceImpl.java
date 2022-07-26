@@ -131,8 +131,8 @@ public class ContactReportServiceImpl implements ContactReportService {
 				reportDb.setContactReviewer(reportDto.getContactReviewer() != null ? reportDto.getContactReviewer()
 						: reportDb.getContactReviewer());
 
-				reportDb.setContactStatus(
-						reportDto.getContactStatus() != null ? reportDto.getContactStatus() : reportDb.getContactStatus());
+				reportDb.setContactStatus(reportDto.getContactStatus() != null ? reportDto.getContactStatus()
+						: reportDb.getContactStatus());
 				reportDb.setContactType(
 						reportDto.getContactType() != null ? reportDto.getContactType() : reportDb.getContactType());
 				String reps = reportDto.getCorporateReps();
@@ -168,8 +168,8 @@ public class ContactReportServiceImpl implements ContactReportService {
 				reportDb.setAddDealerPersonnel(null);
 			}
 			// Addition and Deletion of Dealer Personnel
-			reportDto.setDealerPersonnels(reportDto.getDealerPersonnels().stream().filter(dp -> dp.getPersonnelId() != -999L)
-					.collect(Collectors.toList()));
+			reportDto.setDealerPersonnels(reportDto.getDealerPersonnels().stream()
+					.filter(dp -> dp.getPersonnelId() != -999L).collect(Collectors.toList()));
 			addRemoveDealerPersonnel(reportDto, reportDb);
 			duplicateAttachmentChecker(reportDto.getAttachment());
 			/**
@@ -218,10 +218,12 @@ public class ContactReportServiceImpl implements ContactReportService {
 					finalDiscussions.add(disc);
 			});
 			reportDto.getDiscussions().forEach(disc -> {
-				if (disc.getDiscussionId() == 0)
+				if (disc.getDiscussionId() == 0) {
+					disc.setIsActive(IsActiveEnum.YES.getValue());
 					finalDiscussions.add(disc);
-				else
+				} else {
 					uiDiscs.put(disc.getDiscussionId(), disc);
+				}
 			});
 			uiDiscs.values().forEach(uiDisc -> {
 				if (uiDisc.getDiscussionId() == 0) {

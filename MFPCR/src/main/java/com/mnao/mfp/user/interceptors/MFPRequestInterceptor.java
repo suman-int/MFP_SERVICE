@@ -153,7 +153,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 		log.debug("UserID= {}", userID);
 		if (userID == null || userID.trim().length() == 0) {
 			response.sendError(401, "UNAUTHORISED");
-			log.error("Unauthorised Access");
+			log.error("Unauthorised Access - 401");
 			rv = false;
 		} else {
 			MFPUser u = uds.getMFPUser(userID);
@@ -183,7 +183,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 				} 
 				else if ((requestTokenHeader != null) && (!validateJwtToken(requestTokenHeader, u))) {
 					response.sendError(408, "REQUEST TIMEOUT");
-					log.error("Unauthorised Access");
+					log.error("Unauthorised Access - 408");
 					rv = false;
 				} else {
 					rv = true;
