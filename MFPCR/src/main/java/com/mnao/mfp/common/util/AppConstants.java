@@ -90,6 +90,7 @@ public class AppConstants {
 	//
 	public static final String CR_URL_KEY = "MFP_CR_URL";
 	public static final String CR_REVIEWER_JOB_CODES = "cr.reviewer.job.codes";
+	public static final String CR_REVIEWER_JOB_CODES_BY_AUTHOR = "cr.reviewer.job.codes.by.author";
 	public static final String SMTP_HOST = "cr.email.smtp.host";
 	public static final String DEFAULT_DELIM = "cr.email.default.delim";
 	public static final String REVIEW_MAIL_FROM = "cr.review.request.mail.from";

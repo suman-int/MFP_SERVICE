@@ -195,6 +195,7 @@ public class ListController extends MfpKPIControllerBase {
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEES);
 		String rgnSqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_REGIONAL_EMPLOYEES);
+		String reviewerJobCodesByAuthor = Utils.getAppProperty(AppConstants.CR_REVIEWER_JOB_CODES_BY_AUTHOR, "false");
 		String reviewerJobCodes = Utils.getAppProperty(AppConstants.CR_REVIEWER_JOB_CODES);
 		String[] jobCodes = reviewerJobCodes.split("[,]");
 		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
@@ -204,16 +205,10 @@ public class ListController extends MfpKPIControllerBase {
 			// DealerInfo dlrInfo = getDealerInfo(null, dlrCd);
 			DealerInfo dlrInfo = allDealersCache.getDealerInfo(dlrCd);
 			if (dlrInfo != null) {
-				retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(),
-						dlrInfo.getZoneCd());
-				if (retRows == null || retRows.size() == 0) {
-					for (int i = 1; i < jobCodes.length; i++) {
-						retRows = service.getListData(rgnSqlName, ListPersonnel.class, df, jobCodes[i], dlrInfo.getRgnCd());
-						if( (retRows != null) && retRows.size() > 0 ) {
-							log.info("Found Reviewer with JOB_CD = " + jobCodes[i]);
-							break;
-						}
-					}
+				if (reviewerJobCodesByAuthor.equalsIgnoreCase("true")) {
+					retRows = getReviewers(sqlName, rgnSqlName, mfpUser, service, df, dlrInfo);
+				} else {
+					retRows = getReviewers(sqlName, rgnSqlName, jobCodes, 0, service, df, dlrInfo);
 				}
 			}
 		} catch (InstantiationException | IllegalAccessException | ParseException e) {
@@ -221,6 +216,49 @@ public class ListController extends MfpKPIControllerBase {
 		}
 		checkEmployeeChanges.checkEmpChanges(retRows);
 		return AbstractService.httpPostSuccess(retRows, "Success");
+	}
+
+	private List<ListPersonnel> getReviewers(String sqlName, String rgnSqlName, MFPUser mfpUser,
+			MMAListService<ListPersonnel> service, DealerFilter df, DealerInfo dlrInfo)
+			throws InstantiationException, IllegalAccessException, ParseException {
+		String reviewerJobCodes = Utils.getAppProperty(AppConstants.CR_REVIEWER_JOB_CODES);
+		String[] jobCodes = reviewerJobCodes.split("[,]");
+		String revStart = "MZ11";
+		List<ListPersonnel> retRows = null;
+		if (mfpUser.getCorporatePerson() || mfpUser.getCorpPerson() || mfpUser.getLoctnCd().equalsIgnoreCase("MA92")
+				|| " MF11 MG11 ".indexOf(mfpUser.getPrimJobCd().toUpperCase()) > 0) {
+			revStart = "MG11";
+		} else if ("MZ11".equalsIgnoreCase(mfpUser.getPrimJobCd())) {
+			revStart = "MF11";
+		} else {
+			revStart = "MZ11";
+		}
+		for (int i = 0; i < jobCodes.length; i++) {
+			if (revStart.equals(jobCodes[i])) {
+				retRows = getReviewers(sqlName, rgnSqlName, jobCodes, i, service, df, dlrInfo);
+				break;
+			}
+		}
+		return retRows;
+	}
+
+	private List<ListPersonnel> getReviewers(String sqlName, String rgnSqlName, String[] jobCodes, int stIdx,
+			MMAListService<ListPersonnel> service, DealerFilter df, DealerInfo dlrInfo)
+			throws ParseException, InstantiationException, IllegalAccessException {
+		List<ListPersonnel> retRows = null;
+		for (int i = stIdx; i < jobCodes.length; i++) {
+			if (i == 0) {
+				retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(),
+						dlrInfo.getZoneCd());
+			} else {
+				retRows = service.getListData(rgnSqlName, ListPersonnel.class, df, jobCodes[i], dlrInfo.getRgnCd());
+			}
+			if ((retRows != null) && retRows.size() > 0) {
+				log.info("Found Reviewer(s) with JOB_CD = " + jobCodes[i]);
+				break;
+			}
+		}
+		return retRows;
 	}
 
 	//
