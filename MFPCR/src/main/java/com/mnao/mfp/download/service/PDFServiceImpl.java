@@ -191,8 +191,13 @@ public class PDFServiceImpl extends MfpKPIControllerBase implements PDFService {
 				dtVal = "" + report.getContactDt().format(dtf);
 			}
 			col = addXLSCellValue(row, dtVal, col);
-			col = addXLSCellValue(row, uInfo.getFirstName().trim() + " " + uInfo.getLastName().trim(), col);
-			col = addXLSCellValue(row, uInfo.getHrJobName(), col);
+			if (uInfo != null) {
+				col = addXLSCellValue(row, uInfo.getFirstName().trim() + " " + uInfo.getLastName().trim(), col);
+				col = addXLSCellValue(row, uInfo.getHrJobName(), col);
+			} else {
+				col = addXLSCellValue(row, report.getContactAuthor() + " " + report.getContactAuthor(), col);
+				col = addXLSCellValue(row, "", col);
+			}
 			dtVal = "";
 			if (report.getCreatedDt() != null) {
 				DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM-dd-YYYY");
@@ -263,8 +268,10 @@ public class PDFServiceImpl extends MfpKPIControllerBase implements PDFService {
 
 	@Override
 	public MFPUser getUDSUser(String wslid) {
-		MFPUser musr = udsUsers.get(wslid);
-		if (musr == null) {
+		MFPUser musr = null;
+		if (udsUsers.containsKey(wslid)) {
+			musr = udsUsers.get(wslid);
+		} else {
 			UserDetailsService uds = new UserDetailsService();
 			musr = uds.getMFPUser(wslid);
 			udsUsers.put(wslid, musr);
