@@ -102,7 +102,10 @@ public class UserDetailsService {
 			mfpUsers.put(userID, userInfoJson);
 			mfpUser = processUserInfoJson(userInfoJson);
 		}
-		log.debug("Returning from getMFPUser: EMP {}, WSLID {}", mfpUser.getEmployeeNumber(), mfpUser.getUserid());
+		if (mfpUser == null)
+			log.debug("FAILED to retrieve user details for {}", userID);
+		else
+			log.debug("Returning from getMFPUser: EMP {}, WSLID {}", mfpUser.getEmployeeNumber(), mfpUser.getUserid());
 		return mfpUser;
 	}
 
