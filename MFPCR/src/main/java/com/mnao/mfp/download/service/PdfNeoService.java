@@ -72,6 +72,7 @@ public class PdfNeoService {
 			tmpFile = File.createTempFile(baseFileName, extn);
 			tmpFile.deleteOnExit();
 			tmpFilePath = tmpFile.toPath();
+			logger.info("Returning TmpPath: " + tmpFilePath.toString());
 		} catch (IOException e1) {
 			log.error("", e1);
 		}

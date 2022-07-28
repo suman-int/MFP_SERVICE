@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -140,11 +141,11 @@ public class ContactReportServiceImpl implements ContactReportService {
 				// Sandip: Does discussion changes and deletes need to be handled?
 				// 20-Jul-2022 : YES
 				processDiscussions(reportDto, reportDb);
-//				if (!CollectionUtils.isEmpty(report.getDiscussions())) {
+				if (!CollectionUtils.isEmpty(reportDto.getDiscussions())) {
 //					reportInfo.setDiscussions(report.getDiscussions());
-//					reportInfo.setCurrentIssues(report.getDiscussions().stream().map(ContactReportDiscussion::getTopic)
-//							.filter(Objects::nonNull).collect(Collectors.joining("|")));
-//				}
+					reportDb.setCurrentIssues(reportDto.getDiscussions().stream().map(ContactReportDiscussion::getTopic)
+							.filter(Objects::nonNull).collect(Collectors.joining("|")));
+				}
 				reportDb.setDlrCd(reportDto.getDlrCd() != null ? reportDto.getDlrCd() : reportDb.getDlrCd());
 
 				reportDb.setDealers(reportDto.getDealers() != null ? reportDto.getDealers() : reportDb.getDealers());
