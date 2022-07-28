@@ -37,7 +37,7 @@ public class PdfGenerateUtil {
 
 	@Autowired
 	AllEmployeesCache allEmpCache;
-	
+
 	@Autowired
 	private DealerRepository dealerRepo;
 
@@ -281,7 +281,8 @@ public class PdfGenerateUtil {
 			}
 			//
 			if (new NullCheck<>(cr).with(ContactReportInfo::getDealers).isNull()) {
-				Optional<Dealers> dealerData = dealerRepo.findById(new NullCheck<>(cr).with(ContactReportInfo::getDlrCd).get());
+				Optional<Dealers> dealerData = dealerRepo
+						.findById(new NullCheck<>(cr).with(ContactReportInfo::getDlrCd).get());
 				if (dealerData.isPresent()) {
 					dealers = dealerData.get();
 				}
@@ -292,8 +293,8 @@ public class PdfGenerateUtil {
 					.replace("%TOTAL_PAGE%", String.valueOf(contactReports.size()));
 			String updatedHtml3 = updatedHtmlText
 					.replace("%REVIEWER%",
-							new NullCheck<>(
-									rvr == null ? " " : Utils.getNameString(rvr.getFirstNm(), rvr.getLastNm(), ",", rvr.getJobTitleFx()))
+							new NullCheck<>(rvr == null ? " "
+									: Utils.getNameString(rvr.getFirstNm(), rvr.getLastNm(), ",", rvr.getJobTitleFx()))
 									.orElse(""))
 					.replace("%AUTHOR_NAME%", new NullCheck<>(getAuthorUser(mfpUser, cr.getContactAuthor())).orElse(""))
 					.replace("%ADDRESS%", new NullCheck<>(cr).with(ContactReportInfo::getContactLocation).orElse(""))
@@ -330,10 +331,10 @@ public class PdfGenerateUtil {
 
 	private String getAuthorUser(MFPUser mfpUser, String contactAuthor) {
 		ListPersonnel auth = allEmpCache.getByWSLCd(contactAuthor);
-		if( auth != null ) {
-			if( (auth.getJobTitleFx() != null) && auth.getJobTitleFx().trim().length() > 0) {
-			return String.format("%s, %s", Utils.getNameString(auth.getFirstNm(), auth.getLastNm()),
-					auth.getJobTitleFx());
+		if (auth != null) {
+			if ((auth.getJobTitleFx() != null) && auth.getJobTitleFx().trim().length() > 0) {
+				return String.format("%s, %s", Utils.getNameString(auth.getFirstNm(), auth.getLastNm()),
+						auth.getJobTitleFx());
 			} else {
 				return String.format("%s", Utils.getNameString(auth.getFirstNm(), auth.getLastNm()));
 			}
@@ -343,13 +344,17 @@ public class PdfGenerateUtil {
 	}
 
 	private String getAuthorUserUDS(MFPUser mfpUser, String contactAuthor) {
+		String dispName = contactAuthor;
 		MFPUser musr = pdfService.getUDSUser(contactAuthor);
-		if (new NullCheck<MFPUser>(musr).with(MFPUser::getTitle).isNotNullOrEmpty()) {
-			return String.format("%s, %s", Utils.getNameString(musr.getFirstName(), musr.getLastName()),
-					musr.getTitle());
-		} else {
-			return String.format("%s", Utils.getNameString(musr.getFirstName(), musr.getLastName()));
+		if (musr != null) {
+			if (new NullCheck<MFPUser>(musr).with(MFPUser::getTitle).isNotNullOrEmpty()) {
+				dispName = String.format("%s, %s", Utils.getNameString(musr.getFirstName(), musr.getLastName()),
+						musr.getTitle());
+			} else {
+				dispName = String.format("%s", Utils.getNameString(musr.getFirstName(), musr.getLastName()));
+			}
 		}
+		return dispName;
 	}
 //
 //
