@@ -141,7 +141,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 				// Sandip: Does discussion changes and deletes need to be handled?
 				// 20-Jul-2022 : YES
 				processDiscussions(reportDto, reportDb);
-				if (!CollectionUtils.isEmpty(reportDto.getDiscussions())) {
+				if (!CollectionUtils.isEmpty(reportDb.getDiscussions())) {
 //					reportInfo.setDiscussions(report.getDiscussions());
 					reportDb.setCurrentIssues(reportDto.getDiscussions().stream().map(ContactReportDiscussion::getTopic)
 							.filter(Objects::nonNull).collect(Collectors.joining("|")));
