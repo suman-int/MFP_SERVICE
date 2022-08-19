@@ -69,7 +69,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 	public Path createBulkPdfByFilterCriteria(FilterCriteria filter, MFPUser mfpUser)
 			throws DocumentException, FileNotFoundException, IOException {
 		Path filePath = null;
-		List<ContactReportInfo> contactReports = contactInfoRepository.findByIsActive(IsActiveEnum.YES.getValue());
+		List<ContactReportInfo> contactReports = contactInfoRepository.findByIsActiveAndContactDtBetween(IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
 		contactReports = contactReports.stream()
 				.filter(cr -> cr.getContactStatus() != ContactReportEnum.DRAFT.getStatusCode())
 				.collect(Collectors.toList());
@@ -122,7 +122,7 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 	@Override
 	public Path createBulkExcelReportByFilterCriteria(FilterCriteria filter, MFPUser mfpUser) {
 		Path filePath = null;
-		List<ContactReportInfo> contactReports = contactInfoRepository.findByIsActive(IsActiveEnum.YES.getValue());
+		List<ContactReportInfo> contactReports = contactInfoRepository.findByIsActiveAndContactDtBetween(IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
 		if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
 			contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
 		}

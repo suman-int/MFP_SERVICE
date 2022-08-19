@@ -1,6 +1,7 @@
 package com.mnao.mfp.common.util;
 
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -51,6 +52,11 @@ public class AppConstants {
 	public static final String API_VIEWS_PAGINATION_DatePgSize = "20";
 	public static final String API_VIEWS_PAGINATION_orderBy = "";
 	public static final String API_VIEWS_PAGINATION_orderDirection = "ASC";
+	//
+	//public static final LocalDate MIN_DB_DATE = LocalDate.parse("0001-01-01");
+	// 12 months from now
+	public static final LocalDate MIN_DB_DATE = LocalDate.now().plusMonths(-12);
+	public static final LocalDate MAX_DB_DATE = LocalDate.parse("9999-12-31");
 	//
 	public static final String API_VIEWS_CURRENT_PERIOD = "CURRENT_PERIOD";
 	public static final String API_VIEWS_PRIOR_PERIOD = "PRIOR_PERIOD";

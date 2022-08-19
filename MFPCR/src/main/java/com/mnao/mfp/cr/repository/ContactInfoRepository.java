@@ -32,24 +32,24 @@ public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, 
     void deleteByContactReportIdAndContactStatusAndIsActive(@Param("contactReportId") long contactReportId,
                                                             int contactStatus, String isActive);
 
-    List<ContactReportInfo> findByDlrCdAndIsActive(String dlrCd, String isActive);
+    List<ContactReportInfo> findByDlrCdAndIsActiveAndContactDtBetween(String dlrCd, String isActive, LocalDate dateFrom, LocalDate dateTo);
 
-    List<ContactReportInfo> findByDlrCdInAndContactStatusNotAndIsActive(List<String> dlrCd, int status, String isActive);
+    List<ContactReportInfo> findByDlrCdInAndContactStatusNotAndIsActiveAndContactDtBetween(List<String> dlrCd, int status, String isActive, LocalDate dateFrom, LocalDate dateTo);
 
-    List<ContactReportInfo> findByContactAuthorAndIsActive(String authorId, String isActive);
+    List<ContactReportInfo> findByContactAuthorAndIsActiveAndContactDtBetween(String authorId, String isActive, LocalDate dateFrom, LocalDate dateTo);
 
-    List<ContactReportInfo> findByContactReviewerAndContactAuthorNotAndIsActive(String reviewerEmpCdd, String authorId, String isActive);
+    List<ContactReportInfo> findByContactReviewerAndContactAuthorNotAndIsActiveAndContactDtBetween(String reviewerEmpCdd, String authorId, String isActive, LocalDate dateFrom, LocalDate dateTo);
 
     List<ContactReportInfo> findByContactDtBetweenAndIsActive(LocalDate startDate, LocalDate endDate, String isActive);
 
-    List<ContactReportInfo> findByCurrentIssuesContainingAndIsActive(String issue, String isActive);
+    List<ContactReportInfo> findByCurrentIssuesContainingAndIsActiveAndContactDtBetween(String issue, String isActive, LocalDate dateFrom, LocalDate dateTo);
 
-    List<ContactReportInfo> findByCurrentIssuesNotNullAndIsActive(String isActive);
+    List<ContactReportInfo> findByCurrentIssuesNotNullAndIsActiveAndContactDtBetween(String isActive, LocalDate dateFrom, LocalDate dateTo);
 
-    List<ContactReportInfo> findByCurrentIssuesNotNullAndContactDtNotNullAndIsActive(String isActive);
+    List<ContactReportInfo> findByCurrentIssuesNotNullAndContactDtNotNullAndIsActiveAndContactDtBetween(String isActive, LocalDate dateFrom, LocalDate dateTo);
 
     List<ContactReportInfo> findByContactDtBetweenAndContactStatusGreaterThanAndIsActive(LocalDate startDate, LocalDate endDate, Integer status, String isActive);
 
-	List<ContactReportInfo> findByIsActive(String isActive);
+	List<ContactReportInfo> findByIsActiveAndContactDtBetween(String isActive, LocalDate dateFrom, LocalDate dateTo);
 
 }
