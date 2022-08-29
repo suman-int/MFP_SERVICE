@@ -45,7 +45,7 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
     @Override
     public List<Map<String, String>> getSummaryByLocation(FilterCriteria filter, MFPUser mfpUser) {
         List<Map<String, String>> finalListData = new ArrayList<>();
-        List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNullAndIsActive(IsActiveEnum.YES.getValue());
+        List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNullAndIsActiveAndContactDtBetween(IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
         long [] totals = new long[2];
         if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
             contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
@@ -111,7 +111,7 @@ public class ReportSummaryServiceImpl implements ReportSummaryService {
     @Override
     public List<Map<String, String>> getSummaryOfMonthByLocation(FilterCriteria filter, MFPUser mfpUser) {
         List<Map<String, String>> finalListData = new ArrayList<>();
-        List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNullAndContactDtNotNullAndIsActive(IsActiveEnum.YES.getValue());
+        List<ContactReportInfo> contactReports = contactInfoRepository.findByCurrentIssuesNotNullAndContactDtNotNullAndIsActiveAndContactDtBetween(IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
         contactReports = contactReports.stream().filter(cr -> cr.getContactStatus() != ContactReportEnum.DRAFT.getStatusCode()).collect(Collectors.toList());
         long [] totals = new long[2];
        if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {

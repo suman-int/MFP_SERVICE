@@ -412,7 +412,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 	}
 
 	public List<ContactReportInfo> findByDlrCd(String dlrCd) {
-		return contactInfoRepository.findByDlrCdAndIsActive(dlrCd, IsActiveEnum.YES.getValue());
+		return contactInfoRepository.findByDlrCdAndIsActiveAndContactDtBetween(dlrCd, IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
 
 	}
 
@@ -426,10 +426,10 @@ public class ContactReportServiceImpl implements ContactReportService {
 				.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode();
 		Predicate<ContactReportInfo> isReviewed = cr -> cr.getContactStatus() == ContactReportEnum.REVIEWED
 				.getStatusCode();
-		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthorAndIsActive(userId,
-				IsActiveEnum.YES.getValue());
+		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthorAndIsActiveAndContactDtBetween(userId,
+				IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
 		List<ContactReportInfo> revCntactReportInfos = contactInfoRepository
-				.findByContactReviewerAndContactAuthorNotAndIsActive(empCd, userId, IsActiveEnum.YES.getValue());
+				.findByContactReviewerAndContactAuthorNotAndIsActiveAndContactDtBetween(empCd, userId, IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
 		revCntactReportInfos = revCntactReportInfos.stream().filter(isSubmitted.or(isDiscussion).or(isReviewed))
 				.collect(Collectors.toList());
 		contactReportInfos.addAll(revCntactReportInfos);

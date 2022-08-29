@@ -1,15 +1,20 @@
 package com.mnao.mfp.common.datafilters;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.mnao.mfp.common.util.AppConstants;
-import com.mnao.mfp.cr.util.LocationEnum;
-import lombok.*;
+import static com.mnao.mfp.common.util.Utils.isNotNullOrEmpty;
+import static com.mnao.mfp.common.util.Utils.isNullOrEmpty;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import static com.mnao.mfp.common.util.Utils.isNotNullOrEmpty;
-import static com.mnao.mfp.common.util.Utils.isNullOrEmpty;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.mnao.mfp.common.util.AppConstants;
+import com.mnao.mfp.cr.util.LocationEnum;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,9 +30,19 @@ public class FilterCriteria {
     @JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
     private LocalDate startDate;
     @JsonFormat(pattern = AppConstants.LOCALDATE_FORMAT)
-    private LocalDate endDate;
+    private LocalDate endDate ;
 
+    public LocalDate getStartDate() {
+    	if( this.startDate == null )
+    		return AppConstants.MIN_DB_DATE;
+    	return this.startDate;
+    }
 
+    public LocalDate getEndDate() {
+    	if( this.endDate == null )
+    		return AppConstants.MAX_DB_DATE;
+    	return this.endDate;
+    }
 
     public LocationEnum forLocation() {
         if (isNotNullOrEmpty(this.rgnCd) && isNullOrEmpty(zoneCd) && isNullOrEmpty(districtCd) && isNullOrEmpty(dlrCd)) {

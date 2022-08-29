@@ -1,8 +1,6 @@
 package com.mnao.mfp.cr.util;
 
-import com.mnao.mfp.common.datafilters.FilterCriteria;
-import com.mnao.mfp.common.util.AppConstants;
-import org.springframework.util.Assert;
+import static com.mnao.mfp.common.util.Utils.isNotNullOrEmpty;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -10,7 +8,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.mnao.mfp.common.util.Utils.isNotNullOrEmpty;
+import org.springframework.util.Assert;
+
+import com.mnao.mfp.common.datafilters.FilterCriteria;
+import com.mnao.mfp.common.util.AppConstants;
 
 public class FilterCriteriaBuilder {
 
@@ -30,9 +31,10 @@ public class FilterCriteriaBuilder {
         if (isNotNullOrEmpty(endOf)) {
             Assert.notNull(startOf, "startOf Required");
             filterCriteria.setEndDate(LocalDate.parse(endOf, DateTimeFormatter.ofPattern(AppConstants.LOCALDATE_FORMAT)));
-        } else {
-            filterCriteria.setEndDate(filterCriteria.getStartDate());
-        }
+        } 
+//        else {
+//            filterCriteria.setEndDate(filterCriteria.getStartDate());
+//        }
         return filterCriteria;
     }
 
