@@ -212,12 +212,15 @@ public class ListPersonnel extends MetricData {
 		if( loctnCd != null && loctnCd.equalsIgnoreCase("MA92") ) {
 			corporatePerson = true;
 		}
-		else if( jobCd != null ) {
+		else if( (jobCd != null) && (jobCd.trim().length() > 0) ) {
 			if( jobCd.equalsIgnoreCase("MZ11")) {
 				zonalManager = true;
 			}
-			else if( "'MB11', 'MC11', 'MD11', 'ME11', 'MO11', 'MP11'".indexOf(jobCd.toUpperCase()) >= 0) {
-				if( loctnCd.charAt(2) == 'V')
+			else if( "MB11,MC11,MD11,ME11,MO11,MP11".indexOf(jobCd.toUpperCase()) >= 0) {
+				if( loctnCd.trim().length() < 3 ) {
+					districtSalesManager = true;
+				}
+				else if( loctnCd.charAt(2) == 'V')
 					districtSalesManager = true;
 				else
 					districtServiceManager = true;

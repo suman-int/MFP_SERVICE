@@ -22,9 +22,9 @@ import com.mnao.mfp.user.dao.MFPUser;
 
 //@Component()
 @Service
-public class AllEmployeesCache extends MfpKPIControllerBase {
+public class AllActiveEmployeesCache extends MfpKPIControllerBase {
 	//
-	private static final Logger log = LoggerFactory.getLogger(AllEmployeesCache.class);
+	private static final Logger log = LoggerFactory.getLogger(AllActiveEmployeesCache.class);
 	//
 	@Value("${emp.sync.schedule.cron}")
 	private String empSyncCronSetting;
@@ -141,7 +141,7 @@ public class AllEmployeesCache extends MfpKPIControllerBase {
 	}
 
 	private void loadAllEmployees() {
-		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
+		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_ACTIVE_EMPLOYEES);
 		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
 		List<ListPersonnel> retRows = null;
 		DealerFilter df = new DealerFilter();

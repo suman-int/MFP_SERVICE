@@ -23,7 +23,7 @@ import com.mnao.mfp.cr.repository.DealerRepository;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.download.dao.DealerEmployeeInfo;
 import com.mnao.mfp.download.service.PDFService;
-import com.mnao.mfp.list.cache.AllEmployeesCache;
+import com.mnao.mfp.list.cache.AllActiveEmployeesCache;
 import com.mnao.mfp.list.dao.ListPersonnel;
 import com.mnao.mfp.user.dao.MFPUser;
 
@@ -36,7 +36,7 @@ public class PdfGenerateUtil {
 	PDFService pdfService;
 
 	@Autowired
-	AllEmployeesCache allEmpCache;
+	AllActiveEmployeesCache allEmpCache;
 
 	@Autowired
 	private DealerRepository dealerRepo;

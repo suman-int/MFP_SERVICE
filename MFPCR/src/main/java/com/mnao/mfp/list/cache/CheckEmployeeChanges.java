@@ -28,7 +28,7 @@ public class CheckEmployeeChanges {
 	private ExecutorService checkEmpChangesExecutor;
 	//
 	@Autowired
-	AllEmployeesCache allEmployeesCache;
+	AllActiveEmployeesCache allEmployeesCache;
 
 	//
 	public class CheckEmpDomainChanges implements Runnable {
