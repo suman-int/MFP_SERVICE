@@ -226,7 +226,7 @@ public class ListController extends MfpKPIControllerBase {
 			isCurrent = false;
 			ContactReportInfo reportDb = contactInfoRepository.getById(id);
 			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
-				String rev = reportDb.getReviewedBy();
+				String rev = reportDb.getContactReviewer();
 				List<String> ids = Arrays.asList(rev);
 				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
 				retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
