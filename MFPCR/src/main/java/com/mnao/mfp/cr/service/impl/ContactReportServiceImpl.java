@@ -398,7 +398,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 
 		List<ContactReportDealerPersonnel> dealerList = dealerPersonnel.stream().map(dp -> {
 			ContactReportDealerPersonnel reportDealerPersonnel = new ContactReportDealerPersonnel();
-			reportDealerPersonnel.setPersonnelId(-999L);
+			reportDealerPersonnel.setPersonnelId(-9999999L);
 			reportDealerPersonnel.setPersonnelIdCd(dp);
 			return reportDealerPersonnel;
 		}).collect(Collectors.toList());
