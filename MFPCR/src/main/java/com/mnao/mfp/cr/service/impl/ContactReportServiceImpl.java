@@ -36,7 +36,7 @@ import com.mnao.mfp.cr.repository.ContactReportDealerPersonnelRepository;
 import com.mnao.mfp.cr.service.ContactReportService;
 import com.mnao.mfp.cr.service.EmailService;
 import com.mnao.mfp.cr.util.ContactReportEnum;
-import com.mnao.mfp.list.cache.AllEmployeesCache;
+import com.mnao.mfp.list.cache.AllActiveEmployeesCache;
 import com.mnao.mfp.list.dao.ListPersonnel;
 import com.mnao.mfp.user.dao.MFPUser;
 
@@ -59,7 +59,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 	private EmailService emailService;
 
 	@Autowired
-	private AllEmployeesCache allEmployeesCache;
+	private AllActiveEmployeesCache allEmployeesCache;
 
 	@Override
 	public List<DealersByIssue> getAllDealersByIssue() {
@@ -398,7 +398,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 
 		List<ContactReportDealerPersonnel> dealerList = dealerPersonnel.stream().map(dp -> {
 			ContactReportDealerPersonnel reportDealerPersonnel = new ContactReportDealerPersonnel();
-			reportDealerPersonnel.setPersonnelId(-999L);
+			reportDealerPersonnel.setPersonnelId(-9999999L);
 			reportDealerPersonnel.setPersonnelIdCd(dp);
 			return reportDealerPersonnel;
 		}).collect(Collectors.toList());

@@ -22,7 +22,7 @@ import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.download.dao.DealerEmployeeInfo;
 import com.mnao.mfp.download.dao.ReviewerEmployeeInfo;
-import com.mnao.mfp.list.cache.AllEmployeesCache;
+import com.mnao.mfp.list.cache.AllActiveEmployeesCache;
 import com.mnao.mfp.list.dao.ListPersonnel;
 import com.mnao.mfp.user.dao.MFPUser;
 
@@ -142,7 +142,7 @@ public class PDFCRMain {
 			addCell(tbl, "CORPORATE REPRESENTATIVES", 1, 2);
 			String[] cRepStr = crInfo.getCorporateReps().split("[,]");
 			StringBuilder cReps = new StringBuilder();
-			AllEmployeesCache allEmployeesCache = new AllEmployeesCache();
+			AllActiveEmployeesCache allEmployeesCache = new AllActiveEmployeesCache();
 			for (int i = 0; i < cRepStr.length; i++) {
 				if (allEmployeesCache != null) {
 					ListPersonnel lp = allEmployeesCache.getByPrsnIdCd(cRepStr[i]);

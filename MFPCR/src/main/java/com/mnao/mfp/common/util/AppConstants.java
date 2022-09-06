@@ -68,7 +68,7 @@ public class AppConstants {
 	public static final String API_VIEWS_METRICS_RetailInventoryByDealer = "RetailInventoryByDealer";
 	public static final String API_VIEWS_METRICS_RetailInventoryByDate = "RetailInventoryByDate";
 	//
-	public static final String SQL_UNIQUE_DEALERS = "UNQ_DEALERS_UDB.sql";
+	public static final String SQL_UNIQUE_DEALERS = "UNQ_DEALERS_UDB_V2.sql";
 	public static final String SQL_MERGE_UPDATE_DEALERS = "DEALERS_UDB_MERGE_UPDATE.sql";
 	public static final String SQL_RTSYNC_DEALERS_INSERT = "RTSYNC_DEALERS_INSERT.sql";
 	public static final String SQL_RTSYNC_DEALERS_UPDATE = "RTSYNC_DEALERS_UPDATE.sql";
@@ -88,7 +88,8 @@ public class AppConstants {
 	public static final String SQL_LIST_REVIEWER_REGIONAL_EMPLOYEES = "LIST_REVIEWER_REGIONAL_EMPLOYEES.sql";
 //	public static final String SQL_LIST_REVIEWER_EMPLOYEE = "LIST_REVIEWER_EMPLOYEE.sql";
 	public static final String SQL_LIST_CORPORATE_EMPLOYEES = "LIST_CORPORATE_EMPLOYEES_V3.sql";
-	public static final String SQL_LIST_ALL_EMPLOYEES = "LIST_ALL_EMPLOYEES_V4.sql";
+	public static final String SQL_LIST_ALL_ACTIVE_EMPLOYEES = "LIST_ALL_ACTIVE_EMPLOYEES_V4.sql";
+	public static final String SQL_LIST_ALL_EMPLOYEES = "LIST_ALL_EMPLOYEES_V6.sql";
 	public static final String SQL_LIST_ALL_DEALERS_UDB = "LIST_ALL_DEALERS_UDB.sql";
 	//
 	public static final String DLR_SYNC_TIMEOUT = "dlr.sync.max.timeout.sec";

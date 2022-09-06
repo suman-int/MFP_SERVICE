@@ -15,7 +15,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.Utils;
-import com.mnao.mfp.list.cache.AllEmployeesCache;
+import com.mnao.mfp.list.cache.AllActiveEmployeesCache;
 import com.mnao.mfp.sec.jwt.JwtTokenUtil;
 import com.mnao.mfp.user.dao.MFPUser;
 import com.mnao.mfp.user.service.UserDetailsService;
@@ -32,7 +32,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 	private final boolean useSecJWT;
 	private final boolean useSecJWTCookie;
 	private JwtTokenUtil jwtTokenUtil = null;
-	private AllEmployeesCache allEmployeesCache = null;
+	private AllActiveEmployeesCache allEmployeesCache = null;
 	private UserDetailsService uds = null;
 
 	//
@@ -71,7 +71,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 		if (allEmployeesCache == null) {
 			ServletContext servletContext = request.getServletContext();
 			WebApplicationContext wac = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-			allEmployeesCache = wac.getBean(AllEmployeesCache.class);
+			allEmployeesCache = wac.getBean(AllActiveEmployeesCache.class);
 			uds = wac.getBean(UserDetailsService.class);
 		}
 		if (requestURI.equals("/error")) {
@@ -121,7 +121,7 @@ public class MFPRequestInterceptor implements HandlerInterceptor {
 			ServletContext servletContext = request.getServletContext();
 			WebApplicationContext wac = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
 			jwtTokenUtil = wac.getBean(JwtTokenUtil.class);
-			allEmployeesCache = wac.getBean(AllEmployeesCache.class);
+			allEmployeesCache = wac.getBean(AllActiveEmployeesCache.class);
 			uds = wac.getBean(UserDetailsService.class);
 		}
 		boolean rv = true;

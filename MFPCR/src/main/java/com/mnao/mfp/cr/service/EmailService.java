@@ -21,7 +21,7 @@ import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.email.EMazdamailsender;
 import com.mnao.mfp.list.cache.AllDealersCache;
-import com.mnao.mfp.list.cache.AllEmployeesCache;
+import com.mnao.mfp.list.cache.AllActiveEmployeesCache;
 import com.mnao.mfp.list.dao.ListPersonnel;
 import com.mnao.mfp.user.dao.MFPUser;
 import com.mnao.mfp.user.service.UserDetailsService;
@@ -36,7 +36,7 @@ public class EmailService extends MfpKPIControllerBase {
     @Autowired
     AllDealersCache allDealersCache;
     @Autowired 
-    AllEmployeesCache allEmployeesCache;
+    AllActiveEmployeesCache allEmployeesCache;
 
 	
 	public String sendEmailNotification(ContactReportInfo report, int origCRStatus, MFPUser mfpUser)
