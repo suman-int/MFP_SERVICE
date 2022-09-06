@@ -25,6 +25,7 @@ import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
+import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.list.cache.AllActiveEmployeesCache;
 import com.mnao.mfp.list.cache.AllDealersCache;
 import com.mnao.mfp.list.cache.CheckDealerChanges;
@@ -182,14 +183,21 @@ public class ListController extends MfpKPIControllerBase {
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		List<ListPersonnel> retRows = null;
 		MMAListService<ListPersonnel> service = new MMAListService<>();
+		boolean isCurrent = true;
 		if (id != null && id < 0) {
+			isCurrent = false;
 			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-			List<ContactReportDealerPersonnel> dps = reportDb.getDealerPersonnels();
-			List<String> ids = dps.stream().map(ContactReportDealerPersonnel::getPersonnelIdCd)
-					.collect(Collectors.toList());
-			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
-			retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
-		} else {
+			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+				List<ContactReportDealerPersonnel> dps = reportDb.getDealerPersonnels();
+				List<String> ids = dps.stream().map(ContactReportDealerPersonnel::getPersonnelIdCd)
+						.collect(Collectors.toList());
+				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
+				retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
+			} else {
+				isCurrent = true;
+			}
+		}
+		if (isCurrent) {
 			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALER_EMPLOYEES);
 			DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
 			try {
@@ -213,13 +221,20 @@ public class ListController extends MfpKPIControllerBase {
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		List<ListPersonnel> retRows = null;
 		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
+		boolean isCurrent = true;
 		if (id != null && id < 0) {
+			isCurrent = false;
 			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-			String rev = reportDb.getReviewedBy();
-			List<String> ids = Arrays.asList(rev);
-			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
-			retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
-		} else {
+			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+				String rev = reportDb.getReviewedBy();
+				List<String> ids = Arrays.asList(rev);
+				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
+				retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
+			} else {
+				isCurrent = true;
+			}
+		}
+		if (isCurrent) {
 			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEES);
 			String rgnSqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_REGIONAL_EMPLOYEES);
 			String reviewerJobCodesByAuthor = Utils.getAppProperty(AppConstants.CR_REVIEWER_JOB_CODES_BY_AUTHOR,
@@ -298,21 +313,36 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
 			@RequestParam(value = "id", defaultValue = "0") Long id,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_CORPORATE_EMPLOYEES);
 		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
 		List<ListPersonnel> retRows = null;
-		DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
-		try {
-			// DealerInfo dlrInfo = getDealerInfo(null, dlrCd);
-			DealerInfo dlrInfo = allDealersCache.getDealerInfo(dlrCd);
-			if (dlrInfo != null) {
-				retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(), dlrInfo.getZoneCd(),
-						dlrInfo.getDistrictCd(), dlrInfo.getRgnCd());
+		boolean isCurrent = true;
+		if (id != null && id < 0) {
+			isCurrent = false;
+			ContactReportInfo reportDb = contactInfoRepository.getById(id);
+			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+				String corps = reportDb.getCorporateReps();
+				List<String> ids = Arrays.asList(corps.split("[|]"));
+				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
+				retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
+			} else {
+				isCurrent = true;
 			}
-		} catch (InstantiationException | IllegalAccessException | ParseException e) {
-			log.error("ERROR retrieving list of Employees:", e);
 		}
-		checkEmployeeChanges.checkEmpChanges(retRows);
+		if (isCurrent) {
+			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_CORPORATE_EMPLOYEES);
+			DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
+			try {
+				// DealerInfo dlrInfo = getDealerInfo(null, dlrCd);
+				DealerInfo dlrInfo = allDealersCache.getDealerInfo(dlrCd);
+				if (dlrInfo != null) {
+					retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(),
+							dlrInfo.getZoneCd(), dlrInfo.getDistrictCd(), dlrInfo.getRgnCd());
+				}
+			} catch (InstantiationException | IllegalAccessException | ParseException e) {
+				log.error("ERROR retrieving list of Employees:", e);
+			}
+			checkEmployeeChanges.checkEmpChanges(retRows);
+		}
 		return AbstractService.httpPostSuccess(retRows, "Success");
 	}
 
@@ -329,26 +359,33 @@ public class ListController extends MfpKPIControllerBase {
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
 		List<ListPersonnel> retRows = null;
+		boolean isCurrent = true;
 		if (id != null && id < 0) {
+			isCurrent = false;
 			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-			String corps = reportDb.getCorporateReps();
-			List<String> ids = Arrays.asList(corps.split("[|]"));
-			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
-			retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
-		} else {
-		DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
-		try {
-			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_ACTIVE_EMPLOYEES);
-			DealerInfo dlrInfo = allDealersCache.getDealerInfo(dlrCd);
-			if (dlrInfo != null) {
-				retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(), dlrInfo.getZoneCd(),
-						dlrInfo.getDistrictCd(), dlrInfo.getRgnCd());
-				log.info("Returning {} Employee Information", retRows.size());
+			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+				String corps = reportDb.getCorporateReps();
+				List<String> ids = Arrays.asList(corps.split("[|]"));
+				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
+				retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
+			} else {
+				isCurrent = true;
 			}
-		} catch (InstantiationException | IllegalAccessException | ParseException e) {
-			log.error("ERROR retrieving list of Employees:", e);
 		}
-		checkEmployeeChanges.checkEmpChanges(retRows);
+		if (isCurrent) {
+			DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
+			try {
+				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_ACTIVE_EMPLOYEES);
+				DealerInfo dlrInfo = allDealersCache.getDealerInfo(dlrCd);
+				if (dlrInfo != null) {
+					retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(),
+							dlrInfo.getZoneCd(), dlrInfo.getDistrictCd(), dlrInfo.getRgnCd());
+					log.info("Returning {} Employee Information", retRows.size());
+				}
+			} catch (InstantiationException | IllegalAccessException | ParseException e) {
+				log.error("ERROR retrieving list of Employees:", e);
+			}
+			checkEmployeeChanges.checkEmpChanges(retRows);
 		}
 		return AbstractService.httpPostSuccess(retRows, "Success");
 	}
