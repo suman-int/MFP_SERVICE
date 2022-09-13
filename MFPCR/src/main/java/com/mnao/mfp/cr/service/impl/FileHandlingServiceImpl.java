@@ -257,7 +257,10 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 	}
 
 	public Resource loadFileAsResource(String fileName) {
-		Path filePath = Paths.get(getTemporaryFilePath(fileName));
+		Path filePath = Paths.get(fileName);
+		if (fileName.startsWith("_TEMP")) {
+			filePath = Paths.get(getTemporaryFilePath(fileName));
+		}
 		return downloadResource(filePath);
 	}
 

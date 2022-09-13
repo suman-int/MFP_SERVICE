@@ -225,14 +225,14 @@ public class ListController extends MfpKPIControllerBase {
 		if (id != null && id < 0) {
 			isCurrent = false;
 			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+//			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
 				String rev = reportDb.getContactReviewer();
 				List<String> ids = Arrays.asList(rev);
 				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
 				retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
-			} else {
-				isCurrent = true;
-			}
+//			} else {
+//				isCurrent = true;
+//			}
 		}
 		if (isCurrent) {
 			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEES);
@@ -319,14 +319,14 @@ public class ListController extends MfpKPIControllerBase {
 		if (id != null && id < 0) {
 			isCurrent = false;
 			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+//			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
 				String corps = reportDb.getCorporateReps();
 				List<String> ids = Arrays.asList(corps.split("[|]"));
 				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
 				retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
-			} else {
-				isCurrent = true;
-			}
+//			} else {
+//				isCurrent = true;
+//			}
 		}
 		if (isCurrent) {
 			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_CORPORATE_EMPLOYEES);
@@ -363,14 +363,14 @@ public class ListController extends MfpKPIControllerBase {
 		if (id != null && id < 0) {
 			isCurrent = false;
 			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+//			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
 				String corps = reportDb.getCorporateReps();
 				List<String> ids = Arrays.asList(corps.split("[|]"));
 				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
 				retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
-			} else {
-				isCurrent = true;
-			}
+//			} else {
+//				isCurrent = true;
+//			}
 		}
 		if (isCurrent) {
 			DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
