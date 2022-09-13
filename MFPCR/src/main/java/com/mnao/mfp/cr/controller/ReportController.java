@@ -122,9 +122,17 @@ public class ReportController {
 //    	return fileHandlingService.doUpload(files,request);
     }
 
-    @GetMapping(value = "downloadFileByPath/{fileName:.+}")
-    public ResponseEntity<Resource> downloadFileUsingFileName(@PathVariable String fileName,
-                                                              HttpServletRequest request) {
+    @GetMapping(value = "downloadFileByPath/**")
+    public ResponseEntity<Resource> downloadFileUsingFileName(HttpServletRequest request) {
+    	String uri= request.getRequestURI();
+    	String fnm = uri.split("/downloadFileByPath/")[1];
+    	return downloadFileUsingFileName(fnm, request);
+    }
+//    @GetMapping(value = "downloadFileByPath/{fileName:.+}")
+//    public ResponseEntity<Resource> downloadFileUsingFileName(@PathVariable String fileName,
+//                                                              HttpServletRequest request) {
+    public ResponseEntity<Resource> downloadFileUsingFileName(String fileName,
+                HttpServletRequest request) {
         // Load file as Resource
         Resource resource = fileHandlingService.loadFileAsResource(fileName);
 
