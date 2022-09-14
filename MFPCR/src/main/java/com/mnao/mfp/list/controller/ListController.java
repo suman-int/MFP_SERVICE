@@ -63,8 +63,9 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "zoneCd", defaultValue = "") String zoneCd,
 			@RequestParam(value = "districtCd", defaultValue = "") String districtCd,
 			@RequestParam(value = "mdaCd", defaultValue = "") String mdaCd,
+			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_UDB);
+		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_UDB_ACTIVE);
 		MMAListService<DealerInfo> service = new MMAListService<DealerInfo>();
 		List<DealerInfo> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, null, rgnCd, zoneCd, districtCd, mdaCd);
@@ -85,11 +86,12 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "districtCd", defaultValue = "") String districtCd,
 			@RequestParam(value = "mdaCd", defaultValue = "") String mdaCd,
 			@RequestParam(value = "like", defaultValue = "") String like,
+			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		if (like == null || like.trim().length() == 0) {
-			return listDealers(rgnCd, zoneCd, districtCd, mdaCd, mfpUser);
+			return listDealers(rgnCd, zoneCd, districtCd, mdaCd, onlyActive, mfpUser);
 		} else {
-			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_LIKE_UDB);
+			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_LIKE_UDB_ACTIVE);
 			MMAListService<DealerInfo> service = new MMAListService<DealerInfo>();
 			List<DealerInfo> retRows = null;
 			DealerFilter df = new DealerFilter(mfpUser, null, rgnCd, zoneCd, districtCd, mdaCd);
@@ -112,8 +114,9 @@ public class ListController extends MfpKPIControllerBase {
 	public CommonResponse<List<ListDistrict>> listDistricts(
 			@RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
 			@RequestParam(value = "zoneCd", defaultValue = "") String zoneCd,
+			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DISTRICTS);
+		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DISTRICTS_ACTIVE);
 		ListService<ListDistrict> service = new ListService<ListDistrict>();
 		List<ListDistrict> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, null, rgnCd, zoneCd, null, null);
@@ -128,8 +131,9 @@ public class ListController extends MfpKPIControllerBase {
 	//
 	@PostMapping("/ListZones")
 	public CommonResponse<List<ListZone>> listZones(@RequestParam(value = "rgnCd", defaultValue = "") String rgnCd,
+			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ZONES);
+		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ZONES_ACTIVE);
 		ListService<ListZone> service = new ListService<ListZone>();
 		List<ListZone> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, null, rgnCd, null, null, null);
@@ -143,8 +147,10 @@ public class ListController extends MfpKPIControllerBase {
 
 	//
 	@PostMapping("/ListRegions")
-	public CommonResponse<List<ListRegion>> listRegions(@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REGIONS);
+	public CommonResponse<List<ListRegion>> listRegions(			
+			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
+			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
+		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REGIONS_ACTIVE);
 		ListService<ListRegion> service = new ListService<ListRegion>();
 		List<ListRegion> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, null, null, null, null, null);
@@ -159,7 +165,7 @@ public class ListController extends MfpKPIControllerBase {
 	//
 	@PostMapping("/ListMarkets")
 	public CommonResponse<List<ListMarket>> listMarkets(@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_MARKETS);
+		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_MARKETS_ACTIVE);
 		ListService<ListMarket> service = new ListService<ListMarket>();
 		List<ListMarket> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, null, null, null, null, null);
