@@ -66,6 +66,9 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_UDB_ACTIVE);
+		if( onlyActive != 1 ) {
+			sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_UDB_ALL);
+		}
 		MMAListService<DealerInfo> service = new MMAListService<DealerInfo>();
 		List<DealerInfo> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, null, rgnCd, zoneCd, districtCd, mdaCd);
@@ -92,6 +95,9 @@ public class ListController extends MfpKPIControllerBase {
 			return listDealers(rgnCd, zoneCd, districtCd, mdaCd, onlyActive, mfpUser);
 		} else {
 			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_LIKE_UDB_ACTIVE);
+			if( onlyActive != 1 ) {
+				sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_LIKE_UDB_ALL);
+			}
 			MMAListService<DealerInfo> service = new MMAListService<DealerInfo>();
 			List<DealerInfo> retRows = null;
 			DealerFilter df = new DealerFilter(mfpUser, null, rgnCd, zoneCd, districtCd, mdaCd);
@@ -117,6 +123,9 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DISTRICTS_ACTIVE);
+		if( onlyActive != 1 ) {
+			sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DISTRICTS_ALL);
+		}
 		ListService<ListDistrict> service = new ListService<ListDistrict>();
 		List<ListDistrict> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, null, rgnCd, zoneCd, null, null);
@@ -134,6 +143,9 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ZONES_ACTIVE);
+		if( onlyActive != 1 ) {
+			sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ZONES_ALL);
+		}
 		ListService<ListZone> service = new ListService<ListZone>();
 		List<ListZone> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, null, rgnCd, null, null, null);
@@ -151,6 +163,9 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REGIONS_ACTIVE);
+		if( onlyActive != 1 ) {
+			sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REGIONS_ALL);
+		}
 		ListService<ListRegion> service = new ListService<ListRegion>();
 		List<ListRegion> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, null, null, null, null, null);
@@ -164,9 +179,14 @@ public class ListController extends MfpKPIControllerBase {
 
 	//
 	@PostMapping("/ListMarkets")
-	public CommonResponse<List<ListMarket>> listMarkets(@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
+	public CommonResponse<List<ListMarket>> listMarkets(
+			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
+			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_MARKETS_ACTIVE);
-		ListService<ListMarket> service = new ListService<ListMarket>();
+		if( onlyActive != 1 ) {
+			sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_MARKETS_ACTIVE);
+		}
+	ListService<ListMarket> service = new ListService<ListMarket>();
 		List<ListMarket> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, null, null, null, null, null);
 		try {
