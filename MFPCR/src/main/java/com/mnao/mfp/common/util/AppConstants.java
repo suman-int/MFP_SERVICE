@@ -76,13 +76,22 @@ public class AppConstants {
 	//
 	public static final String SQL_LIST_DEALERS = "LIST_DEALERS_V2.sql";
 	public static final String SQL_LIST_DEALERS_LIKE = "LIST_DEALERS_LIKE.sql";
-	public static final String SQL_LIST_DEALERS_UDB = "LIST_DEALERS_UDB.sql";
-	public static final String SQL_LIST_DEALERS_LIKE_UDB = "LIST_DEALERS_LIKE_UDB.sql";
 	public static final String SQL_LIST_DEALERS_BY_MARKET = "LIST_DEALERS.sql";
-	public static final String SQL_LIST_DISTRICTS = "LIST_DISTRICTS.sql";
-	public static final String SQL_LIST_MARKETS = "LIST_MARKETS.sql";
-	public static final String SQL_LIST_REGIONS = "LIST_REGIONS.sql";
-	public static final String SQL_LIST_ZONES = "LIST_ZONES.sql";
+	// Active Dealers
+	public static final String SQL_LIST_DEALERS_UDB_ACTIVE = "LIST_DEALERS_UDB.sql";
+	public static final String SQL_LIST_DEALERS_LIKE_UDB_ACTIVE = "LIST_DEALERS_LIKE_UDB.sql";
+	public static final String SQL_LIST_DISTRICTS_ACTIVE = "LIST_DISTRICTS.sql";
+	public static final String SQL_LIST_MARKETS_ACTIVE = "LIST_MARKETS.sql";
+	public static final String SQL_LIST_REGIONS_ACTIVE = "LIST_REGIONS.sql";
+	public static final String SQL_LIST_ZONES_ACTIVE = "LIST_ZONES.sql";
+	// All Dealers
+	public static final String SQL_LIST_DEALERS_UDB_ALL = "LIST_DEALERS_UDB_ALL.sql";
+	public static final String SQL_LIST_DEALERS_LIKE_UDB_ALL = "LIST_DEALERS_LIKE_UDB_ALL.sql";
+	public static final String SQL_LIST_DISTRICTS_ALL = "LIST_DISTRICTS_ALL.sql";
+	public static final String SQL_LIST_MARKETS_ALLE = "LIST_MARKETS_ALL.sql";
+	public static final String SQL_LIST_REGIONS_ALL = "LIST_REGIONS_ALL.sql";
+	public static final String SQL_LIST_ZONES_ALL = "LIST_ZONES_ALL.sql";
+	//
 	public static final String SQL_LIST_DEALER_EMPLOYEES = "LIST_DEALER_EMPLOYEES.sql";
 	public static final String SQL_LIST_REVIEWER_EMPLOYEES = "LIST_REVIEWER_EMPLOYEES.sql";
 	public static final String SQL_LIST_REVIEWER_REGIONAL_EMPLOYEES = "LIST_REVIEWER_REGIONAL_EMPLOYEES.sql";
