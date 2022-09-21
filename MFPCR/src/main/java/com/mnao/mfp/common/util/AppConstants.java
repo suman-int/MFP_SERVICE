@@ -84,7 +84,7 @@ public class AppConstants {
 	public static final String SQL_LIST_MARKETS_ACTIVE = "LIST_MARKETS.sql";
 	public static final String SQL_LIST_REGIONS_ACTIVE = "LIST_REGIONS.sql";
 	public static final String SQL_LIST_ZONES_ACTIVE = "LIST_ZONES.sql";
-	// All Dealers
+	// All Dealers 
 	public static final String SQL_LIST_DEALERS_UDB_ALL = "LIST_DEALERS_UDB_ALL.sql";
 	public static final String SQL_LIST_DEALERS_LIKE_UDB_ALL = "LIST_DEALERS_LIKE_UDB_ALL.sql";
 	public static final String SQL_LIST_DISTRICTS_ALL = "LIST_DISTRICTS_ALL.sql";

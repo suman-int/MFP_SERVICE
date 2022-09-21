@@ -161,7 +161,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 				}
 			}
 			// Additional Dealership personnel
-			String addPersonnel = reportDto.getDealerPersonnels().stream().filter(dp -> dp.getPersonnelId() == -999L)
+			String addPersonnel = reportDto.getDealerPersonnels().stream().filter(dp -> dp.getPersonnelId() == -9999999L)
 					.map(ContactReportDealerPersonnel::getPersonnelIdCd).collect(Collectors.joining("|"));
 			if (!addPersonnel.isEmpty()) {
 				reportDb.setAddDealerPersonnel(addPersonnel);
@@ -170,7 +170,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 			}
 			// Addition and Deletion of Dealer Personnel
 			reportDto.setDealerPersonnels(reportDto.getDealerPersonnels().stream()
-					.filter(dp -> dp.getPersonnelId() != -999L).collect(Collectors.toList()));
+					.filter(dp -> dp.getPersonnelId() != -9999999L).collect(Collectors.toList()));
 			addRemoveDealerPersonnel(reportDto, reportDb);
 			duplicateAttachmentChecker(reportDto.getAttachment());
 			/**
