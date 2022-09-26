@@ -88,7 +88,11 @@ public class ContactReportServiceImpl implements ContactReportService {
 				reportDb = contactInfoRepository.getById(reportDto.getContactReportId());
 				if (!mfpUser.getUserid().trim().equalsIgnoreCase(reportDb.getContactAuthor())) {
 					ListPersonnel lemp = allEmployeesCache.getByWSLCd(mfpUser.getUserid());
-					if (!lemp.isCorporatePerson()) {
+					if( lemp == null ) {
+						submission = "You are not authorized to modify this report.";
+						throw new Exception("You are not authorized to modify this report.");
+					}
+					else if (!lemp.isCorporatePerson()) {
 						if (!mfpUser.getEmployeeNumber().trim()
 								.equalsIgnoreCase(reportDb.getContactReviewer().trim())) {
 							submission = "You are not authorized to modify this report.";
