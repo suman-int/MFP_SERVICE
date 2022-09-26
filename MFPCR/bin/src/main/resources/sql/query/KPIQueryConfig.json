@@ -1,0 +1,46 @@
+[ {
+  "kpi" : "RetailCPOSales",
+  "kpiMetric" : "RetailSalesByDealer",
+  "baseTable" : "RETAIL_CPO_SALES",
+  "sqlQueryFile" : "RETAIL_SALES_BY_DEALER.sql"
+  },
+  {
+  "kpi" : "RetailCPOSales",
+  "kpiMetric" : "RetailSalesByDate",
+  "baseTable" : "RETAIL_CPO_SALES",
+  "sqlQueryFile" : "RETAIL_SALES_BY_DATE.sql"
+  },
+  {
+  "kpi" : "RetailCPOSales",
+  "kpiMetric" : "CPOSalesByDealer",
+  "baseTable" : "RETAIL_CPO_SALES",
+  "sqlQueryFile" : "CPO_SALES_BY_DEALER.sql"
+  },
+  {
+  "kpi" : "RetailCPOSales",
+  "kpiMetric" : "CPOSalesByDate",
+  "baseTable" : "RETAIL_CPO_SALES",
+  "sqlQueryFile" : "CPO_SALES_BY_DATE.sql"
+  },
+  {
+  "kpi" : "DaysOfSuppy",
+  "kpiMetric" : "DealerDSByDealer",
+  "sqlQueryFile" : "Dealer_DS_By_Dealer.sql"
+  },
+  {
+  "kpi" : "DaysOfSuppy",
+  "kpiMetric" : "DealerDSByDate",
+  "sqlQueryFile" : "Dealer_DS_By_Date.sql"
+  },
+  {
+  "kpi" : "RetailInventory",
+  "kpiMetric" : "RetailInventoryByDealer",
+  "baseTable" : "RETAIL_INVENTORY",
+  "sqlQueryFile" : "RETAIL_INVENTORY_BY_DEALER.sql"
+  },
+  {
+  "kpi" : "RetailInventory",
+  "kpiMetric" : "RetailInventoryByDate",
+  "baseTable" : "RETAIL_INVENTORY",
+  "sqlQueryFile" : "RETAIL_INVENTORY_BY_DATE.sql"
+  }  ]
