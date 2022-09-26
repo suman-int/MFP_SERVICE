@@ -58,6 +58,7 @@ public class PdfNeoService {
 
 	public String htmlToXhtml(String inputHTML) {
 		logger.info("htmlToXml started with html data");
+		inputHTML = inputHTML.replace("&nbsp;", " ");
 		Document document = Jsoup.parse(inputHTML, "UTF-8");
 		document.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
 		return document.html();
