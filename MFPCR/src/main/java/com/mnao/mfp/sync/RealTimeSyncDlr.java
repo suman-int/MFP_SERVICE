@@ -135,6 +135,7 @@ public class RealTimeSyncDlr extends SyncBase implements Runnable {
 	private int updateBatch(MFPDatabase mfpdb, Connection mfpconn, String inSQL, List<DealerInfo> dlrInfos,
 			MfpSyncStatus mfpSyncStatus) {
 		int rcnt = 0;
+		boolean batchInsert = false;
 		StringBuilder sb = new StringBuilder();
 		String rem = mfpSyncStatus.getRemarks();
 		if (rem == null)
@@ -142,6 +143,7 @@ public class RealTimeSyncDlr extends SyncBase implements Runnable {
 		else
 			rem = " | ";
 		sb.append(rem);
+		String currentDealer = null;
 		inSQL = Utils.replaceSchemaName(mfpconn, inSQL);
 		try (PreparedStatement ps = mfpconn.prepareStatement(inSQL)) {
 			for (DealerInfo dlr : dlrInfos) {
@@ -149,15 +151,26 @@ public class RealTimeSyncDlr extends SyncBase implements Runnable {
 					sb.append(", ");
 				}
 				setStatementParameterValues(ps, dlr);
-				ps.addBatch();
+				currentDealer = dlr.toString();
+				if (batchInsert) {
+					ps.addBatch();
+				} else {
+					ps.execute();
+				}
 				sb.append(dlr.getDlrCd());
 				rcnt++;
 			}
-			int[] cnt = ps.executeBatch();
+			if (batchInsert) {
+				int[] cnt = ps.executeBatch();
+			}
 			mfpSyncStatus.setRemarks(sb.toString());
 		} catch (SQLException e) {
 			mfpSyncStatus.addException(e.toString());
-			log.error("ERROR Inserting/Updating in Batch into DEALERS:", e);
+			String msg = "ERROR Inserting/Updating in Batch into DEALERS:";
+			if( (!batchInsert) && (currentDealer != null))  {
+				msg = msg + " DEALER:" + currentDealer;
+			}
+			log.error(msg, e);
 		}
 		return rcnt;
 	}
