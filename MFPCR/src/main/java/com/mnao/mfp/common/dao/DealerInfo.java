@@ -7,11 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class DealerInfo extends MetricData {
 	String dlrCd, dbaNm, statusCd, statusDt, rgnCd, cityNm, zip1Cd, cntyCd, stCd, mdaCd, soaNm, apptDt, termDt,
 			prevDLrCd, nxtDlrCd, timeZoneCd, soaCd, usedCarFl, cntryCd, zip2Cd, dlrInactvDt, svcOnlyFl, svcOnlyDt,

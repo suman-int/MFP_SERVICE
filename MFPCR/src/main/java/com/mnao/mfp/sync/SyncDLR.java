@@ -78,7 +78,8 @@ public class SyncDLR extends SyncBase {
 
 	}
 
-	private void doSync(MFPDatabase srcdb, MFPDatabase mfpdb, Connection mfpconn, Date lastUpdt, MfpSyncStatus mfpSyncStatus) {
+	private void doSync(MFPDatabase srcdb, MFPDatabase mfpdb, Connection mfpconn, Date lastUpdt,
+			MfpSyncStatus mfpSyncStatus) {
 		String sqlFolderName = Utils.getAppProperty(AppConstants.LOCATION_SQLFILES);
 		if (!sqlFolderName.endsWith("/"))
 			sqlFolderName += "/";
@@ -124,7 +125,8 @@ public class SyncDLR extends SyncBase {
 				stmt.execute(sql);
 				rv = true;
 			} catch (com.ibm.db2.jcc.am.SqlTimeoutException e) {
-				mfpSyncStatus.addMessage("SYNC DEALERS process is already running. Skipping sync process in this instance.");
+				mfpSyncStatus
+						.addMessage("SYNC DEALERS process is already running. Skipping sync process in this instance.");
 				log.debug("SYNC DEALERS process is already running. Skipping sync process in this instance.");
 			}
 		} catch (SQLException e) {
@@ -143,6 +145,7 @@ public class SyncDLR extends SyncBase {
 		db.execute(mfpconn, "DELETE FROM $SCHEMA$DEALERS_STAGE");
 		String insSql = getInsertStatement(rs);
 		insSql = Utils.replaceSchemaName(mfpconn, insSql);
+		boolean batchInsert = true;
 		try (PreparedStatement ps = mfpconn.prepareStatement(insSql)) {
 			ResultSetMetaData rsMeta = rs.getMetaData();
 			int ctr = 0;
@@ -153,12 +156,18 @@ public class SyncDLR extends SyncBase {
 					else
 						ps.setString(i, rs.getString(i));
 				}
-				ps.addBatch();
+				if (batchInsert) {
+					ps.addBatch();
+				} else {
+					ps.execute();
+				}
 				ctr++;
 			}
 			mfpSyncStatus.addMessage("Inserted " + ctr + " rows from " + mfpconn.getSchema() + " into DEALERS_STAGE.");
 			log.debug("Inserting " + ctr + " rows into DEALERS_STAGE.");
-			int[] rins = ps.executeBatch();
+			if (batchInsert) {
+				int[] rins = ps.executeBatch();
+			}
 		} catch (SQLException e) {
 			mfpSyncStatus.addException(e.toString());
 			log.error("", e);
@@ -193,7 +202,8 @@ public class SyncDLR extends SyncBase {
 		return insSql;
 	}
 
-	private Date getLastUpdateDate(MFPDatabase db, Connection mfpconn, String tbl, String col, MfpSyncStatus mfpSyncStatus) {
+	private Date getLastUpdateDate(MFPDatabase db, Connection mfpconn, String tbl, String col,
+			MfpSyncStatus mfpSyncStatus) {
 		Date dt = null;
 		String sql = "SELECT MAX(" + col + ") FROM $SCHEMA$" + tbl;
 		try (RowSet rs = db.executeQueryCRS(mfpconn, sql, (String[]) null)) {
@@ -202,7 +212,7 @@ public class SyncDLR extends SyncBase {
 				break;
 			}
 			rs.close();
-			mfpSyncStatus.addMessage("Retrieved Last Update Date: " + dt );
+			mfpSyncStatus.addMessage("Retrieved Last Update Date: " + dt);
 		} catch (SQLException e) {
 			mfpSyncStatus.addException(e.toString());
 			log.error("", e);
