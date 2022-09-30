@@ -331,7 +331,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 		Optional<Path> foundPath = null;
 		if (attachment.getAttachmentId() == 0) {
 			foundPath = findFile(fnm, Paths.get(tmpFpath));
-			if (!foundPath.isPresent()) {
+			if ((foundPath == null) || (!foundPath.isPresent())) {
 				foundPath = findFile(fnm, Paths.get(prmFpath));
 			}
 		} else {
@@ -340,7 +340,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 				foundPath = findFile(fnm, Paths.get(tmpFpath));
 			}
 		}
-		if (foundPath.isPresent()) {
+		if ((foundPath != null) && (foundPath.isPresent())) {
 			Path fpath = foundPath.get();
 			try {
 				Path correctedPath = doDBCorrection(attachment, fpath);
