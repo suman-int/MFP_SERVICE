@@ -289,7 +289,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 		if (filePath != null) {
 			Path fPath = filePath;
 			try {
-				if ((fPath.toString() != null) && fPath.toString().startsWith(storageMountName)) {
+				if ((fPath.toString() != null) && fPath.toString().startsWith("AppData")) {
 					fPath = Paths.get("/" + filePath.toString());
 				}
 				URI fURI = fPath.toUri();
