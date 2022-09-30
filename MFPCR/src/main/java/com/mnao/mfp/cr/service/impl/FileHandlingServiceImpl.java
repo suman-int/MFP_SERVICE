@@ -44,7 +44,7 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 	private static final Logger log = LoggerFactory.getLogger(FileHandlingServiceImpl.class);
 	private static final String TEMP_LOC_PREFIX = "_TEMP_";
 	private static final String SESSION_UPLOADED_FILES = "AttachmentUpload";
-	private String storageMountName="AppData";
+	private String storageMountName = "AppData";
 
 	//
 	@Autowired
@@ -286,20 +286,22 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 	}
 
 	public Resource downloadResource(Path filePath) {
-		Path fPath = filePath;
-		try {
-			if( fPath.toString().startsWith(storageMountName)) {
-				fPath = Paths.get("/" + filePath.toString());
+		if (filePath != null) {
+			Path fPath = filePath;
+			try {
+				if ((fPath.toString() != null) && fPath.toString().startsWith(storageMountName)) {
+					fPath = Paths.get("/" + filePath.toString());
+				}
+				URI fURI = fPath.toUri();
+				Resource resource = new UrlResource(fURI);
+				if (resource.exists()) {
+					return resource;
+				} else {
+					log.warn("No such file : {}", fURI);
+				}
+			} catch (MalformedURLException ex) {
+				log.error("No such file :", ex);
 			}
-			URI fURI = fPath.toUri();
-			Resource resource = new UrlResource(fURI);
-			if (resource.exists()) {
-				return resource;
-			} else {
-				log.warn("No such file : {}", fURI);
-			}
-		} catch (MalformedURLException ex) {
-			log.error("No such file :", ex);
 		}
 		return null;
 	}
