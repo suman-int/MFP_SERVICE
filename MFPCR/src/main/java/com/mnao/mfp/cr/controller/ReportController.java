@@ -149,9 +149,12 @@ public class ReportController {
             if (contentType == null) {
                 contentType = "application/octet-stream";
             }
-
+            String attchName = resource.getFilename();
+            if( attchName.startsWith("-")) {
+            	attchName = attchName.replace('-', 'm');
+            }
             return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + attchName + "\"")
                     .body(resource);
 
         } else {

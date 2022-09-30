@@ -44,9 +44,16 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 	private static final Logger log = LoggerFactory.getLogger(FileHandlingServiceImpl.class);
 	private static final String TEMP_LOC_PREFIX = "_TEMP_";
 	private static final String SESSION_UPLOADED_FILES = "AttachmentUpload";
+	private String storageMountName="AppData";
+
 	//
 	@Autowired
 	ContactReportAttachmentRepository attachmentRepository;
+
+	public FileHandlingServiceImpl() {
+		super();
+		this.storageMountName = Utils.getAppProperty(AppConstants.STORAGE_MOUNT_NAME);
+	}
 
 	@Override
 	public List<ContactInfoAttachmentDto> doUpload(MultipartFile[] files, HttpServletRequest request) {
@@ -279,12 +286,17 @@ public class FileHandlingServiceImpl implements FileHandlingService {
 	}
 
 	public Resource downloadResource(Path filePath) {
+		Path fPath = filePath;
 		try {
-			Resource resource = new UrlResource(filePath.toUri());
+			if( fPath.toString().startsWith(storageMountName)) {
+				fPath = Paths.get("/" + filePath.toString());
+			}
+			URI fURI = fPath.toUri();
+			Resource resource = new UrlResource(fURI);
 			if (resource.exists()) {
 				return resource;
 			} else {
-				log.warn("No such file : {}", filePath);
+				log.warn("No such file : {}", fURI);
 			}
 		} catch (MalformedURLException ex) {
 			log.error("No such file :", ex);
