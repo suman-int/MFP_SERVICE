@@ -21,7 +21,6 @@ import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.entity.Dealers;
 import com.mnao.mfp.cr.repository.DealerRepository;
 import com.mnao.mfp.cr.util.ContactReportEnum;
-import com.mnao.mfp.download.dao.DealerEmployeeInfo;
 import com.mnao.mfp.download.service.PDFService;
 import com.mnao.mfp.list.cache.AllActiveEmployeesCache;
 import com.mnao.mfp.list.dao.ListPersonnel;
@@ -250,7 +249,8 @@ public class PdfGenerateUtil {
 			+ "       <div >I have read and understand the report. I have verified that the appointment and information identified above is true to the best of my information and belief.</div>\r\n"
 			+ "      <div><span>Comment :</span>  __________________________________________________________________________________________________________________________________</div>\r\n"
 			+ "      <div style=\"text-align: right;\">Contact Form</div>\r\n"
-			+ "      <div style=\"text-align: right;\">Toll-Free Helpline: </div>\r\n" + "    </div>\r\n"
+//			+ "      <div style=\"text-align: right;\">Toll-Free Helpline: </div>\r\n" 
+			+ "    </div>\r\n"
 			+ "    </div>\r\n" + "\r\n" + "</body>\r\n" + "\r\n" + "</html>";
 
 	private final String DISCUSSION = "                      <tr>\r\n"
@@ -264,7 +264,7 @@ public class PdfGenerateUtil {
 		contactReports.forEach(cr -> {
 			log.debug("" + currentPageNumber.get());
 			Dealers dealers = new NullCheck<>(cr).with(ContactReportInfo::getDealers).orElse(new Dealers());
-			List<DealerEmployeeInfo> dps = pdfService.getDealerEmployeeInfos(mfpUser, cr.getDlrCd(),
+			List<ListPersonnel> dps = pdfService.getDealerEmployeeInfos(mfpUser, cr.getDlrCd(),
 					cr.getDealerPersonnels());
 			ListPersonnel rvr = allEmpCache.getByPrsnIdCd(cr.getContactReviewer());
 			String corpsStr = cr.getCorporateReps();

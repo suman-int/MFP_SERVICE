@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -41,6 +42,7 @@ import com.mnao.mfp.download.dao.DealerEmployeeInfo;
 import com.mnao.mfp.download.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.download.generate.PDFCRMain;
 import com.mnao.mfp.download.generate.PDFReport;
+import com.mnao.mfp.list.dao.ListPersonnel;
 import com.mnao.mfp.list.service.MMAListService;
 import com.mnao.mfp.user.dao.MFPUser;
 import com.mnao.mfp.user.service.UserDetailsService;
@@ -239,7 +241,7 @@ public class PDFServiceImpl extends MfpKPIControllerBase implements PDFService {
 			return false;
 		}
 		PDFCRMain pdfMain = new PDFCRMain();
-		List<DealerEmployeeInfo> dEmpInfos = getDealerEmployeeInfos(mfpUser, report.getDlrCd(),
+		List<ListPersonnel> dEmpInfos = getDealerEmployeeInfos(mfpUser, report.getDlrCd(),
 				report.getDealerPersonnels());
 		ReviewerEmployeeInfo revEmpInfo = getReviewerEmployeeInfos(mfpUser, report.getContactReviewer(), dInfo);
 		MFPUser author = getAuthorUser(mfpUser, report.getContactAuthor());
@@ -325,7 +327,17 @@ public class PDFServiceImpl extends MfpKPIControllerBase implements PDFService {
 	}
 
 	@Override
-	public List<DealerEmployeeInfo> getDealerEmployeeInfos(MFPUser mfpUser, String dlrCd,
+	public List<ListPersonnel> getDealerEmployeeInfos(MFPUser mfpUser, String dlrCd,
+			List<ContactReportDealerPersonnel> dPers) {
+		List<ListPersonnel> retRows = null;
+		MMAListService<ListPersonnel> service = new MMAListService<>();
+		List<String> ids = dPers.stream().map(ContactReportDealerPersonnel::getPersonnelIdCd)
+				.collect(Collectors.toList());
+		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
+		retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
+		return retRows;
+	}
+	public List<DealerEmployeeInfo> getDealerEmployeeInfosOld(MFPUser mfpUser, String dlrCd,
 			List<ContactReportDealerPersonnel> dPers) {
 		List<DealerEmployeeInfo> dEmpInfos = new ArrayList<DealerEmployeeInfo>();
 		if (dPers != null) {
