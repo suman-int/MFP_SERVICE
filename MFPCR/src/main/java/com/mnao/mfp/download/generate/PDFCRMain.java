@@ -5,22 +5,18 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.properties.UnitValue;
-import com.mnao.mfp.MFPContactReportsApplication;
 import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.util.ContactReportEnum;
-import com.mnao.mfp.download.dao.DealerEmployeeInfo;
 import com.mnao.mfp.download.dao.ReviewerEmployeeInfo;
 import com.mnao.mfp.list.cache.AllActiveEmployeesCache;
 import com.mnao.mfp.list.dao.ListPersonnel;
@@ -38,7 +34,7 @@ public class PDFCRMain {
 //
 
 	public void createPDF(PDFReport report, ContactReportInfo crInfo, MFPUser author, DealerInfo dInfo,
-			List<DealerEmployeeInfo> dEmpInfos, ReviewerEmployeeInfo revEmpInfo) {
+			List<ListPersonnel> dEmpInfos, ReviewerEmployeeInfo revEmpInfo) {
 		try {
 			addHeadPortion(report, crInfo, dInfo, author);
 			addPersonnel(report, crInfo, dEmpInfos, revEmpInfo, author);
@@ -76,7 +72,7 @@ public class PDFCRMain {
 		}
 	}
 
-	private void addPersonnel(PDFReport report, ContactReportInfo crInfo, List<DealerEmployeeInfo> dEmpInfos,
+	private void addPersonnel(PDFReport report, ContactReportInfo crInfo, List<ListPersonnel> dEmpInfos,
 			ReviewerEmployeeInfo revEmpInfo, MFPUser author) {
 		Paragraph p = new Paragraph();
 		Text txt = new Text("Personnel");
@@ -114,9 +110,9 @@ public class PDFCRMain {
 		StringBuilder dpers = new StringBuilder();
 		if (dps != null) {
 			if (dEmpInfos != null) {
-				for (DealerEmployeeInfo dei : dEmpInfos) {
+				for (ListPersonnel dei : dEmpInfos) {
 					String person = Utils.getNameString(dei.getFirstNm(), dei.getMidlNm(), dei.getLastNm());
-					person += ", " + dei.getJobTitleTx().trim();
+					person += ", " + dei.getJobTitleFx().trim();
 					dpers.append(person);
 					dpers.append("\n");
 				}
