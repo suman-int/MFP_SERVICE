@@ -430,7 +430,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 				.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode();
 		Predicate<ContactReportInfo> isReviewed = cr -> cr.getContactStatus() == ContactReportEnum.REVIEWED
 				.getStatusCode();
-		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthorAndIsActiveAndContactDtBetween(userId,
+		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthorAndIsActiveAndContactDtBetweenOrderByContactDtDesc(userId,
 				IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
 		List<ContactReportInfo> revCntactReportInfos = contactInfoRepository
 				.findByContactReviewerAndContactAuthorNotAndIsActiveAndContactDtBetween(empCd, userId, IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);

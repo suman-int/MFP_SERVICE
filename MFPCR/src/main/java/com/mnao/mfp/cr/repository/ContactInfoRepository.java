@@ -1,15 +1,16 @@
 package com.mnao.mfp.cr.repository;
 
-import com.mnao.mfp.cr.dto.ReportByDealershipDto;
-import com.mnao.mfp.cr.entity.ContactReportInfo;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.util.List;
+import com.mnao.mfp.cr.dto.ReportByDealershipDto;
+import com.mnao.mfp.cr.entity.ContactReportInfo;
 
 @Repository
 @PropertySource("classpath:/appSql.properties")
@@ -26,7 +27,8 @@ public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, 
 
     @Query(value = "SELECT new com.mnao.mfp.cr.dto.ReportByDealershipDto"
             + "(d.rgnCd, d.zoneCd, d.districtCd, cr.dlrCd, d.dbaNm, cr.contactReportId, cr.contactDt, cr.contactAuthor,cr.contactStatus,cr.currentIssues) "
-            + "FROM Dealers d JOIN d.CRI cr WHERE cr.dlrCd=:dlrCd AND cr.isActive='Y'")
+            + "FROM Dealers d JOIN d.CRI cr WHERE cr.dlrCd=:dlrCd AND cr.isActive='Y'"
+            + "ORDER BY cr.contactDt DESC")
     List<ReportByDealershipDto> findCurrentIssuesByDlrCd(@Param("dlrCd") String dlrCd);
 
     void deleteByContactReportIdAndContactStatusAndIsActive(@Param("contactReportId") long contactReportId,
@@ -36,7 +38,7 @@ public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, 
 
     List<ContactReportInfo> findByDlrCdInAndContactStatusNotAndIsActiveAndContactDtBetween(List<String> dlrCd, int status, String isActive, LocalDate dateFrom, LocalDate dateTo);
 
-    List<ContactReportInfo> findByContactAuthorAndIsActiveAndContactDtBetween(String authorId, String isActive, LocalDate dateFrom, LocalDate dateTo);
+    List<ContactReportInfo> findByContactAuthorAndIsActiveAndContactDtBetweenOrderByContactDtDesc(String authorId, String isActive, LocalDate dateFrom, LocalDate dateTo);
 
     List<ContactReportInfo> findByContactReviewerAndContactAuthorNotAndIsActiveAndContactDtBetween(String reviewerEmpCdd, String authorId, String isActive, LocalDate dateFrom, LocalDate dateTo);
 

@@ -69,7 +69,8 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 	public Path createBulkPdfByFilterCriteria(FilterCriteria filter, MFPUser mfpUser)
 			throws DocumentException, FileNotFoundException, IOException {
 		Path filePath = null;
-		List<ContactReportInfo> contactReports = contactInfoRepository.findByIsActiveAndContactDtBetween(IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
+		List<ContactReportInfo> contactReports = contactInfoRepository.findByIsActiveAndContactDtBetween(
+				IsActiveEnum.YES.getValue(), filter.getStartDate(), filter.getEndDate());
 		contactReports = contactReports.stream()
 				.filter(cr -> cr.getContactStatus() != ContactReportEnum.DRAFT.getStatusCode())
 				.collect(Collectors.toList());
@@ -122,7 +123,8 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 	@Override
 	public Path createBulkExcelReportByFilterCriteria(FilterCriteria filter, MFPUser mfpUser) {
 		Path filePath = null;
-		List<ContactReportInfo> contactReports = contactInfoRepository.findByIsActiveAndContactDtBetween(IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
+		List<ContactReportInfo> contactReports = contactInfoRepository.findByIsActiveAndContactDtBetween(
+				IsActiveEnum.YES.getValue(), filter.getStartDate(), filter.getEndDate());
 		if (!CollectionUtils.isEmpty(filter.getIssuesFilter())) {
 			contactReports = dataOperationFilter.filterContactReportsByIssues(filter, contactReports);
 		}
@@ -221,20 +223,19 @@ public class ContactReportPDFServiceImpl implements ContactReportPDFService {
 		objEMazdamailsender.set_mimeType("text/html");
 		String emailFrom = Utils.getAppProperty(AppConstants.REVIEW_MAIL_FROM);
 		String subject = "Your requested download from Dealer Contact Report.";
-		String body = "Please find attached your requested download from Dealer Contact Report: " ;
-		if( filePath == null ) {
+		String body = "Please find attached your requested download from Dealer Contact Report: ";
+		if (filePath == null) {
 			body += "NO DATA AVAILABLE MATCHING YOUR SELECTION CRITERIA";
 			resp = "NO File Created!";
-		}
-		else {
+		} else {
 			body += filePath.getFileName();
 		}
 		String emailTo = mfpUser.getEmail();
 		String[] to = new String[] { emailTo };
 		String[] cc = new String[0];
 		String[] bcc = new String[0];
-		String[] att = null ;
-		if( filePath != null ) {
+		String[] att = null;
+		if (filePath != null) {
 			att = new String[] { filePath.toString() };
 		}
 		objEMazdamailsender.SendMazdaMail(emailFrom, to, cc, bcc, subject, body, att);
