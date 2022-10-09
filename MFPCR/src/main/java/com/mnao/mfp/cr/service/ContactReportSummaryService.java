@@ -468,7 +468,7 @@ public class ContactReportSummaryService {
 		String issue = filterCriteria.getIssuesFilter().get(0);
 		List<ContactReportInfo> contactReportInfoList = contactInfoRepository
 				.findByCurrentIssuesContainingAndIsActiveAndContactDtBetween(issue, IsActiveEnum.YES.getValue(),
-						AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
+						filterCriteria.getStartDate(), filterCriteria.getEndDate());
 		contactReportInfoList = dataOperationFilter.filterContactReportsByLocation(filterCriteria,
 				contactReportInfoList, mfpUser);
 		Set<Dealers> dealerList = contactReportInfoList.stream().map(ContactReportInfo::getDealers)
