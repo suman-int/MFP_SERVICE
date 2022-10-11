@@ -58,10 +58,14 @@ public class PdfNeoService {
 
 	public String htmlToXhtml(String inputHTML) {
 		logger.info("htmlToXml started with html data");
-		inputHTML = inputHTML.replace("&nbsp;", " ");
+		inputHTML = inputHTML.replaceAll("[&]{0,1}nbsp[;]{0,1}", " ");
+		inputHTML = inputHTML.replace((char) 0x1A, ' ');
 		Document document = Jsoup.parse(inputHTML, "UTF-8");
 		document.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
-		return document.html();
+		String html = document.html();
+		html = html.replaceAll("[&]{0,1}nbsp[;]{0,1}", " ");
+		html = html.replace((char) 0x1A, ' ');
+		return html;
 	}
 
 	public Path getTmpFilePath(MFPUser mfpUser, String prefix, String postfix, String extn) {
