@@ -25,7 +25,6 @@ import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
-import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.list.cache.AllActiveEmployeesCache;
 import com.mnao.mfp.list.cache.AllDealersCache;
 import com.mnao.mfp.list.cache.CheckDealerChanges;
@@ -213,15 +212,15 @@ public class ListController extends MfpKPIControllerBase {
 		if (id != null && id < 0) {
 			isCurrent = false;
 			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+//			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
 				List<ContactReportDealerPersonnel> dps = reportDb.getDealerPersonnels();
 				List<String> ids = dps.stream().map(ContactReportDealerPersonnel::getPersonnelIdCd)
 						.collect(Collectors.toList());
 				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
 				retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
-			} else {
-				isCurrent = true;
-			}
+//			} else {
+//				isCurrent = true;
+//			}
 		}
 		if (isCurrent) {
 			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALER_EMPLOYEES);
