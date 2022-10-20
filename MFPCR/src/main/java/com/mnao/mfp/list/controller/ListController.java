@@ -1,6 +1,8 @@
 package com.mnao.mfp.list.controller;
 
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +27,7 @@ import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
+import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.list.cache.AllActiveEmployeesCache;
 import com.mnao.mfp.list.cache.AllDealersCache;
 import com.mnao.mfp.list.cache.CheckDealerChanges;
@@ -65,7 +68,7 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_UDB_ACTIVE);
-		if( onlyActive != 1 ) {
+		if (onlyActive != 1) {
 			sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_UDB_ALL);
 		}
 		MMAListService<DealerInfo> service = new MMAListService<DealerInfo>();
@@ -94,7 +97,7 @@ public class ListController extends MfpKPIControllerBase {
 			return listDealers(rgnCd, zoneCd, districtCd, mdaCd, onlyActive, mfpUser);
 		} else {
 			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_LIKE_UDB_ACTIVE);
-			if( onlyActive != 1 ) {
+			if (onlyActive != 1) {
 				sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALERS_LIKE_UDB_ALL);
 			}
 			MMAListService<DealerInfo> service = new MMAListService<DealerInfo>();
@@ -122,7 +125,7 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DISTRICTS_ACTIVE);
-		if( onlyActive != 1 ) {
+		if (onlyActive != 1) {
 			sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DISTRICTS_ALL);
 		}
 		ListService<ListDistrict> service = new ListService<ListDistrict>();
@@ -142,7 +145,7 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ZONES_ACTIVE);
-		if( onlyActive != 1 ) {
+		if (onlyActive != 1) {
 			sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ZONES_ALL);
 		}
 		ListService<ListZone> service = new ListService<ListZone>();
@@ -158,11 +161,11 @@ public class ListController extends MfpKPIControllerBase {
 
 	//
 	@PostMapping("/ListRegions")
-	public CommonResponse<List<ListRegion>> listRegions(			
+	public CommonResponse<List<ListRegion>> listRegions(
 			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REGIONS_ACTIVE);
-		if( onlyActive != 1 ) {
+		if (onlyActive != 1) {
 			sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REGIONS_ALL);
 		}
 		ListService<ListRegion> service = new ListService<ListRegion>();
@@ -182,10 +185,10 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "onlyActive", defaultValue = "1") Integer onlyActive,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_MARKETS_ACTIVE);
-		if( onlyActive != 1 ) {
+		if (onlyActive != 1) {
 			sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_MARKETS_ACTIVE);
 		}
-	ListService<ListMarket> service = new ListService<ListMarket>();
+		ListService<ListMarket> service = new ListService<ListMarket>();
 		List<ListMarket> retRows = null;
 		DealerFilter df = new DealerFilter(mfpUser, null, null, null, null, null);
 		try {
@@ -205,28 +208,38 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "mdaCd", defaultValue = "") String mdaCd,
 			@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
 			@RequestParam(value = "id", defaultValue = "0") Long id,
+			@RequestParam(value = "contactDate", defaultValue = "") String contactDateStr,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		List<ListPersonnel> retRows = null;
 		MMAListService<ListPersonnel> service = new MMAListService<>();
+		LocalDate crDate = LocalDate.now();
 		boolean isCurrent = true;
-		if (id != null && id < 0) {
+		if ((id != null) && (id != 0)) {
 			isCurrent = false;
 			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-//			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+			if ((reportDb == null) ) {
+				isCurrent = true;
+			} else if ((id > 0) && (reportDb.getContactStatus() != ContactReportEnum.REVIEWED.getStatusCode())) {
+				crDate = reportDb.getContactDt();
+				isCurrent = true;
+			} else {
 				List<ContactReportDealerPersonnel> dps = reportDb.getDealerPersonnels();
 				List<String> ids = dps.stream().map(ContactReportDealerPersonnel::getPersonnelIdCd)
 						.collect(Collectors.toList());
 				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
 				retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
-//			} else {
-//				isCurrent = true;
-//			}
+			}
 		}
 		if (isCurrent) {
 			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_DEALER_EMPLOYEES);
 			DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
+			if ((contactDateStr != null) && (contactDateStr.trim().length() == 10)) {
+				crDate = LocalDate.parse(contactDateStr.trim(),
+						DateTimeFormatter.ofPattern(AppConstants.LOCALDATE_FORMAT));
+			}
 			try {
-				retRows = service.getListData(sqlName, ListPersonnel.class, df, df.getDlrCd());
+				String strCrDate = crDate.format(DateTimeFormatter.ofPattern(AppConstants.LOCALDATE_FORMAT));
+				retRows = service.getListData(sqlName, ListPersonnel.class, df, df.getDlrCd(), strCrDate);
 			} catch (InstantiationException | IllegalAccessException | ParseException e) {
 				log.error("ERROR retrieving list of Employees:", e);
 			}
@@ -250,14 +263,10 @@ public class ListController extends MfpKPIControllerBase {
 		if (id != null && id < 0) {
 			isCurrent = false;
 			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-//			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
-				String rev = reportDb.getContactReviewer();
-				List<String> ids = Arrays.asList(rev);
-				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
-				retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
-//			} else {
-//				isCurrent = true;
-//			}
+			String rev = reportDb.getContactReviewer();
+			List<String> ids = Arrays.asList(rev);
+			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
+			retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
 		}
 		if (isCurrent) {
 			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEES);
@@ -344,14 +353,10 @@ public class ListController extends MfpKPIControllerBase {
 		if (id != null && id < 0) {
 			isCurrent = false;
 			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-//			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
-				String corps = reportDb.getCorporateReps();
-				List<String> ids = Arrays.asList(corps.split("[|]"));
-				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
-				retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
-//			} else {
-//				isCurrent = true;
-//			}
+			String corps = reportDb.getCorporateReps();
+			List<String> ids = Arrays.asList(corps.split("[|]"));
+			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
+			retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
 		}
 		if (isCurrent) {
 			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_CORPORATE_EMPLOYEES);
@@ -381,30 +386,41 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "mdaCd", defaultValue = "") String mdaCd,
 			@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
 			@RequestParam(value = "id", defaultValue = "0") Long id,
+			@RequestParam(value = "contactDate", defaultValue = "") String contactDateStr,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
 		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
 		List<ListPersonnel> retRows = null;
+		LocalDate crDate = LocalDate.now();
 		boolean isCurrent = true;
-		if (id != null && id < 0) {
+		if ((id != null) && (id != 0)) {
 			isCurrent = false;
 			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-//			if (reportDb != null && reportDb.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()) {
+			if ((reportDb == null) ) {
+				isCurrent = true;
+			} else if ((id > 0) && (reportDb.getContactStatus() != ContactReportEnum.REVIEWED.getStatusCode())) {
+				crDate = reportDb.getContactDt();
+				isCurrent = true;
+			} else {
 				String corps = reportDb.getCorporateReps();
 				List<String> ids = Arrays.asList(corps.split("[|]"));
 				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
 				retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
-//			} else {
-//				isCurrent = true;
-//			}
+			}
 		}
 		if (isCurrent) {
 			DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
+			if ((contactDateStr != null) && (contactDateStr.trim().length() == 10)) {
+				crDate = LocalDate.parse(contactDateStr.trim(),
+						DateTimeFormatter.ofPattern(AppConstants.LOCALDATE_FORMAT));
+			}
 			try {
 				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_ACTIVE_EMPLOYEES);
 				DealerInfo dlrInfo = allDealersCache.getDealerInfo(dlrCd);
 				if (dlrInfo != null) {
-					retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(),
-							dlrInfo.getZoneCd(), dlrInfo.getDistrictCd(), dlrInfo.getRgnCd());
+					String strCrDate = crDate.format(DateTimeFormatter.ofPattern(AppConstants.LOCALDATE_FORMAT));
+//					retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(),
+//							dlrInfo.getZoneCd(), dlrInfo.getDistrictCd(), dlrInfo.getRgnCd(), strCrDate);
+					retRows = service.getListData(sqlName, ListPersonnel.class, df, strCrDate);
 					log.info("Returning {} Employee Information", retRows.size());
 				}
 			} catch (InstantiationException | IllegalAccessException | ParseException e) {
