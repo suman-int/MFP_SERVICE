@@ -409,7 +409,7 @@ public class ListController extends MfpKPIControllerBase {
 		}
 		if (isCurrent) {
 			DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
-			if ((contactDateStr != null) && (contactDateStr.trim().length() == 10)) {
+			if (contactDateStr != null) {
 				crDate = LocalDate.parse(contactDateStr.trim(),
 						DateTimeFormatter.ofPattern(AppConstants.LOCALDATE_FORMAT));
 			}

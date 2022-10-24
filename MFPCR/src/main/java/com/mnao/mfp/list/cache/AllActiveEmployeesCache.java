@@ -2,6 +2,7 @@ package com.mnao.mfp.list.cache;
 
 import java.text.ParseException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -148,8 +149,9 @@ public class AllActiveEmployeesCache extends MfpKPIControllerBase {
 		allEmployeesList.clear();
 		allEmployeesById.clear();
 		allEmployeesByWSLId.clear();
+		String stDate = AppConstants.MIN_DB_DATE.format(DateTimeFormatter.ofPattern(AppConstants.LOCALDATE_FORMAT));
 		try {
-			retRows = service.getListData(sqlName, ListPersonnel.class, df);
+			retRows = service.getListData(sqlName, ListPersonnel.class, df, stDate);
 		} catch (InstantiationException | IllegalAccessException | ParseException e) {
 			log.error("ERROR retrieving list of Employees:", e);
 		}
