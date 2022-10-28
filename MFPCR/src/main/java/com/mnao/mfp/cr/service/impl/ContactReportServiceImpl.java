@@ -325,6 +325,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 				boolean found = false;
 				for (ContactReportDealerPersonnel newDp : newPers) {
 					if (newDp.getPersonnelIdCd().equalsIgnoreCase(existingDp.getPersonnelIdCd())) {
+						existingDp.setIsActive("Y");
 						found = true;
 						break;
 					}
