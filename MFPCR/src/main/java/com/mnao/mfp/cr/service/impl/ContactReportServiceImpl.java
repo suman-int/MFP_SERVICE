@@ -452,6 +452,8 @@ public class ContactReportServiceImpl implements ContactReportService {
 				.sorted((ContactReportInfo cr1, ContactReportInfo cr2) -> compareByUpdatedDate(cr1, cr2))
 				.map(reportInfo -> ContactReportInfoDto.builder().contactReportId(reportInfo.getContactReportId())
 						.contactDt(reportInfo.getContactDt()).dealers(reportInfo.getDealers())
+//TODO: set forcedDraft based on validation
+						.forcedDraft(validateAndForceDraft(reportInfo))
 						.contactStatus(reportInfo.getContactStatus())
 						.updatedDt(reportInfo.getUpdatedDt() != null ? reportInfo.getUpdatedDt()
 								: reportInfo.getCreatedDt())
@@ -480,6 +482,11 @@ public class ContactReportServiceImpl implements ContactReportService {
 		});
 		return contactReportDtoMaps;
 
+	}
+
+	private boolean validateAndForceDraft(ContactReportInfo reportInfo) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
