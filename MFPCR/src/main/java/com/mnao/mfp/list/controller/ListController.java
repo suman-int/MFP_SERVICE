@@ -3,7 +3,6 @@ package com.mnao.mfp.list.controller;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,7 +22,6 @@ import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.common.dto.CommonResponse;
 import com.mnao.mfp.common.service.AbstractService;
 import com.mnao.mfp.common.util.AppConstants;
-import com.mnao.mfp.common.util.Utils;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
@@ -31,12 +29,12 @@ import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.list.cache.AllActiveEmployeesCache;
 import com.mnao.mfp.list.cache.AllDealersCache;
 import com.mnao.mfp.list.cache.CheckDealerChanges;
-import com.mnao.mfp.list.cache.CheckEmployeeChanges;
 import com.mnao.mfp.list.dao.ListDistrict;
 import com.mnao.mfp.list.dao.ListMarket;
 import com.mnao.mfp.list.dao.ListPersonnel;
 import com.mnao.mfp.list.dao.ListRegion;
 import com.mnao.mfp.list.dao.ListZone;
+import com.mnao.mfp.list.service.ListEmployeeDataService;
 import com.mnao.mfp.list.service.ListService;
 import com.mnao.mfp.list.service.MMAListService;
 import com.mnao.mfp.user.dao.MFPUser;
@@ -46,18 +44,18 @@ import com.mnao.mfp.user.dao.MFPUser;
 @RequestMapping("/Lists/")
 public class ListController extends MfpKPIControllerBase {
 	//
-	private static final Logger log = LoggerFactory.getLogger(ListController.class);
+	public static final Logger log = LoggerFactory.getLogger(ListController.class);
 	//
 	@Autowired
 	AllActiveEmployeesCache allEmployeesCache;
 	@Autowired
-	AllDealersCache allDealersCache;
+	private AllDealersCache allDealersCache;
 	@Autowired
-	CheckEmployeeChanges checkEmployeeChanges;
-	@Autowired
-	CheckDealerChanges checkDealerChanges;
+	private CheckDealerChanges checkDealerChanges;
 	@Autowired
 	private ContactInfoRepository contactInfoRepository;
+	@Autowired
+	private ListEmployeeDataService employeeDataService;
 
 	//
 	@PostMapping("/ListDealers")
@@ -217,7 +215,7 @@ public class ListController extends MfpKPIControllerBase {
 		if ((id != null) && (id != 0)) {
 			isCurrent = false;
 			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-			if ((reportDb == null) ) {
+			if ((reportDb == null)) {
 				isCurrent = true;
 			} else if ((id > 0) && (reportDb.getContactStatus() != ContactReportEnum.REVIEWED.getStatusCode())) {
 				crDate = reportDb.getContactDt();
@@ -257,84 +255,9 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
 			@RequestParam(value = "id", defaultValue = "0") Long id,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-		List<ListPersonnel> retRows = null;
-		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
-		boolean isCurrent = true;
-		if (id != null && id < 0) {
-			isCurrent = false;
-			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-			String rev = reportDb.getContactReviewer();
-			List<String> ids = Arrays.asList(rev);
-			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
-			retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
-		}
-		if (isCurrent) {
-			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_EMPLOYEES);
-			String rgnSqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_REVIEWER_REGIONAL_EMPLOYEES);
-			String reviewerJobCodesByAuthor = Utils.getAppProperty(AppConstants.CR_REVIEWER_JOB_CODES_BY_AUTHOR,
-					"false");
-			String reviewerJobCodes = Utils.getAppProperty(AppConstants.CR_REVIEWER_JOB_CODES);
-			String[] jobCodes = reviewerJobCodes.split("[,]");
-			DealerFilter df = new DealerFilter(null, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
-			try {
-				// DealerInfo dlrInfo = getDealerInfo(null, dlrCd);
-				DealerInfo dlrInfo = allDealersCache.getDealerInfo(dlrCd);
-				if (dlrInfo != null) {
-					if (reviewerJobCodesByAuthor.equalsIgnoreCase("true")) {
-						retRows = getReviewers(sqlName, rgnSqlName, mfpUser, service, df, dlrInfo);
-					} else {
-						retRows = getReviewers(sqlName, rgnSqlName, jobCodes, 0, service, df, dlrInfo);
-					}
-				}
-			} catch (InstantiationException | IllegalAccessException | ParseException e) {
-				log.error("ERROR retrieving list of Employees:", e);
-			}
-			checkEmployeeChanges.checkEmpChanges(retRows);
-		}
+		List<ListPersonnel> retRows = employeeDataService.getListOfReviewers(dlrCd, id, mfpUser, rgnCd, zoneCd,
+				districtCd, mdaCd);
 		return AbstractService.httpPostSuccess(retRows, "Success");
-	}
-
-	private List<ListPersonnel> getReviewers(String sqlName, String rgnSqlName, MFPUser mfpUser,
-			MMAListService<ListPersonnel> service, DealerFilter df, DealerInfo dlrInfo)
-			throws InstantiationException, IllegalAccessException, ParseException {
-		String reviewerJobCodes = Utils.getAppProperty(AppConstants.CR_REVIEWER_JOB_CODES);
-		String[] jobCodes = reviewerJobCodes.split("[,]");
-		String revStart = "MZ11";
-		List<ListPersonnel> retRows = null;
-		if (mfpUser.getCorporatePerson() || mfpUser.getCorpPerson() || mfpUser.getLoctnCd().equalsIgnoreCase("MA92")
-				|| " MF11 MG11 ".indexOf(mfpUser.getPrimJobCd().toUpperCase()) > 0) {
-			revStart = "MG11";
-		} else if ("MZ11".equalsIgnoreCase(mfpUser.getPrimJobCd())) {
-			revStart = "MF11";
-		} else {
-			revStart = "MZ11";
-		}
-		for (int i = 0; i < jobCodes.length; i++) {
-			if (revStart.equals(jobCodes[i])) {
-				retRows = getReviewers(sqlName, rgnSqlName, jobCodes, i, service, df, dlrInfo);
-				break;
-			}
-		}
-		return retRows;
-	}
-
-	private List<ListPersonnel> getReviewers(String sqlName, String rgnSqlName, String[] jobCodes, int stIdx,
-			MMAListService<ListPersonnel> service, DealerFilter df, DealerInfo dlrInfo)
-			throws ParseException, InstantiationException, IllegalAccessException {
-		List<ListPersonnel> retRows = null;
-		for (int i = stIdx; i < jobCodes.length; i++) {
-			if (i == 0) {
-				retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(),
-						dlrInfo.getZoneCd());
-			} else {
-				retRows = service.getListData(rgnSqlName, ListPersonnel.class, df, jobCodes[i], dlrInfo.getRgnCd());
-			}
-			if ((retRows != null) && retRows.size() > 0) {
-				log.info("Found Reviewer(s) with JOB_CD = " + jobCodes[i]);
-				break;
-			}
-		}
-		return retRows;
 	}
 
 	//
@@ -347,32 +270,8 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "dlrCd", defaultValue = "") String dlrCd,
 			@RequestParam(value = "id", defaultValue = "0") Long id,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
-		List<ListPersonnel> retRows = null;
-		boolean isCurrent = true;
-		if (id != null && id < 0) {
-			isCurrent = false;
-			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-			String corps = reportDb.getCorporateReps();
-			List<String> ids = Arrays.asList(corps.split("[|]"));
-			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
-			retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
-		}
-		if (isCurrent) {
-			String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_CORPORATE_EMPLOYEES);
-			DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
-			try {
-				// DealerInfo dlrInfo = getDealerInfo(null, dlrCd);
-				DealerInfo dlrInfo = allDealersCache.getDealerInfo(dlrCd);
-				if (dlrInfo != null) {
-					retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(),
-							dlrInfo.getZoneCd(), dlrInfo.getDistrictCd(), dlrInfo.getRgnCd());
-				}
-			} catch (InstantiationException | IllegalAccessException | ParseException e) {
-				log.error("ERROR retrieving list of Employees:", e);
-			}
-			checkEmployeeChanges.checkEmpChanges(retRows);
-		}
+		List<ListPersonnel> retRows = employeeDataService.getListOfCorporateEmployeesFiltered(rgnCd, zoneCd, districtCd,
+				mdaCd, dlrCd, id, mfpUser);
 		return AbstractService.httpPostSuccess(retRows, "Success");
 	}
 
@@ -388,46 +287,8 @@ public class ListController extends MfpKPIControllerBase {
 			@RequestParam(value = "id", defaultValue = "0") Long id,
 			@RequestParam(value = "contactDate", defaultValue = "") String contactDateStr,
 			@SessionAttribute(name = "mfpUser") MFPUser mfpUser) {
-		MMAListService<ListPersonnel> service = new MMAListService<ListPersonnel>();
-		List<ListPersonnel> retRows = null;
-		LocalDate crDate = LocalDate.now();
-		boolean isCurrent = true;
-		if ((id != null) && (id != 0)) {
-			isCurrent = false;
-			ContactReportInfo reportDb = contactInfoRepository.getById(id);
-			if ((reportDb == null) ) {
-				isCurrent = true;
-			} else if ((id > 0) && (reportDb.getContactStatus() != ContactReportEnum.REVIEWED.getStatusCode())) {
-				crDate = reportDb.getContactDt();
-				isCurrent = true;
-			} else {
-				String corps = reportDb.getCorporateReps();
-				List<String> ids = Arrays.asList(corps.split("[|]"));
-				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_EMPLOYEES);
-				retRows = service.getEmpDataAllEmployees(sqlName, ListPersonnel.class, "A.PRSN_ID_CD", ids);
-			}
-		}
-		if (isCurrent) {
-			DealerFilter df = new DealerFilter(mfpUser, dlrCd, rgnCd, zoneCd, districtCd, mdaCd);
-			if (contactDateStr != null) {
-				crDate = LocalDate.parse(contactDateStr.trim(),
-						DateTimeFormatter.ofPattern(AppConstants.LOCALDATE_FORMAT));
-			}
-			try {
-				String sqlName = getKPIQueryFilePath(AppConstants.SQL_LIST_ALL_ACTIVE_EMPLOYEES);
-				DealerInfo dlrInfo = allDealersCache.getDealerInfo(dlrCd);
-				if (dlrInfo != null) {
-					String strCrDate = crDate.format(DateTimeFormatter.ofPattern(AppConstants.LOCALDATE_FORMAT));
-//					retRows = service.getListData(sqlName, ListPersonnel.class, df, dlrInfo.getRgnCd(),
-//							dlrInfo.getZoneCd(), dlrInfo.getDistrictCd(), dlrInfo.getRgnCd(), strCrDate);
-					retRows = service.getListData(sqlName, ListPersonnel.class, df, strCrDate);
-					log.info("Returning {} Employee Information", retRows.size());
-				}
-			} catch (InstantiationException | IllegalAccessException | ParseException e) {
-				log.error("ERROR retrieving list of Employees:", e);
-			}
-			checkEmployeeChanges.checkEmpChanges(retRows);
-		}
+		List<ListPersonnel> retRows = employeeDataService.getListOfCorporateEmployeesAll(rgnCd, zoneCd, districtCd,
+				mdaCd, dlrCd, id, contactDateStr, mfpUser);
 		return AbstractService.httpPostSuccess(retRows, "Success");
 	}
 
