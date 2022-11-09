@@ -91,9 +91,9 @@ public class ReportController {
     }
 
     @GetMapping(value = "getReportById/{contactReportId}")
-    public ContactReportResponse getReportById(@PathVariable long contactReportId) {
+    public ContactReportResponse getReportById(@PathVariable long contactReportId, MFPUser mfpUser) {
         return GenericResponseWrapper.contactReportResponseFunction
-                .apply(contactReportService.findByContactReportId(contactReportId), null);
+                .apply(contactReportService.findByContactReportId(contactReportId, mfpUser), null);
 
     }
 
