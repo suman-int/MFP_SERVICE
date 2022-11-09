@@ -3,7 +3,19 @@ package com.mnao.mfp.cr.entity;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -90,6 +102,9 @@ public class ContactReportInfo extends BaseEntity {
 	private Dealers dealers;
 
 	private String addDealerPersonnel;
+	
+	@Transient
+	private boolean forcedDraft = false;
 
 	@PrePersist()
 	public void preSave() {

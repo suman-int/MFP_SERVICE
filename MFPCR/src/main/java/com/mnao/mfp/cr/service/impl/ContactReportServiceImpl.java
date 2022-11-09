@@ -1,5 +1,7 @@
 package com.mnao.mfp.cr.service.impl;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +28,7 @@ import com.mnao.mfp.common.util.NullCheck;
 import com.mnao.mfp.cr.dto.ContactReportDto;
 import com.mnao.mfp.cr.dto.ContactReportInfoDto;
 import com.mnao.mfp.cr.dto.ContactReportTopicDto;
+import com.mnao.mfp.cr.dto.RegionZoneReviewer;
 import com.mnao.mfp.cr.entity.ContactReportAttachment;
 import com.mnao.mfp.cr.entity.ContactReportDealerPersonnel;
 import com.mnao.mfp.cr.entity.ContactReportDiscussion;
@@ -38,6 +41,7 @@ import com.mnao.mfp.cr.service.EmailService;
 import com.mnao.mfp.cr.util.ContactReportEnum;
 import com.mnao.mfp.list.cache.AllActiveEmployeesCache;
 import com.mnao.mfp.list.dao.ListPersonnel;
+import com.mnao.mfp.list.service.ListEmployeeDataService;
 import com.mnao.mfp.user.dao.MFPUser;
 
 @Service
@@ -60,6 +64,9 @@ public class ContactReportServiceImpl implements ContactReportService {
 
 	@Autowired
 	private AllActiveEmployeesCache allEmployeesCache;
+
+	@Autowired
+	private ListEmployeeDataService employeeDataService;
 
 	@Override
 	public List<DealersByIssue> getAllDealersByIssue() {
@@ -88,11 +95,10 @@ public class ContactReportServiceImpl implements ContactReportService {
 				reportDb = contactInfoRepository.getById(reportDto.getContactReportId());
 				if (!mfpUser.getUserid().trim().equalsIgnoreCase(reportDb.getContactAuthor())) {
 					ListPersonnel lemp = allEmployeesCache.getByWSLCd(mfpUser.getUserid());
-					if( lemp == null ) {
+					if (lemp == null) {
 						submission = "You are not authorized to modify this report.";
 						throw new Exception("You are not authorized to modify this report.");
-					}
-					else if (!lemp.isCorporatePerson()) {
+					} else if (!lemp.isCorporatePerson()) {
 						if (!mfpUser.getEmployeeNumber().trim()
 								.equalsIgnoreCase(reportDb.getContactReviewer().trim())) {
 							submission = "You are not authorized to modify this report.";
@@ -165,8 +171,9 @@ public class ContactReportServiceImpl implements ContactReportService {
 				}
 			}
 			// Additional Dealership personnel
-			String addPersonnel = reportDto.getDealerPersonnels().stream().filter(dp -> dp.getPersonnelId() == -9999999L)
-					.map(ContactReportDealerPersonnel::getPersonnelIdCd).collect(Collectors.joining("|"));
+			String addPersonnel = reportDto.getDealerPersonnels().stream()
+					.filter(dp -> dp.getPersonnelId() == -9999999L).map(ContactReportDealerPersonnel::getPersonnelIdCd)
+					.collect(Collectors.joining("|"));
 			if (!addPersonnel.isEmpty()) {
 				reportDb.setAddDealerPersonnel(addPersonnel);
 			} else {
@@ -217,7 +224,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 			Map<Long, ContactReportDiscussion> dbDiscs = new HashMap<>();
 			Map<Long, ContactReportDiscussion> uiDiscs = new HashMap<>();
 			reportDb.getDiscussions().forEach(disc -> {
-				if( disc.getIsActive() == null )
+				if (disc.getIsActive() == null)
 					disc.setIsActive(IsActiveEnum.NO.getValue());
 				if (disc.getIsActive().equalsIgnoreCase(IsActiveEnum.YES.getValue()))
 					dbDiscs.put(disc.getDiscussionId(), disc);
@@ -417,7 +424,8 @@ public class ContactReportServiceImpl implements ContactReportService {
 	}
 
 	public List<ContactReportInfo> findByDlrCd(String dlrCd) {
-		return contactInfoRepository.findByDlrCdAndIsActiveAndContactDtBetween(dlrCd, IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
+		return contactInfoRepository.findByDlrCdAndIsActiveAndContactDtBetween(dlrCd, IsActiveEnum.YES.getValue(),
+				AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
 
 	}
 
@@ -425,47 +433,57 @@ public class ContactReportServiceImpl implements ContactReportService {
 	public Map<String, List<ContactReportInfoDto>> getMyContactReport(MFPUser mfpUser, boolean showUsersDraft) {
 		String userId = mfpUser.getUserid();
 		String empCd = mfpUser.getEmployeeNumber();
+		Instant start = Instant.now();
+		Map<String, RegionZoneReviewer> rzReviewer = loadAllReviewer(mfpUser);
+		Instant end = Instant.now();
+		Duration timeElapsed = Duration.between(start, end);		
+		log.info("Reviewers loded in " + timeElapsed.toMillis() + " ms." );
+		
 		Predicate<ContactReportInfo> isSubmitted = cr -> cr.getContactStatus() == ContactReportEnum.SUBMITTED
 				.getStatusCode();
 		Predicate<ContactReportInfo> isDiscussion = cr -> cr
 				.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode();
 		Predicate<ContactReportInfo> isReviewed = cr -> cr.getContactStatus() == ContactReportEnum.REVIEWED
 				.getStatusCode();
-		List<ContactReportInfo> contactReportInfos = contactInfoRepository.findByContactAuthorAndIsActiveAndContactDtBetweenOrderByContactDtDesc(userId,
-				IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
+		List<ContactReportInfo> contactReportInfos = contactInfoRepository
+				.findByContactAuthorAndIsActiveAndContactDtBetweenOrderByContactDtDesc(userId,
+						IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
 		List<ContactReportInfo> revCntactReportInfos = contactInfoRepository
-				.findByContactReviewerAndContactAuthorNotAndIsActiveAndContactDtBetween(empCd, userId, IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
+				.findByContactReviewerAndContactAuthorNotAndIsActiveAndContactDtBetween(empCd, userId,
+						IsActiveEnum.YES.getValue(), AppConstants.MIN_DB_DATE, AppConstants.MAX_DB_DATE);
 		revCntactReportInfos = revCntactReportInfos.stream().filter(isSubmitted.or(isDiscussion).or(isReviewed))
 				.collect(Collectors.toList());
 		contactReportInfos.addAll(revCntactReportInfos);
 		Map<String, List<ContactReportInfoDto>> contactReportDtoMaps = new HashMap<>();
 		final List<ContactReportInfo> ownDrafts = new ArrayList<>(0);
 		if (showUsersDraft) {
+			contactReportInfos.forEach(reportInfo -> validateAndForceDraft(reportInfo, mfpUser, rzReviewer));
 			contactReportInfos.stream()
 					.sorted((ContactReportInfo cr1, ContactReportInfo cr2) -> compareByUpdatedDate(cr1, cr2))
 					.filter(val -> val.getCreatedBy().trim().equalsIgnoreCase(userId)
 							&& val.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode())
 					.forEach(ownDrafts::add);
 		}
-
+		//
 		Map<String, List<ContactReportInfoDto>> contactReportDtos = contactReportInfos.stream()
 				.sorted((ContactReportInfo cr1, ContactReportInfo cr2) -> compareByUpdatedDate(cr1, cr2))
 				.map(reportInfo -> ContactReportInfoDto.builder().contactReportId(reportInfo.getContactReportId())
 						.contactDt(reportInfo.getContactDt()).dealers(reportInfo.getDealers())
-						.contactStatus(reportInfo.getContactStatus())
+						.forcedDraft(reportInfo.isForcedDraft()).contactStatus(reportInfo.getContactStatus())
 						.updatedDt(reportInfo.getUpdatedDt() != null ? reportInfo.getUpdatedDt()
 								: reportInfo.getCreatedDt())
 						.contactAuthor(reportInfo.getContactAuthor()).contactReviewer(reportInfo.getContactReviewer())
 						.build())
 				.collect(Collectors.groupingBy(
 						element -> ContactReportEnum.valueByStatus(element.getContactStatus()).getDisplayText()));
+		//
 		contactReportDtos.forEach((key, value) -> {
-
 			if (showUsersDraft && key.equalsIgnoreCase(ContactReportEnum.DRAFT.getDisplayText())) {
 				List<ContactReportInfoDto> drafts = ownDrafts.stream()
 						.map(reportInfo -> ContactReportInfoDto.builder()
 								.contactReportId(reportInfo.getContactReportId()).contactDt(reportInfo.getContactDt())
 								.dealers(reportInfo.getDealers()).contactStatus(reportInfo.getContactStatus())
+								.forcedDraft(reportInfo.isForcedDraft()).contactStatus(reportInfo.getContactStatus())
 								.updatedDt(reportInfo.getUpdatedDt() != null ? reportInfo.getUpdatedDt()
 										: reportInfo.getCreatedDt())
 								.contactAuthor(reportInfo.getContactAuthor())
@@ -480,6 +498,64 @@ public class ContactReportServiceImpl implements ContactReportService {
 		});
 		return contactReportDtoMaps;
 
+	}
+
+	private Map<String, RegionZoneReviewer> loadAllReviewer(MFPUser mfpUser) {
+		Map<String, RegionZoneReviewer> allReviewers = new HashMap<>();
+		List<ListPersonnel> reviewers = employeeDataService.getListOfAllReviewers(mfpUser);
+		for (ListPersonnel lp : reviewers) {
+			RegionZoneReviewer rzr = new RegionZoneReviewer(lp.getRgnCd(), lp.getZoneCd(), null);
+			RegionZoneReviewer allRrzr = allReviewers.get(rzr.getRegionZone());
+			if (allRrzr != null) {
+				allRrzr.getReviewers().add(lp);
+			} else {
+				List<ListPersonnel> lstRzr = new ArrayList<>();
+				lstRzr.add(lp);
+				rzr = new RegionZoneReviewer(lp.getRgnCd(), lp.getZoneCd(), lstRzr);
+				allReviewers.put(rzr.getRegionZone(), rzr);
+			}
+		}
+		return allReviewers;
+	}
+
+	private boolean validateAndForceDraft(ContactReportInfo reportInfo, MFPUser mfpUser,
+			Map<String, RegionZoneReviewer> rzReviewer) {
+		if (reportInfo.getContactReportId() > 0
+				&& (reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()
+						|| reportInfo.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode())
+				&& reportInfo.getContactAuthor().equalsIgnoreCase(mfpUser.getUserid())) {
+			RegionZoneReviewer rzrCR = new RegionZoneReviewer(reportInfo.getDealers().getRgnCd(),
+					reportInfo.getDealers().getZoneCd(), null);
+			RegionZoneReviewer rzr = rzReviewer.get(rzrCR.getRegionZone());
+			List<ListPersonnel> reviewers = null;
+			if (rzr != null) {
+				reviewers = rzr.getReviewers();
+			} else {
+				rzrCR.setZone("");
+				rzr = rzReviewer.get(rzrCR.getRegionZone());
+				if (rzr != null) {
+					reviewers = rzr.getReviewers();
+				} else {
+					reviewers = employeeDataService.getListOfReviewers(reportInfo.getDlrCd(),
+							reportInfo.getContactReportId(), mfpUser, null, null, null, null);
+					rzrCR.setReviewers(reviewers);
+					rzReviewer.put(rzrCR.getRegionZone(), rzrCR);
+				}
+			}
+			boolean matched = false;
+			for (ListPersonnel lp : reviewers) {
+				if (lp.getPrsnIdCd().equals(reportInfo.getContactReviewer())) {
+					matched = true;
+					break;
+				}
+			}
+			if (!matched) {
+				reportInfo.setForcedDraft(true);
+				reportInfo.setContactStatus(ContactReportEnum.DRAFT.getStatusCode());
+				reportInfo.setContactReviewer(null);
+			}
+		}
+		return reportInfo.isForcedDraft();
 	}
 
 	@Override
