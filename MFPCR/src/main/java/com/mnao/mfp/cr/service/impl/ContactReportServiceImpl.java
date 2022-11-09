@@ -88,6 +88,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 		if (reportDto == null)
 			throw new AssertionError();
 		int origCRStatus = -1;
+		boolean forcedDraft = reportDto.isForcedDraft();
 		try {
 			ContactReportInfo reportDb = new ContactReportInfo();
 			boolean isDealerUpdated = false;
@@ -201,6 +202,9 @@ public class ContactReportServiceImpl implements ContactReportService {
 					|| info.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()
 					|| info.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
 				try {
+					//TODO Change origCRStatus based on forc3d Draft
+					if( forcedDraft )
+						origCRStatus = ContactReportEnum.DRAFT.getStatusCode();
 					String emailResp = emailService.sendEmailNotification(reportDb, origCRStatus, mfpUser);
 					if (!emailResp.startsWith("OK"))
 						submission += "; " + emailResp;
@@ -396,10 +400,14 @@ public class ContactReportServiceImpl implements ContactReportService {
 	}
 
 	@Override
-	public ContactReportDto findByContactReportId(long contactReportId) {
+	public ContactReportDto findByContactReportId(long contactReportId, MFPUser mfpUser) {
 		ContactReportDto contactReportDto = new ContactReportDto();
+		Map<String, RegionZoneReviewer> rzReviewer = new HashMap<>();
 		ContactReportInfo crInfo = contactInfoRepository.findByContactReportIdAndIsActive(contactReportId,
 				IsActiveEnum.YES.getValue());
+		if (crInfo != null) {
+			validateAndForceDraft(crInfo, mfpUser, rzReviewer);
+		}
 		List<ContactReportDealerPersonnel> contactReportDealerPersonnels = crInfo.getDealerPersonnels().stream()
 				.filter(dp -> IsActiveEnum.YES.getValue().equalsIgnoreCase(dp.getIsActive()))
 				.collect(Collectors.toList());
@@ -436,9 +444,9 @@ public class ContactReportServiceImpl implements ContactReportService {
 		Instant start = Instant.now();
 		Map<String, RegionZoneReviewer> rzReviewer = loadAllReviewer(mfpUser);
 		Instant end = Instant.now();
-		Duration timeElapsed = Duration.between(start, end);		
-		log.info("Reviewers loded in " + timeElapsed.toMillis() + " ms." );
-		
+		Duration timeElapsed = Duration.between(start, end);
+		log.info("Reviewers loded in " + timeElapsed.toMillis() + " ms.");
+
 		Predicate<ContactReportInfo> isSubmitted = cr -> cr.getContactStatus() == ContactReportEnum.SUBMITTED
 				.getStatusCode();
 		Predicate<ContactReportInfo> isDiscussion = cr -> cr
