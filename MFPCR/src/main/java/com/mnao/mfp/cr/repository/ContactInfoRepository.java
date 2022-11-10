@@ -16,41 +16,47 @@ import com.mnao.mfp.cr.entity.ContactReportInfo;
 @PropertySource("classpath:/appSql.properties")
 public interface ContactInfoRepository extends JpaRepository<ContactReportInfo, Long> {
 
+	ContactReportInfo findByContactReportIdAndIsActive(@Param("contactReportId") long contactReportId, String isActive);
 
-    ContactReportInfo findByContactReportIdAndIsActive(@Param("contactReportId") long contactReportId, String isActive);
+	@Query(value = "SELECT new com.mnao.mfp.cr.dto.ReportByDealershipDto"
+			+ "(d.rgnCd, d.zoneCd, d.districtCd, cr.dlrCd, d.dbaNm, cr.contactReportId, cr.contactDt, cr.contactAuthor,cr.contactReviewer,cr.contactStatus,cr.currentIssues) "
+			+ "FROM Dealers d JOIN d.CRI cr WHERE cr.currentIssues IN :currentIssues AND cr.dlrCd=:dlrCd AND cr.isActive='Y'")
+	List<ReportByDealershipDto> findByDlrCd(@Param("dlrCd") String dlrCd,
+			@Param("currentIssues") List<String> currentIssues);
 
-    @Query(value = "SELECT new com.mnao.mfp.cr.dto.ReportByDealershipDto"
-            + "(d.rgnCd, d.zoneCd, d.districtCd, cr.dlrCd, d.dbaNm, cr.contactReportId, cr.contactDt, cr.contactAuthor,cr.contactStatus,cr.currentIssues) "
-            + "FROM Dealers d JOIN d.CRI cr WHERE cr.currentIssues IN :currentIssues AND cr.dlrCd=:dlrCd AND cr.isActive='Y'")
-    List<ReportByDealershipDto> findByDlrCd(@Param("dlrCd") String dlrCd,
-                                            @Param("currentIssues") List<String> currentIssues);
+	@Query(value = "SELECT new com.mnao.mfp.cr.dto.ReportByDealershipDto"
+			+ "(d.rgnCd, d.zoneCd, d.districtCd, cr.dlrCd, d.dbaNm, cr.contactReportId, cr.contactDt, cr.contactAuthor,cr.contactReviewer,cr.contactStatus,cr.currentIssues) "
+			+ "FROM Dealers d JOIN d.CRI cr WHERE cr.dlrCd=:dlrCd AND cr.isActive='Y'" + "ORDER BY cr.contactDt DESC")
+	List<ReportByDealershipDto> findCurrentIssuesByDlrCd(@Param("dlrCd") String dlrCd);
 
-    @Query(value = "SELECT new com.mnao.mfp.cr.dto.ReportByDealershipDto"
-            + "(d.rgnCd, d.zoneCd, d.districtCd, cr.dlrCd, d.dbaNm, cr.contactReportId, cr.contactDt, cr.contactAuthor,cr.contactStatus,cr.currentIssues) "
-            + "FROM Dealers d JOIN d.CRI cr WHERE cr.dlrCd=:dlrCd AND cr.isActive='Y'"
-            + "ORDER BY cr.contactDt DESC")
-    List<ReportByDealershipDto> findCurrentIssuesByDlrCd(@Param("dlrCd") String dlrCd);
+	void deleteByContactReportIdAndContactStatusAndIsActive(@Param("contactReportId") long contactReportId,
+			int contactStatus, String isActive);
 
-    void deleteByContactReportIdAndContactStatusAndIsActive(@Param("contactReportId") long contactReportId,
-                                                            int contactStatus, String isActive);
+	List<ContactReportInfo> findByDlrCdAndIsActiveAndContactDtBetween(String dlrCd, String isActive, LocalDate dateFrom,
+			LocalDate dateTo);
 
-    List<ContactReportInfo> findByDlrCdAndIsActiveAndContactDtBetween(String dlrCd, String isActive, LocalDate dateFrom, LocalDate dateTo);
+	List<ContactReportInfo> findByDlrCdInAndContactStatusNotAndIsActiveAndContactDtBetween(List<String> dlrCd,
+			int status, String isActive, LocalDate dateFrom, LocalDate dateTo);
 
-    List<ContactReportInfo> findByDlrCdInAndContactStatusNotAndIsActiveAndContactDtBetween(List<String> dlrCd, int status, String isActive, LocalDate dateFrom, LocalDate dateTo);
+	List<ContactReportInfo> findByContactAuthorAndIsActiveAndContactDtBetweenOrderByContactDtDesc(String authorId,
+			String isActive, LocalDate dateFrom, LocalDate dateTo);
 
-    List<ContactReportInfo> findByContactAuthorAndIsActiveAndContactDtBetweenOrderByContactDtDesc(String authorId, String isActive, LocalDate dateFrom, LocalDate dateTo);
+	List<ContactReportInfo> findByContactReviewerAndContactAuthorNotAndIsActiveAndContactDtBetween(
+			String reviewerEmpCdd, String authorId, String isActive, LocalDate dateFrom, LocalDate dateTo);
 
-    List<ContactReportInfo> findByContactReviewerAndContactAuthorNotAndIsActiveAndContactDtBetween(String reviewerEmpCdd, String authorId, String isActive, LocalDate dateFrom, LocalDate dateTo);
+	List<ContactReportInfo> findByContactDtBetweenAndIsActive(LocalDate startDate, LocalDate endDate, String isActive);
 
-    List<ContactReportInfo> findByContactDtBetweenAndIsActive(LocalDate startDate, LocalDate endDate, String isActive);
+	List<ContactReportInfo> findByCurrentIssuesContainingAndIsActiveAndContactDtBetween(String issue, String isActive,
+			LocalDate dateFrom, LocalDate dateTo);
 
-    List<ContactReportInfo> findByCurrentIssuesContainingAndIsActiveAndContactDtBetween(String issue, String isActive, LocalDate dateFrom, LocalDate dateTo);
+	List<ContactReportInfo> findByCurrentIssuesNotNullAndIsActiveAndContactDtBetween(String isActive,
+			LocalDate dateFrom, LocalDate dateTo);
 
-    List<ContactReportInfo> findByCurrentIssuesNotNullAndIsActiveAndContactDtBetween(String isActive, LocalDate dateFrom, LocalDate dateTo);
+	List<ContactReportInfo> findByCurrentIssuesNotNullAndContactDtNotNullAndIsActiveAndContactDtBetween(String isActive,
+			LocalDate dateFrom, LocalDate dateTo);
 
-    List<ContactReportInfo> findByCurrentIssuesNotNullAndContactDtNotNullAndIsActiveAndContactDtBetween(String isActive, LocalDate dateFrom, LocalDate dateTo);
-
-    List<ContactReportInfo> findByContactDtBetweenAndContactStatusGreaterThanAndIsActive(LocalDate startDate, LocalDate endDate, Integer status, String isActive);
+	List<ContactReportInfo> findByContactDtBetweenAndContactStatusGreaterThanAndIsActive(LocalDate startDate,
+			LocalDate endDate, Integer status, String isActive);
 
 	List<ContactReportInfo> findByIsActiveAndContactDtBetween(String isActive, LocalDate dateFrom, LocalDate dateTo);
 

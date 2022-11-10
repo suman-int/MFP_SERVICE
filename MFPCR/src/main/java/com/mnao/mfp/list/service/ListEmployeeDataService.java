@@ -3,8 +3,11 @@ package com.mnao.mfp.list.service;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,7 @@ import com.mnao.mfp.common.dao.DealerFilter;
 import com.mnao.mfp.common.dao.DealerInfo;
 import com.mnao.mfp.common.util.AppConstants;
 import com.mnao.mfp.common.util.Utils;
+import com.mnao.mfp.cr.dto.RegionZoneReviewer;
 import com.mnao.mfp.cr.entity.ContactReportInfo;
 import com.mnao.mfp.cr.repository.ContactInfoRepository;
 import com.mnao.mfp.cr.util.ContactReportEnum;
@@ -213,6 +217,59 @@ public class ListEmployeeDataService extends MfpKPIControllerBase {
 			log.error("ERROR retrieving list of ALL Reviewers:", e);
 		}
 		return retRows;
+	}
+
+	public boolean validateReviewer(MFPUser mfpUser, Map<String, RegionZoneReviewer> rzReviewer,
+			long contactReportId, int contactStatus, String contactAuthor, String contactReviewer, String dlrCd,
+			String rgnCd, String zoneCd) {
+		boolean matched = false;
+		if (contactReportId > 0
+				&& (contactStatus == ContactReportEnum.SUBMITTED.getStatusCode()
+						|| contactStatus == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode())
+				&& contactAuthor.equalsIgnoreCase(mfpUser.getUserid())) {
+			RegionZoneReviewer rzrCR = new RegionZoneReviewer(rgnCd, zoneCd, null);
+			RegionZoneReviewer rzr = rzReviewer.get(rzrCR.getRegionZone());
+			List<ListPersonnel> reviewers = null;
+			if (rzr != null) {
+				reviewers = rzr.getReviewers();
+			} else {
+				rzrCR.setZone("");
+				rzr = rzReviewer.get(rzrCR.getRegionZone());
+				if (rzr != null) {
+					reviewers = rzr.getReviewers();
+				} else {
+					reviewers = getListOfReviewers(dlrCd, contactReportId, mfpUser, null, null,
+							null, null);
+					rzrCR.setReviewers(reviewers);
+					rzReviewer.put(rzrCR.getRegionZone(), rzrCR);
+				}
+			}
+			for (ListPersonnel lp : reviewers) {
+				if (lp.getPrsnIdCd().equals(contactReviewer)) {
+					matched = true;
+					break;
+				}
+			}
+		}
+		return matched;
+	}
+
+	public Map<String, RegionZoneReviewer> loadAllReviewer(MFPUser mfpUser) {
+		Map<String, RegionZoneReviewer> allReviewers = new HashMap<>();
+		List<ListPersonnel> reviewers = getListOfAllReviewers(mfpUser);
+		for (ListPersonnel lp : reviewers) {
+			RegionZoneReviewer rzr = new RegionZoneReviewer(lp.getRgnCd(), lp.getZoneCd(), null);
+			RegionZoneReviewer allRrzr = allReviewers.get(rzr.getRegionZone());
+			if (allRrzr != null) {
+				allRrzr.getReviewers().add(lp);
+			} else {
+				List<ListPersonnel> lstRzr = new ArrayList<>();
+				lstRzr.add(lp);
+				rzr = new RegionZoneReviewer(lp.getRgnCd(), lp.getZoneCd(), lstRzr);
+				allReviewers.put(rzr.getRegionZone(), rzr);
+			}
+		}
+		return allReviewers;
 	}
 
 }

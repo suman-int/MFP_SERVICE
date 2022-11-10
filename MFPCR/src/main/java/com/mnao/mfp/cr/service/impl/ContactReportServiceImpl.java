@@ -202,8 +202,8 @@ public class ContactReportServiceImpl implements ContactReportService {
 					|| info.getContactStatus() == ContactReportEnum.REVIEWED.getStatusCode()
 					|| info.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()) {
 				try {
-					//TODO Change origCRStatus based on forc3d Draft
-					if( forcedDraft )
+					// TODO Change origCRStatus based on forc3d Draft
+					if (forcedDraft)
 						origCRStatus = ContactReportEnum.DRAFT.getStatusCode();
 					String emailResp = emailService.sendEmailNotification(reportDb, origCRStatus, mfpUser);
 					if (!emailResp.startsWith("OK"))
@@ -442,10 +442,10 @@ public class ContactReportServiceImpl implements ContactReportService {
 		String userId = mfpUser.getUserid();
 		String empCd = mfpUser.getEmployeeNumber();
 		Instant start = Instant.now();
-		Map<String, RegionZoneReviewer> rzReviewer = loadAllReviewer(mfpUser);
+		Map<String, RegionZoneReviewer> rzReviewer = employeeDataService.loadAllReviewer(mfpUser);
 		Instant end = Instant.now();
 		Duration timeElapsed = Duration.between(start, end);
-		log.info("Reviewers loded in " + timeElapsed.toMillis() + " ms.");
+		log.info("Reviewers loaded in " + timeElapsed.toMillis() + " ms.");
 
 		Predicate<ContactReportInfo> isSubmitted = cr -> cr.getContactStatus() == ContactReportEnum.SUBMITTED
 				.getStatusCode();
@@ -508,63 +508,20 @@ public class ContactReportServiceImpl implements ContactReportService {
 
 	}
 
-	private Map<String, RegionZoneReviewer> loadAllReviewer(MFPUser mfpUser) {
-		Map<String, RegionZoneReviewer> allReviewers = new HashMap<>();
-		List<ListPersonnel> reviewers = employeeDataService.getListOfAllReviewers(mfpUser);
-		for (ListPersonnel lp : reviewers) {
-			RegionZoneReviewer rzr = new RegionZoneReviewer(lp.getRgnCd(), lp.getZoneCd(), null);
-			RegionZoneReviewer allRrzr = allReviewers.get(rzr.getRegionZone());
-			if (allRrzr != null) {
-				allRrzr.getReviewers().add(lp);
-			} else {
-				List<ListPersonnel> lstRzr = new ArrayList<>();
-				lstRzr.add(lp);
-				rzr = new RegionZoneReviewer(lp.getRgnCd(), lp.getZoneCd(), lstRzr);
-				allReviewers.put(rzr.getRegionZone(), rzr);
-			}
-		}
-		return allReviewers;
-	}
-
 	private boolean validateAndForceDraft(ContactReportInfo reportInfo, MFPUser mfpUser,
 			Map<String, RegionZoneReviewer> rzReviewer) {
-		if (reportInfo.getContactReportId() > 0
-				&& (reportInfo.getContactStatus() == ContactReportEnum.SUBMITTED.getStatusCode()
-						|| reportInfo.getContactStatus() == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode())
-				&& reportInfo.getContactAuthor().equalsIgnoreCase(mfpUser.getUserid())) {
-			RegionZoneReviewer rzrCR = new RegionZoneReviewer(reportInfo.getDealers().getRgnCd(),
-					reportInfo.getDealers().getZoneCd(), null);
-			RegionZoneReviewer rzr = rzReviewer.get(rzrCR.getRegionZone());
-			List<ListPersonnel> reviewers = null;
-			if (rzr != null) {
-				reviewers = rzr.getReviewers();
-			} else {
-				rzrCR.setZone("");
-				rzr = rzReviewer.get(rzrCR.getRegionZone());
-				if (rzr != null) {
-					reviewers = rzr.getReviewers();
-				} else {
-					reviewers = employeeDataService.getListOfReviewers(reportInfo.getDlrCd(),
-							reportInfo.getContactReportId(), mfpUser, null, null, null, null);
-					rzrCR.setReviewers(reviewers);
-					rzReviewer.put(rzrCR.getRegionZone(), rzrCR);
-				}
-			}
-			boolean matched = false;
-			for (ListPersonnel lp : reviewers) {
-				if (lp.getPrsnIdCd().equals(reportInfo.getContactReviewer())) {
-					matched = true;
-					break;
-				}
-			}
-			if (!matched) {
-				reportInfo.setForcedDraft(true);
-				reportInfo.setContactStatus(ContactReportEnum.DRAFT.getStatusCode());
-				reportInfo.setContactReviewer(null);
-			}
+		boolean matched = true;
+		matched = employeeDataService.validateReviewer(mfpUser, rzReviewer, reportInfo.getContactReportId(),
+				reportInfo.getContactStatus(), reportInfo.getContactAuthor(), reportInfo.getContactReviewer(),
+				reportInfo.getDlrCd(), reportInfo.getDealers().getRgnCd(), reportInfo.getDealers().getZoneCd());
+		if (!matched) {
+			reportInfo.setForcedDraft(true);
+			reportInfo.setContactStatus(ContactReportEnum.DRAFT.getStatusCode());
+			reportInfo.setContactReviewer(null);
 		}
 		return reportInfo.isForcedDraft();
 	}
+
 
 	@Override
 	public String deleteReportById(long contactReportId, MFPUser mfpUser) throws Exception {
