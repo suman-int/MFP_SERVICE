@@ -222,7 +222,7 @@ public class ListEmployeeDataService extends MfpKPIControllerBase {
 	public boolean validateReviewer(MFPUser mfpUser, Map<String, RegionZoneReviewer> rzReviewer,
 			long contactReportId, int contactStatus, String contactAuthor, String contactReviewer, String dlrCd,
 			String rgnCd, String zoneCd) {
-		boolean matched = false;
+		boolean matched = true;
 		if (contactReportId > 0
 				&& (contactStatus == ContactReportEnum.SUBMITTED.getStatusCode()
 						|| contactStatus == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode())
@@ -244,6 +244,7 @@ public class ListEmployeeDataService extends MfpKPIControllerBase {
 					rzReviewer.put(rzrCR.getRegionZone(), rzrCR);
 				}
 			}
+			matched = false;
 			for (ListPersonnel lp : reviewers) {
 				if (lp.getPrsnIdCd().equals(contactReviewer)) {
 					matched = true;

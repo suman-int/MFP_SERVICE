@@ -515,6 +515,7 @@ public class ContactReportServiceImpl implements ContactReportService {
 				reportInfo.getContactStatus(), reportInfo.getContactAuthor(), reportInfo.getContactReviewer(),
 				reportInfo.getDlrCd(), reportInfo.getDealers().getRgnCd(), reportInfo.getDealers().getZoneCd());
 		if (!matched) {
+			log.info("FORCING TO DRAFT: {} {} {} {}", reportInfo.getContactReportId(), reportInfo.getDealers().getRgnCd(), reportInfo.getDealers().getZoneCd(), reportInfo.getContactReviewer());
 			reportInfo.setForcedDraft(true);
 			reportInfo.setContactStatus(ContactReportEnum.DRAFT.getStatusCode());
 			reportInfo.setContactReviewer(null);
