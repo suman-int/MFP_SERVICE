@@ -1,6 +1,8 @@
 package com.mnao.mfp.list.service;
 
 import java.text.ParseException;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -195,8 +197,11 @@ public class ListEmployeeDataService extends MfpKPIControllerBase {
 					// retRows = service.getListData(sqlName, ListPersonnel.class, df,
 					// dlrInfo.getRgnCd(),
 					// dlrInfo.getZoneCd(), dlrInfo.getDistrictCd(), dlrInfo.getRgnCd(), strCrDate);
+					Instant start = Instant.now();
 					retRows = service.getListData(sqlName, ListPersonnel.class, df, strCrDate);
-					log.info("Returning {} Employee Information", retRows.size());
+					Instant end = Instant.now();
+					Duration timeElapsed = Duration.between(start, end);
+					log.info("Returning {} Employee Information in {} ms.", retRows.size(), timeElapsed.toMillis());
 				}
 			} catch (InstantiationException | IllegalAccessException | ParseException e) {
 				log.error("ERROR retrieving list of Employees:", e);
@@ -225,7 +230,8 @@ public class ListEmployeeDataService extends MfpKPIControllerBase {
 		boolean matched = true;
 		if (contactReportId > 0
 				&& (contactStatus == ContactReportEnum.SUBMITTED.getStatusCode()
-						|| contactStatus == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode())
+						|| contactStatus == ContactReportEnum.DISCUSSION_REQUESTED.getStatusCode()
+						|| contactStatus == ContactReportEnum.DRAFT.getStatusCode())
 				&& contactAuthor.equalsIgnoreCase(mfpUser.getUserid())) {
 			RegionZoneReviewer rzrCR = new RegionZoneReviewer(rgnCd, zoneCd, null);
 			RegionZoneReviewer rzr = rzReviewer.get(rzrCR.getRegionZone());
