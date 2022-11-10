@@ -463,13 +463,19 @@ public class ContactReportServiceImpl implements ContactReportService {
 				.collect(Collectors.toList());
 		contactReportInfos.addAll(revCntactReportInfos);
 		Map<String, List<ContactReportInfoDto>> contactReportDtoMaps = new HashMap<>();
-		final List<ContactReportInfo> ownDrafts = new ArrayList<>(0);
+		final List<ContactReportInfo> ownDrafts = new ArrayList<>();
 		if (showUsersDraft) {
 			contactReportInfos.forEach(reportInfo -> validateAndForceDraft(reportInfo, mfpUser, rzReviewer));
 			contactReportInfos.stream()
 					.sorted((ContactReportInfo cr1, ContactReportInfo cr2) -> compareByUpdatedDate(cr1, cr2))
 					.filter(val -> val.getCreatedBy().trim().equalsIgnoreCase(userId)
-							&& val.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode())
+							&& val.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode() && val.isForcedDraft())
+					.forEach(ownDrafts::add);
+			contactReportInfos.stream()
+					.sorted((ContactReportInfo cr1, ContactReportInfo cr2) -> compareByUpdatedDate(cr1, cr2))
+					.filter(val -> val.getCreatedBy().trim().equalsIgnoreCase(userId)
+							&& val.getContactStatus() == ContactReportEnum.DRAFT.getStatusCode()
+							&& (!val.isForcedDraft()))
 					.forEach(ownDrafts::add);
 		}
 		//
@@ -515,14 +521,17 @@ public class ContactReportServiceImpl implements ContactReportService {
 				reportInfo.getContactStatus(), reportInfo.getContactAuthor(), reportInfo.getContactReviewer(),
 				reportInfo.getDlrCd(), reportInfo.getDealers().getRgnCd(), reportInfo.getDealers().getZoneCd());
 		if (!matched) {
-			log.info("FORCING TO DRAFT: {} {} {} {}", reportInfo.getContactReportId(), reportInfo.getDealers().getRgnCd(), reportInfo.getDealers().getZoneCd(), reportInfo.getContactReviewer());
-			reportInfo.setForcedDraft(true);
-			reportInfo.setContactStatus(ContactReportEnum.DRAFT.getStatusCode());
+			if (reportInfo.getContactStatus() != ContactReportEnum.DRAFT.getStatusCode()) {
+				log.info("FORCING TO DRAFT: {} {} {} {}", reportInfo.getContactReportId(),
+						reportInfo.getDealers().getRgnCd(), reportInfo.getDealers().getZoneCd(),
+						reportInfo.getContactReviewer());
+				reportInfo.setForcedDraft(true);
+				reportInfo.setContactStatus(ContactReportEnum.DRAFT.getStatusCode());
+			}
 			reportInfo.setContactReviewer(null);
 		}
 		return reportInfo.isForcedDraft();
 	}
-
 
 	@Override
 	public String deleteReportById(long contactReportId, MFPUser mfpUser) throws Exception {

@@ -107,8 +107,13 @@ public class ContactInfoServiceImpl implements ContactInfoService {
 				reportInfo.getContactStatus(), reportInfo.getContactAuthor(), reportInfo.getContactReviewer(),
 				reportInfo.getDlrCd(), reportInfo.getRgnCd(), reportInfo.getZoneCd());
 		if (!matched) {
-			reportInfo.setForcedDraft(true);
-			reportInfo.setContactStatus(ContactReportEnum.DRAFT.getStatusCode());
+			if (reportInfo.getContactStatus() != ContactReportEnum.DRAFT.getStatusCode()) {
+				log.info("FORCING TO DRAFT: {} {} {} {}", reportInfo.getContactReportId(),
+						reportInfo.getRgnCd(), reportInfo.getZoneCd(),
+						reportInfo.getContactReviewer());
+				reportInfo.setForcedDraft(true);
+				reportInfo.setContactStatus(ContactReportEnum.DRAFT.getStatusCode());
+			}
 			reportInfo.setContactReviewer(null);
 		}
 		return reportInfo.isForcedDraft();
