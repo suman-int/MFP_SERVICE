@@ -1,5 +1,16 @@
 package com.mnao.mfp.cr.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttribute;
+
 import com.mnao.mfp.common.datafilters.FilterCriteria;
 import com.mnao.mfp.common.dto.CommonResponse;
 import com.mnao.mfp.common.service.AbstractService;
@@ -11,18 +22,6 @@ import com.mnao.mfp.cr.service.ReportByIssuesService;
 import com.mnao.mfp.cr.service.ReportByMonthService;
 import com.mnao.mfp.cr.util.FilterCriteriaBuilder;
 import com.mnao.mfp.user.dao.MFPUser;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(value = "ContactReportInfo")
@@ -63,7 +62,7 @@ public class ContactInfoController {
      ) {
          try {
              FilterCriteria filterCriteria = FilterCriteriaBuilder.buildFilterByLocationAndIssueAndTiming(regionId, zoneId, districtId, dealerId, issues, null, null);
-             ReportByDealerShipResponse response = contactInfoService.byDealershipByIssues(filterCriteria);
+             ReportByDealerShipResponse response = contactInfoService.byDealershipByIssues(mfpUser, filterCriteria);
              return AbstractService.httpPostSuccess(response, "Success");
          } catch (Exception e) {
              return AbstractService.httpPostError(e);
