@@ -224,9 +224,9 @@ public class ListEmployeeDataService extends MfpKPIControllerBase {
 		return retRows;
 	}
 
-	public boolean validateReviewer(MFPUser mfpUser, Map<String, RegionZoneReviewer> rzReviewer,
-			long contactReportId, int contactStatus, String contactAuthor, String contactReviewer, String dlrCd,
-			String rgnCd, String zoneCd) {
+	public boolean validateReviewer(MFPUser mfpUser, Map<String, RegionZoneReviewer> rzReviewer, long contactReportId,
+			int contactStatus, String contactAuthor, String contactReviewer, String dlrCd, String rgnCd,
+			String zoneCd) {
 		boolean matched = true;
 		if (contactReportId > 0
 				&& (contactStatus == ContactReportEnum.SUBMITTED.getStatusCode()
@@ -235,20 +235,19 @@ public class ListEmployeeDataService extends MfpKPIControllerBase {
 				&& contactAuthor.equalsIgnoreCase(mfpUser.getUserid())) {
 			RegionZoneReviewer rzrCR = new RegionZoneReviewer(rgnCd, zoneCd, null);
 			RegionZoneReviewer rzr = rzReviewer.get(rzrCR.getRegionZone());
-			List<ListPersonnel> reviewers = null;
+			List<ListPersonnel> reviewers = new ArrayList<>();
 			if (rzr != null) {
-				reviewers = rzr.getReviewers();
-			} else {
-				rzrCR.setZone("");
-				rzr = rzReviewer.get(rzrCR.getRegionZone());
-				if (rzr != null) {
-					reviewers = rzr.getReviewers();
-				} else {
-					reviewers = getListOfReviewers(dlrCd, contactReportId, mfpUser, null, null,
-							null, null);
-					rzrCR.setReviewers(reviewers);
-					rzReviewer.put(rzrCR.getRegionZone(), rzrCR);
-				}
+				reviewers.addAll(rzr.getReviewers());
+			}
+			rzrCR.setZone("");
+			rzr = rzReviewer.get(rzrCR.getRegionZone());
+			if (rzr != null) {
+				reviewers.addAll(rzr.getReviewers());
+			} 
+			if( reviewers == null || reviewers.size() == 0 ) {
+				reviewers = getListOfReviewers(dlrCd, contactReportId, mfpUser, null, null, null, null);
+				rzrCR.setReviewers(reviewers);
+				rzReviewer.put(rzrCR.getRegionZone(), rzrCR);
 			}
 			matched = false;
 			for (ListPersonnel lp : reviewers) {
