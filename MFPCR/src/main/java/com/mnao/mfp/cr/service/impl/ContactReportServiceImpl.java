@@ -402,7 +402,8 @@ public class ContactReportServiceImpl implements ContactReportService {
 	@Override
 	public ContactReportDto findByContactReportId(long contactReportId, MFPUser mfpUser) {
 		ContactReportDto contactReportDto = new ContactReportDto();
-		Map<String, RegionZoneReviewer> rzReviewer = new HashMap<>();
+//		Map<String, RegionZoneReviewer> rzReviewer = new HashMap<>();
+		Map<String, RegionZoneReviewer> rzReviewer = employeeDataService.loadAllReviewer(mfpUser);
 		ContactReportInfo crInfo = contactInfoRepository.findByContactReportIdAndIsActive(contactReportId,
 				IsActiveEnum.YES.getValue());
 		if (crInfo != null) {
